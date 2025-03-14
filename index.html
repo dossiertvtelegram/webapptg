@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram WebApp</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        button { padding: 10px 20px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Bienvenue sur le menu interactif</h1>
+    <button onclick="sendData()">Envoyer des données</button>
+
+    <script>
+        function sendData() {
+            Telegram.WebApp.sendData(JSON.stringify({ action: "menu_clicked" }));
+            Telegram.WebApp.close(); // Ferme la WebApp après interaction
+        }
+        Telegram.WebApp.expand(); // Ouvre en mode large
+    </script>
+</body>
+</html>
