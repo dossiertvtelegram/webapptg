@@ -1,73 +1,64 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Connexion Privée</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Offre Exclusive</title>
   <style>
-    body {
+    * {
       margin: 0;
-      font-family: 'Rubik', sans-serif;
-      background: linear-gradient(to bottom right, #1b1b2f, #2a2a45);
-      color: white;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
+
     .container {
-      background-color: #25253a;
-      padding: 35px;
-      border-radius: 18px;
-      box-shadow: 0 0 25px rgba(255, 0, 100, 0.3);
-      max-width: 380px;
-      text-align: center;
-      animation: fadeIn 1s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    h1 {
-      font-size: 26px;
-      margin-bottom: 10px;
-      color: #ff4e78;
-    }
-    .counter {
-      font-size: 14px;
-      margin-bottom: 20px;
-      color: #aaa;
-    }
-    p {
-      font-size: 16px;
-      margin-bottom: 25px;
-      color: #ddd;
-    }
-    button {
-      background: linear-gradient(to right, #ff4e78, #ff749e);
-      color: white;
-      border: none;
-      padding: 14px 22px;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
+      position: relative;
       width: 100%;
-      transition: transform 0.2s ease;
+      max-width: 600px;
     }
-    button:hover {
-      transform: scale(1.03);
+
+    .background-image {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+    }
+
+    .cta-button {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px 30px;
+      background: linear-gradient(135deg, #ff267e, #ff5ca8);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+    }
+
+    .cta-button:hover {
+      background: linear-gradient(135deg, #ff1270, #ff3e95);
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Accès privé débloqué</h1>
-    <div class="counter">🔐 14 profils en attente — 2 accès restants</div>
-    <p>Profils vérifiés 100% réels. L’accès gratuit est limité. Valide ton entrée maintenant 👇</p>
-    <button onclick="window.location.href='https://79ejne.heccakol.com/client?camp=s9&aff_id=3060&source=Channels&aff_sub2=socialfree';">
-      Continuer vers l'accès privé
+    <img src="A_landing_page_for_a_subscription-based_adult_cont.png" alt="Offre Spéciale" class="background-image" />
+    <button class="cta-button" onclick="window.location.href='https://go.cm-trk3.com/aff_nl?offer_id=10521&aff_id=88773&lands=123_127_128_129_130&url_id=18158_18160&aff_sub5=telegram&source=Channels'">
+      Obtiens l'accès 100% gratuit
     </button>
   </div>
 </body>
