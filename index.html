@@ -5,15 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Offre Exclusive</title>
   <style>
-    * {
+    body, html {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-    }
-
-    body, html {
       height: 100%;
-      font-family: Arial, sans-serif;
       background-color: #000;
       display: flex;
       justify-content: center;
@@ -28,38 +23,28 @@
 
     .background-image {
       width: 100%;
+      display: block;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+      box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
     }
 
-    .cta-button {
+    .invisible-button {
       position: absolute;
-      bottom: 20px;
       left: 50%;
+      top: 82%; /* Ajuste selon l'endroit exact du texte */
       transform: translateX(-50%);
-      padding: 15px 30px;
-      background: linear-gradient(135deg, #ff267e, #ff5ca8);
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
+      width: 60%;  /* Ajuste selon la largeur du bouton texte */
+      height: 10%; /* Ajuste selon la hauteur du bouton texte */
+      background: transparent;
       border: none;
-      border-radius: 30px;
       cursor: pointer;
-      transition: background 0.3s ease;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-    }
-
-    .cta-button:hover {
-      background: linear-gradient(135deg, #ff1270, #ff3e95);
     }
   </style>
 </head>
 <body>
   <div class="container">
     <img src="A_landing_page_for_a_subscription-based_adult_cont.png" alt="Offre Spéciale" class="background-image" />
-    <button class="cta-button" onclick="window.location.href='https://go.cm-trk3.com/aff_nl?offer_id=10521&aff_id=88773&lands=123_127_128_129_130&url_id=18158_18160&aff_sub5=telegram&source=Channels'">
-      Obtiens l'accès 100% gratuit
-    </button>
+    <button class="invisible-button" onclick="window.location.href='https://go.cm-trk3.com/aff_nl?offer_id=10521&aff_id=88773&lands=127_128_129&url_id=18158&aff_sub5=telegram'"></button>
   </div>
 </body>
 </html>
