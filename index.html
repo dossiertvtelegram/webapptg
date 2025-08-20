@@ -77,6 +77,7 @@
     <form id="gateForm" novalidate>
       <label for="email">Adresse e-mail</label>
       <input id="email" class="input" type="email" inputmode="email" autocomplete="email"
+             autocapitalize="off" autocorrect="off" spellcheck="false"
              placeholder="prenom.nom@email.com"
              required aria-required="true" />
       <button id="submitBtn" class="btn" type="submit">Déverrouiller</button>
@@ -89,94 +90,92 @@
   </main>
 
   <script>
-    (function(){
-      "use strict";
+  (function(){
+    "use strict";
 
-      // 1) (Optionnel) Mets ici ton endpoint Systeme.io si tu veux l'appeler aussi depuis la page.
-      //    Laisse vide si tu n'en as pas (GitHub Pages, etc.).
-      //    Exemple : "https://systeme.io/form/abcd-1234/submit" (selon ton setup)
-      const SYSTEMEIO_URL = ""; // <= mets ton URL Systeme.io ici ou laisse ""
+    const SYSTEMEIO_URL = ""; // mets ton lien Systeme.io si tu veux en parallèle
 
-      // 2) Telegram WebApp SDK
-      const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
-      if (!tg) {
-        console.warn("⚠️ Telegram.WebApp est NULL — ouvre cette page via le bouton du bot, pas dans un navigateur.");
-      } else {
-        try { tg.ready(); tg.expand(); } catch(e){}
-      }
+    const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
+    if (tg) { try { tg.ready(); tg.expand(); } catch(e){} }
 
-      // 3) Elements & helpers
-      const form = document.getElementById("gateForm");
-      const emailInput = document.getElementById("email");
-      const submitBtn = document.getElementById("submitBtn");
-      const message = document.getElementById("message");
-      const timerBox = document.getElementById("timer");
-      const sec = document.getElementById("sec");
+    const form = document.getElementById("gateForm");
+    const emailInput = document.getElementById("email");
+    const submitBtn = document.getElementById("submitBtn");
+    const message = document.getElementById("message");
+    const timerBox = document.getElementById("timer");
+    const sec = document.getElementById("sec");
 
-      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
 
-      function setMsg(text, cls){
-        message.textContent = text || "";
-        message.className = "msg " + (cls || "");
-      }
-      function startCountdown(n=8){
-        timerBox.hidden = false;
+    function cleanEmail(raw){
+      if (!raw) return "";
+      return raw
+        .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, " ")   // espaces unicode
+        .replace(/[\u200B-\u200D\uFEFF]/g, "")                     // zero-width
+        .trim()
+        .replace(/\s+/g, "")                                       // supprime tous espaces
+        .toLowerCase();
+    }
+
+    function setMsg(text, cls){
+      message.textContent = text || "";
+      message.className = "msg " + (cls || "");
+    }
+
+    function startCountdown(n=8){
+      timerBox.hidden = false;
+      sec.textContent = String(n);
+      const iv = setInterval(()=>{
+        n -= 1;
         sec.textContent = String(n);
-        const iv = setInterval(()=>{
-          n -= 1;
-          sec.textContent = String(n);
-          if (n <= 0){
-            clearInterval(iv);
-            try { if (tg) tg.close(); } catch(_) {}
-          }
-        }, 1000);
+        if (n <= 0){
+          clearInterval(iv);
+          try { tg && tg.close(); } catch(_) {}
+        }
+      }, 1000);
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setMsg("");
+
+      const raw = emailInput.value || "";
+      const email = cleanEmail(raw);
+
+      if (!EMAIL_RE.test(email)) {
+        setMsg("Merci d'entrer un e-mail valide.", "err");
+        return;
       }
 
-      // 4) Submit handler
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        setMsg("");
+      submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
 
-        const email = (emailInput.value || "").trim();
-        if (!EMAIL_RE.test(email)) { setMsg("Merci d'entrer un e-mail valide.", "err"); return; }
+      // (A) Envoi immédiat au bot
+      try { tg && tg.sendData(JSON.stringify({ email })); } catch(_) {}
 
-        submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
-
-        // (A) Envoi immédiat au bot → déblocage instantané même sans backend
+      // (B) Envoi optionnel à Systeme.io
+      if (SYSTEMEIO_URL) {
         try {
-          if (tg) {
-            tg.sendData(JSON.stringify({ email }));
-            // petit log debug (visible avec outils dev Android seulement)
-            console.log("Envoi à Telegram:", { email });
-          }
-        } catch(e){ console.error("sendData error:", e); }
-
-        // (B) Tentative d’envoi à Systeme.io en parallèle (si URL fournie)
-        if (SYSTEMEIO_URL) {
-          try {
-            // no-cors : on ne lit pas la réponse, mais la requête part.
-            await fetch(SYSTEMEIO_URL, {
-              method: "POST",
-              mode: "no-cors",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: new URLSearchParams({ email })
-            });
-            setMsg("✔️ Inscription en cours. Le lien arrive par e-mail.", "ok");
-          } catch(err){
-            console.warn("Systeme.io fetch failed:", err);
-            setMsg("✔️ Email envoyé au bot. L’inscription e-mail sera finalisée côté serveur.", "ok");
-          }
-        } else {
-          setMsg("✔️ Email envoyé. Vous recevrez le lien par e-mail.", "ok");
+          await fetch(SYSTEMEIO_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({ email })
+          });
+          setMsg("✔️ Inscription en cours. Le lien arrive par e-mail.", "ok");
+        } catch(err){
+          setMsg("✔️ Email envoyé au bot. L’inscription e-mail sera finalisée côté serveur.", "ok");
         }
+      } else {
+        setMsg("✔️ Email envoyé. Vous recevrez le lien par e-mail.", "ok");
+      }
 
-        // UI finale + fermeture avec timer
-        emailInput.setAttribute("disabled", "true");
-        startCountdown(8);
+      emailInput.setAttribute("disabled", "true");
+      startCountdown(8);
 
-        submitBtn.disabled = false; submitBtn.textContent = "Déverrouiller";
-      });
-    })();
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Déverrouiller";
+    });
+  })();
   </script>
 </body>
 </html>
