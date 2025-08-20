@@ -4,21 +4,21 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Accès réservé – Email requis</title>
-  <meta name="description" content="Entrez votre e-mail pour déverrouiller l’accès. Le lien vous sera envoyé par e-mail." />
+  <meta name="description" content="Entrez votre e-mail pour déverrouiller l’accès. Le lien vous sera envoyé par e-mail — utilisez une adresse réelle." />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      --bg:#f6efe6;          /* beige */
-      --card:#fff8ef;        /* carte clair */
+      --bg:#f6efe6;          /* beige clair */
+      --card:#fff8ef;        /* carte */
       --text:#1b1b1b;        /* texte principal */
       --muted:#6b6b6b;
       --accent:#111;         /* bouton sombre élégant */
       --accentText:#fff;
-      --border:#e9dccb;
+      --border:#e9dccb;      /* bordure douce */
       --badge:#ffecd1;       /* bandeau annonce */
       --badgeText:#7a4b00;
-      --ok:#15803d;
-      --err:#b91c1c;
+      --ok:#15803d;          /* vert succès */
+      --err:#b91c1c;         /* rouge erreur */
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -38,7 +38,7 @@
       border:1px solid #f3d9b0; border-radius:999px; padding:6px 12px; font-weight:700; width:max-content;
     }
     h1{margin:14px 0 6px; font-size:26px}
-    .sub{margin:0 0 16px; color:var(--muted); line-height:1.5}
+    .sub{margin:0 0 16px; color:var(--muted); line-height:1.55}
     label{display:block; font-size:14px; margin-bottom:6px}
     .input{
       width:100%; padding:14px 16px; border-radius:14px; font-size:16px;
@@ -54,10 +54,6 @@
     .btn:hover{filter:brightness(1.04)}
     .btn:active{transform:translateY(1px) scale(.995)}
     .btn[disabled]{opacity:.6; cursor:not-allowed}
-    .info{
-      margin-top:10px; font-size:13px; color:var(--muted);
-      display:flex; gap:8px; align-items:flex-start;
-    }
     .msg{margin-top:10px; font-size:14px}
     .ok{color:var(--ok)}
     .err{color:var(--err)}
@@ -66,6 +62,7 @@
       margin-top:14px; font-size:13px; color:#7a6a50; background:#fff; border:1px dashed var(--border);
       padding:10px 12px; border-radius:12px;
     }
+    .info{margin-top:10px; font-size:13px; color:var(--muted)}
   </style>
 </head>
 <body>
@@ -80,7 +77,8 @@
     <form id="gateForm" novalidate>
       <label for="email">Adresse e-mail</label>
       <input id="email" class="input" type="email" inputmode="email" autocomplete="email"
-             placeholder="prenom.nom@email.com" required aria-required="true" />
+             placeholder="prenom.nom@email.com"
+             required aria-required="true" />
       <button id="submitBtn" class="btn" type="submit">Déverrouiller</button>
       <div id="message" class="msg" role="status" aria-live="polite"></div>
       <div id="timer" class="timer" hidden>Fermeture dans <span id="sec">8</span>s…</div>
@@ -94,18 +92,28 @@
     (function(){
       "use strict";
 
-      // --- Si tu as un backend, mets l’URL ci-dessous. Laisse vide pour ignorer. ---
-      const API_URL = ""; // ex: "https://ton-api.com/api/subscribe" (laisser "" pour GitHub Pages)
-      const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
-      if (tg) { try { tg.ready(); tg.expand(); } catch(e){} }
+      // 1) (Optionnel) Mets ici ton endpoint Systeme.io si tu veux l'appeler aussi depuis la page.
+      //    Laisse vide si tu n'en as pas (GitHub Pages, etc.).
+      //    Exemple : "https://systeme.io/form/abcd-1234/submit" (selon ton setup)
+      const SYSTEMEIO_URL = ""; // <= mets ton URL Systeme.io ici ou laisse ""
 
+      // 2) Telegram WebApp SDK
+      const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
+      if (!tg) {
+        console.warn("⚠️ Telegram.WebApp est NULL — ouvre cette page via le bouton du bot, pas dans un navigateur.");
+      } else {
+        try { tg.ready(); tg.expand(); } catch(e){}
+      }
+
+      // 3) Elements & helpers
       const form = document.getElementById("gateForm");
       const emailInput = document.getElementById("email");
       const submitBtn = document.getElementById("submitBtn");
       const message = document.getElementById("message");
       const timerBox = document.getElementById("timer");
       const sec = document.getElementById("sec");
-      const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       function setMsg(text, cls){
         message.textContent = text || "";
@@ -124,6 +132,7 @@
         }, 1000);
       }
 
+      // 4) Submit handler
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         setMsg("");
@@ -133,31 +142,35 @@
 
         submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
 
-        // 1) On envoie immédiatement au bot (débloque l’accès côté bot même sans backend)
-        try { if (tg) tg.sendData(JSON.stringify({ email })); } catch(_) {}
+        // (A) Envoi immédiat au bot → déblocage instantané même sans backend
+        try {
+          if (tg) {
+            tg.sendData(JSON.stringify({ email }));
+            // petit log debug (visible avec outils dev Android seulement)
+            console.log("Envoi à Telegram:", { email });
+          }
+        } catch(e){ console.error("sendData error:", e); }
 
-        // 2) On tente l’inscription côté backend si API_URL est défini
-        if (API_URL) {
+        // (B) Tentative d’envoi à Systeme.io en parallèle (si URL fournie)
+        if (SYSTEMEIO_URL) {
           try {
-            const res = await fetch(API_URL, {
+            // no-cors : on ne lit pas la réponse, mais la requête part.
+            await fetch(SYSTEMEIO_URL, {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, source: "telegram-webapp" }),
+              mode: "no-cors",
+              headers: { "Content-Type": "application/x-www-form-urlencoded" },
+              body: new URLSearchParams({ email })
             });
-            if (!res.ok) throw new Error("Erreur serveur");
-            const data = await res.json();
-            if (!data.ok) throw new Error(data.error || "Échec de l’inscription");
-            setMsg("✔️ Inscription confirmée. Lien envoyé par e-mail.", "ok");
+            setMsg("✔️ Inscription en cours. Le lien arrive par e-mail.", "ok");
           } catch(err){
-            // On n’empêche pas le flow bot → on prévient juste
-            setMsg("⚠️ Envoi au bot OK. L’inscription e-mail sera finalisée plus tard.", "err");
+            console.warn("Systeme.io fetch failed:", err);
+            setMsg("✔️ Email envoyé au bot. L’inscription e-mail sera finalisée côté serveur.", "ok");
           }
         } else {
-          // Pas d’API : mode front-only
-          setMsg("✔️ E-mail envoyé au bot. Vous recevrez le lien par e-mail.", "ok");
+          setMsg("✔️ Email envoyé. Vous recevrez le lien par e-mail.", "ok");
         }
 
-        // 3) UI finale + fermeture avec timer
+        // UI finale + fermeture avec timer
         emailInput.setAttribute("disabled", "true");
         startCountdown(8);
 
