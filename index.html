@@ -86,14 +86,15 @@
     </form>
 
     <div class="hint">Astuce : si tu ne reçois pas l’e-mail, vérifie les spams/promotions.</div>
-    <div class="info">ℹ️ Cette page fonctionne dans la WebApp Telegram et envoie ton e-mail au bot pour débloquer l’accès.</div>
+    <div class="info">ℹ️ Cette page envoie ton e-mail au bot et tente l’inscription automatique sur Systeme.io.</div>
   </main>
 
   <script>
   (function(){
     "use strict";
 
-    const SYSTEMEIO_URL = ""; // mets ton lien Systeme.io si tu veux en parallèle
+    // Ton URL publique de tunnel Systeme.io
+    const SYSTEMEIO_PUBLIC_URL = "https://lcgpronos.systeme.io/f5c95517";
 
     const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e){} }
@@ -106,74 +107,67 @@
     const sec = document.getElementById("sec");
 
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
+    const clean = s => (s||"")
+      .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, " ")
+      .replace(/[\u200B-\u200D\uFEFF]/g, "")
+      .trim().replace(/\s+/g,"").toLowerCase();
 
-    function cleanEmail(raw){
-      if (!raw) return "";
-      return raw
-        .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, " ")   // espaces unicode
-        .replace(/[\u200B-\u200D\uFEFF]/g, "")                     // zero-width
-        .trim()
-        .replace(/\s+/g, "")                                       // supprime tous espaces
-        .toLowerCase();
-    }
+    function setMsg(t,c){ message.textContent=t||""; message.className="msg "+(c||""); }
+    function countdown(n=3){ timerBox.hidden=false; sec.textContent=String(n);
+      const iv=setInterval(()=>{ n--; sec.textContent=String(n); if(n<=0){clearInterval(iv); try{tg&&tg.close()}catch(_){} }},1000); }
 
-    function setMsg(text, cls){
-      message.textContent = text || "";
-      message.className = "msg " + (cls || "");
-    }
+    // Soumission front-only à Systeme.io : formulaire caché
+    function submitToSysteme(email){
+      try{
+        const f = document.createElement("form");
+        f.method = "POST";
+        f.action = SYSTEMEIO_PUBLIC_URL;
+        f.target = "_blank"; // ouvre dans un nouvel onglet si possible
+        f.style.display = "none";
 
-    function startCountdown(n=3){
-      timerBox.hidden = false;
-      sec.textContent = String(n);
-      const iv = setInterval(()=>{
-        n -= 1;
-        sec.textContent = String(n);
-        if (n <= 0){
-          clearInterval(iv);
-          try { tg && tg.close(); } catch(_) {}
-        }
-      }, 1000);
+        // Essayons plusieurs names potentiels pour maximiser la compat :
+        const names = ["email", "contact[email]"];
+        names.forEach(n => {
+          const inp = document.createElement("input");
+          inp.type = "hidden";
+          inp.name = n;
+          inp.value = email;
+          f.appendChild(inp);
+        });
+
+        document.body.appendChild(f);
+        f.submit();
+        return true;
+      }catch(_){ return false; }
     }
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       setMsg("");
 
-      const raw = emailInput.value || "";
-      const email = cleanEmail(raw);
-
-      if (!EMAIL_RE.test(email)) {
-        setMsg("Merci d'entrer un e-mail valide.", "err");
-        return;
-      }
+      const email = clean(emailInput.value);
+      if (!EMAIL_RE.test(email)) { setMsg("Merci d'entrer un e-mail valide.", "err"); return; }
 
       submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
 
-      // (A) Envoi immédiat au bot
+      // (A) Envoi au bot => il répond dans le chat
       try { tg && tg.sendData(JSON.stringify({ email })); } catch(_) {}
 
-      // (B) Envoi optionnel à Systeme.io
-      if (SYSTEMEIO_URL) {
-        try {
-          await fetch(SYSTEMEIO_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams({ email })
-          });
-          setMsg("✔️ Inscription en cours. Le lien arrive par e-mail.", "ok");
-        } catch(err){
-          setMsg("✔️ Email envoyé au bot. L’inscription e-mail sera finalisée côté serveur.", "ok");
-        }
+      // (B) Tentative d’inscription auto chez Systeme.io (front-only)
+      const ok = submitToSysteme(email);
+
+      // (C) Message et fallback d’ouverture du tunnel (assure la capture)
+      if (ok){
+        setMsg("✔️ Inscription envoyée. Le lien arrive par e-mail.", "ok");
       } else {
-        setMsg("✔️ Email envoyé. Vous recevrez le lien par e-mail.", "ok");
+        setMsg("✔️ Email envoyé. Ouverture de la page pour finaliser l’inscription…", "ok");
+        try { window.open(SYSTEMEIO_PUBLIC_URL, "_blank"); } catch(_){ window.location.href = SYSTEMEIO_PUBLIC_URL; }
       }
 
       emailInput.setAttribute("disabled", "true");
-      startCountdown(3);
+      countdown(3);
 
-      submitBtn.disabled = false;
-      submitBtn.textContent = "Déverrouiller";
+      submitBtn.disabled = false; submitBtn.textContent = "Déverrouiller";
     });
   })();
   </script>
