@@ -212,30 +212,25 @@
           }
         } catch(_) {}
 
-        try {
-          const res = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          if (!res.ok) throw new Error("Erreur serveur");
-          const data = await res.json();
-          if (!data.ok) throw new Error(data.error || "Échec de l’inscription");
-
-          setMsg("✔️ Accès débloqué. Bienvenue !", true);
+       try {
+          // Simulation du succès sans API
+          setMsg("✔️ Accès débloqué (mode test) !", true);
           emailInput.setAttribute("disabled", "true");
           consentInput.setAttribute("disabled", "true");
-
-          // Notifie le bot Telegram (facultatif)
+        
+          // Notifie ton bot Telegram (ça marche même sans backend)
           try { if (tg) tg.sendData(JSON.stringify({ email })); } catch(_) {}
-          // Ferme la WebApp après un court délai (facultatif)
+        
+          // Ferme la WebApp après un court délai (optionnel)
           setTimeout(()=>{ try { if (tg) tg.close(); } catch(_) {} }, 800);
-
-        } catch(err){
+        
+        } catch(err) {
           setMsg("❌ " + (err.message || "Une erreur est survenue."));
         } finally {
-          submitBtn.disabled = false; submitBtn.textContent = "Débloquer l'accès";
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Débloquer l'accès";
         }
+
       });
     })();
   </script>
