@@ -38,12 +38,12 @@
     </p>
 
     <form id="gateForm" novalidate>
-      <label for="email">Adresse e-mail</label>
-      <input id="email" class="input" type="email" inputmode="email" autocomplete="email"
+      <label for="form-input-2479679d">Adresse e-mail</label>
+      <input id="form-input-2479679d" class="input" type="email" inputmode="email" autocomplete="email"
              autocapitalize="off" autocorrect="off" spellcheck="false"
              placeholder="prenom.nom@email.com"
              required aria-required="true" />
-      <button id="submitBtn" class="btn" type="submit">Déverrouiller</button>
+      <button id="button-0ec1e336" class="btn" type="submit">Déverrouiller</button>
       <div id="message" class="msg" role="status" aria-live="polite"></div>
       <div id="timer" class="timer">Fermeture dans <span id="sec">3</span>s…</div>
     </form>
@@ -76,11 +76,11 @@
 
     // UI
     const form = document.getElementById("gateForm");
-    const emailInput = document.getElementById("email");
-    const submitBtn = document.getElementById("submitBtn");
+    const emailInput = document.getElementById("form-input-2479679d");
+    const submitBtn = document.getElementById("button-0ec1e336");
     const message = document.getElementById("message");
     const timerBox = document.getElementById("timer");
-    const sec = document.getElementById("sec");
+    const secEl = document.getElementById("sec");
 
     // Utils
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
@@ -90,25 +90,27 @@
       .trim().replace(/\s+/g,"").toLowerCase();
 
     function setMsg(t,ok){ message.textContent=t||""; message.className="msg "+(ok?"ok":"err"); }
-    function countdown(n=3){ timerBox.style.display="block"; const secEl=document.getElementById("sec"); secEl.textContent=String(n);
-      const iv=setInterval(()=>{ n--; secEl.textContent=String(n); if(n<=0){clearInterval(iv); try{tg&&tg.close()}catch(_){} }},1000); }
+    function countdown(n=3){
+      timerBox.style.display="block";
+      secEl.textContent=String(n);
+      const iv=setInterval(()=>{ n--; secEl.textContent=String(n); if(n<=0){clearInterval(iv); try{tg&&tg.close()}catch(_){}} },1000);
+    }
 
     async function postSilentlyToSysteme(email){
-      // On poste en x-www-form-urlencoded (comme un vrai formulaire)
+      if (!SYSTEMEIO_ACTION) return false;
       const params = new URLSearchParams();
       params.append(EMAIL_FIELD_NAME, email);
       for (const [k,v] of Object.entries(HIDDEN_FIELDS)) params.append(k, v);
 
       try {
-        // no-cors : on ne lit pas la réponse (CORS), mais la requête part bien.
         await fetch(SYSTEMEIO_ACTION, {
           method: "POST",
-          mode: "no-cors",
+          mode: "no-cors", // on ne lit pas la réponse, mais la requête part bien
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: params
         });
-        return true; // on suppose ok (pas de lecture possible en no-cors)
-      } catch (e) {
+        return true;
+      } catch (_) {
         return false;
       }
     }
@@ -122,14 +124,11 @@
 
       submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
 
-      // (A) Envoi au bot (immédiat, indépendant de Systeme.io)
+      // (A) Envoi au bot (immédiat)
       try { tg && tg.sendData(JSON.stringify({ email })); } catch(_) {}
 
-      // (B) Envoi silencieux à Systeme.io (en arrière-plan, sans redirection)
-      let ok = false;
-      if (SYSTEMEIO_ACTION) {
-        ok = await postSilentlyToSysteme(email);
-      }
+      // (B) Envoi silencieux à Systeme.io (sans redirection/affichage)
+      const ok = await postSilentlyToSysteme(email);
 
       // (C) Feedback + fermeture
       if (ok) setMsg("✔️ Inscription envoyée. Le lien arrive par e-mail.", true);
