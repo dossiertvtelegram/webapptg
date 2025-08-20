@@ -1,50 +1,243 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Offre Exclusive</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Débloquer l'accès ✨</title>
+  <meta name="description" content="Entrez votre email pour débloquer l'accès et rejoindre la newsletter." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Ccircle cx='32' cy='32' r='28' fill='%237c3aed'/%3E%3C/svg%3E" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    :root{
+      --bg1:#0f1020; --bg2:#0b122b;
+      --accent:#00e1ff; --accent2:#7c3aed;
+      --text:#e6f1ff; --muted:#a3b3d3;
+      --success:#22c55e; --danger:#ef4444;
+      --glass:rgba(255,255,255,.08); --border:rgba(255,255,255,.15);
+      --btnText:#0b1220;
     }
 
-    .container {
-      position: relative;
-      width: 100%;
-      max-width: 600px;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--text);
+      background:
+        radial-gradient(1200px 800px at 20% 10%, #0b153a 0%, transparent 60%),
+        radial-gradient(1000px 600px at 80% 30%, #121f52 0%, transparent 60%),
+        linear-gradient(120deg, var(--bg1), var(--bg2));
+      overflow:hidden;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
 
-    .background-image {
-      width: 100%;
-      display: block;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+    /* Gradient halo */
+    .halo{
+      position:fixed; inset:-20vmax; z-index:0;
+      background:conic-gradient(from 0deg, var(--accent), var(--accent2), var(--accent), var(--accent2));
+      filter:blur(120px) saturate(160%);
+      opacity:.25; animation:spin 22s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* Particles */
+    .particles{position:fixed; inset:0; pointer-events:none; z-index:1}
+    .dot{position:absolute; width:6px; height:6px; border-radius:999px;
+      background:rgba(255,255,255,.15); filter:blur(1px); animation:drift 18s ease-in-out infinite}
+    .dot:nth-child(2){width:8px; height:8px; animation-duration:24s; left:12%; top:70%}
+    .dot:nth-child(3){width:5px; height:5px; animation-duration:28s; left:78%; top:20%}
+    .dot:nth-child(4){width:7px; height:7px; animation-duration:21s; left:30%; top:30%}
+    .dot:nth-child(5){width:4px; height:4px; animation-duration:19s; left:60%; top:80%}
+    @keyframes drift{
+      0%{transform:translateY(0) translateX(0); opacity:.3}
+      50%{transform:translateY(-40px) translateX(20px); opacity:.6}
+      100%{transform:translateY(0) translateX(0); opacity:.3}
     }
 
-    .invisible-button {
-      position: absolute;
-      left: 50%;
-      top: 82%; /* Ajuste selon l'endroit exact du texte */
-      transform: translateX(-50%);
-      width: 60%;  /* Ajuste selon la largeur du bouton texte */
-      height: 10%; /* Ajuste selon la hauteur du bouton texte */
-      background: transparent;
-      border: none;
-      cursor: pointer;
+    .container{position:relative; z-index:2; min-height:100vh; display:grid; place-items:center; padding:24px}
+    .card{
+      width:100%; max-width:480px; padding:28px;
+      border-radius:24px; backdrop-filter:blur(18px);
+      background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      border:1px solid var(--border);
+      box-shadow:0 30px 80px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.04);
+      transform:translateY(0); animation:float 8s ease-in-out infinite;
+    }
+    @keyframes float{50%{transform:translateY(-6px)}}
+
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px;
+      background:rgba(124,58,237,.14); border:1px solid rgba(124,58,237,.35);
+      color:#d7c6ff; font-weight:600; letter-spacing:.2px;
+    }
+    .badge .pulse{width:8px; height:8px; border-radius:999px; background:var(--accent2); box-shadow:0 0 18px var(--accent2)}
+
+    h1{margin:16px 0 6px; font-size:28px; line-height:1.2}
+    p.sub{margin:0 0 18px; color:var(--muted)}
+
+    label{display:block; font-size:13px; color:#c9d7ff; margin-bottom:8px}
+    .input{
+      width:100%; padding:14px 16px; border-radius:14px; font-size:15px;
+      background:rgba(255,255,255,.06); border:1px solid var(--border); color:var(--text);
+      outline:none; transition:box-shadow .2s, border-color .2s, transform .08s;
+    }
+    .input:focus{border-color:rgba(0,225,255,.7); box-shadow:0 0 0 6px rgba(0,225,255,.12)}
+
+    .row{display:flex; align-items:flex-start; gap:12px; margin:10px 2px 6px; font-size:12px; color:var(--muted)}
+    .row input[type="checkbox"]{margin-top:2px; transform:translateY(1px)}
+
+    .btn{
+      margin-top:12px; width:100%; padding:14px 16px; border-radius:14px; font-weight:700;
+      background:radial-gradient(120% 120% at 30% 10%, #00e1ff 0%, #1fd1ff 35%, #7c3aed 100%);
+      color:var(--btnText); border:none; cursor:pointer; position:relative; overflow:hidden;
+      box-shadow:0 10px 30px rgba(0,225,255,.25), 0 0 0 1px rgba(255,255,255,.05) inset;
+      transition:transform .06s ease, filter .2s ease;
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn:active{transform:translateY(1px) scale(.995)}
+    .btn[disabled]{opacity:.65; cursor:not-allowed}
+
+    .btn::after{
+      content:""; position:absolute; inset:0;
+      background:linear-gradient(75deg, transparent 0%, rgba(255,255,255,.25) 35%, transparent 60%);
+      transform:translateX(-120%); animation:shine 3s ease-in-out infinite; pointer-events:none;
+    }
+    @keyframes shine{50%{transform:translateX(120%)}}
+
+    .msg{margin-top:12px; font-size:13px}
+    .ok{color:var(--success)}
+    .err{color:#ffb4b4}
+
+    .foot{margin-top:10px; font-size:11px; color:var(--muted); text-align:center}
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .halo,.dot,.card{animation:none}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="A_landing_page_for_a_subscription-based_adult_cont.png" alt="Offre Spéciale" class="background-image" />
-    <button class="invisible-button" onclick="window.location.href='https://go.cm-trk3.com/aff_nl?offer_id=10521&aff_id=88773&lands=127_128_129&url_id=18158&aff_sub5=telegram'"></button>
+  <div class="halo" aria-hidden="true"></div>
+  <div class="particles" aria-hidden="true">
+    <div class="dot" style="left:8%;top:24%"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
   </div>
+
+  <div class="container">
+    <main class="card" role="main" aria-labelledby="title">
+      <span class="badge" aria-hidden="true"><span class="pulse"></span> Accès réservé</span>
+      <h1 id="title">Débloquez l'accès en 1 clic</h1>
+      <p class="sub">Entrez votre email pour rejoindre la newsletter et accéder au contenu.</p>
+
+      <form id="gateForm" novalidate>
+        <label for="email">Adresse email</label>
+        <input id="email" class="input" type="email" inputmode="email" autocomplete="email"
+               placeholder="prenom.nom@email.com"
+               required aria-required="true" />
+
+        <div class="row">
+          <input id="consent" type="checkbox" checked aria-checked="true" />
+          <label for="consent" style="margin:0">
+            J'accepte de recevoir la newsletter (désinscription à tout moment).
+          </label>
+        </div>
+
+        <button id="submitBtn" class="btn" type="submit">Débloquer l'accès</button>
+        <div id="message" class="msg" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="foot">Astuce : ouvrez cette page depuis un bouton WebApp de votre bot Telegram.</div>
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // --- Config ---
+      const API_URL = "/api/subscribe"; // adapte si nécessaire
+
+      // --- Telegram integration ---
+      const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
+      if (tg) {
+        try { tg.ready(); tg.expand(); } catch(e){}
+        // Applique la palette Telegram si dispo
+        try {
+          const p = tg.themeParams || {};
+          if (p.text_color) document.documentElement.style.setProperty("--text", p.text_color);
+          if (p.hint_color) document.documentElement.style.setProperty("--muted", p.hint_color);
+          if (p.button_color) document.documentElement.style.setProperty("--accent", p.button_color);
+          if (p.button_text_color) document.documentElement.style.setProperty("--btnText", p.button_text_color);
+          // Mode clair ?
+          if (tg.colorScheme === "light") {
+            document.documentElement.style.setProperty("--bg1", "#f7f8fc");
+            document.documentElement.style.setProperty("--bg2", "#e9eef7");
+            document.documentElement.style.setProperty("--text", "#0b1220");
+            document.documentElement.style.setProperty("--muted", "#5a6a8a");
+            document.documentElement.style.setProperty("--border", "rgba(0,0,0,.12)");
+          }
+        } catch(e){}
+      }
+
+      // --- Elements ---
+      const form = document.getElementById("gateForm");
+      const emailInput = document.getElementById("email");
+      const consentInput = document.getElementById("consent");
+      const submitBtn = document.getElementById("submitBtn");
+      const message = document.getElementById("message");
+
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      function setMsg(text, ok=false){
+        message.textContent = text || "";
+        message.className = "msg " + (text ? (ok ? "ok" : "err") : "");
+      }
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        setMsg("");
+        const email = (emailInput.value || "").trim();
+        const consent = !!consentInput.checked;
+
+        if (!EMAIL_RE.test(email)) { setMsg("Merci d'entrer un email valide."); return; }
+        if (!consent) { setMsg("Veuillez accepter la newsletter pour continuer."); return; }
+
+        submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
+
+        const payload = { email, source: "telegram-webapp" };
+        try {
+          if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            payload.telegram_user = tg.initDataUnsafe.user;
+          }
+        } catch(_) {}
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error("Erreur serveur");
+          const data = await res.json();
+          if (!data.ok) throw new Error(data.error || "Échec de l’inscription");
+
+          setMsg("✔️ Accès débloqué. Bienvenue !", true);
+          emailInput.setAttribute("disabled", "true");
+          consentInput.setAttribute("disabled", "true");
+
+          // Notifie le bot Telegram (facultatif)
+          try { if (tg) tg.sendData(JSON.stringify({ email })); } catch(_) {}
+          // Ferme la WebApp après un court délai (facultatif)
+          setTimeout(()=>{ try { if (tg) tg.close(); } catch(_) {} }, 800);
+
+        } catch(err){
+          setMsg("❌ " + (err.message || "Une erreur est survenue."));
+        } finally {
+          submitBtn.disabled = false; submitBtn.textContent = "Débloquer l'accès";
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
