@@ -8,61 +8,24 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      --bg:#f6efe6;          /* beige clair */
-      --card:#fff8ef;        /* carte */
-      --text:#1b1b1b;        /* texte principal */
-      --muted:#6b6b6b;
-      --accent:#111;         /* bouton sombre élégant */
-      --accentText:#fff;
-      --border:#e9dccb;      /* bordure douce */
-      --badge:#ffecd1;       /* bandeau annonce */
-      --badgeText:#7a4b00;
-      --ok:#15803d;          /* vert succès */
-      --err:#b91c1c;         /* rouge erreur */
+      --bg:#f6efe6; --card:#fff8ef; --text:#1b1b1b; --muted:#6b6b6b;
+      --accent:#111; --accentText:#fff; --border:#e9dccb;
+      --badge:#ffecd1; --badgeText:#7a4b00; --ok:#15803d; --err:#b91c1c;
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:var(--bg); color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial;
-      display:grid; place-items:center; padding:20px;
-    }
-    .card{
-      width:100%; max-width:520px; background:var(--card); border:1px solid var(--border);
-      border-radius:20px; box-shadow:0 10px 40px rgba(0,0,0,.06);
-      padding:22px 20px;
-    }
-    .ribbon{
-      display:flex; align-items:center; gap:8px;
-      background:var(--badge); color:var(--badgeText);
-      border:1px solid #f3d9b0; border-radius:999px; padding:6px 12px; font-weight:700; width:max-content;
-    }
-    h1{margin:14px 0 6px; font-size:26px}
-    .sub{margin:0 0 16px; color:var(--muted); line-height:1.55}
-    label{display:block; font-size:14px; margin-bottom:6px}
-    .input{
-      width:100%; padding:14px 16px; border-radius:14px; font-size:16px;
-      border:1px solid var(--border); outline:none; background:#fff; color:var(--text);
-      transition:box-shadow .2s, border-color .2s;
-    }
-    .input:focus{border-color:#cdb79a; box-shadow:0 0 0 6px rgba(205,183,154,.25)}
-    .btn{
-      margin-top:14px; width:100%; padding:14px 16px; border-radius:14px; font-weight:800; letter-spacing:.2px;
-      background:var(--accent); color:var(--accentText); border:none; cursor:pointer;
-      box-shadow:0 8px 24px rgba(0,0,0,.12); transition:transform .06s ease, filter .15s ease;
-    }
-    .btn:hover{filter:brightness(1.04)}
-    .btn:active{transform:translateY(1px) scale(.995)}
-    .btn[disabled]{opacity:.6; cursor:not-allowed}
-    .msg{margin-top:10px; font-size:14px}
-    .ok{color:var(--ok)}
-    .err{color:var(--err)}
-    .timer{margin-top:8px; font-size:12px; color:#7a6a50}
-    .hint{
-      margin-top:14px; font-size:13px; color:#7a6a50; background:#fff; border:1px dashed var(--border);
-      padding:10px 12px; border-radius:12px;
-    }
-    .info{margin-top:10px; font-size:13px; color:var(--muted)}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:ui-sans-serif,system-ui,Inter,Arial;display:grid;place-items:center;padding:20px}
+    .card{width:100%;max-width:520px;background:var(--card);border:1px solid var(--border);border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.06);padding:22px 20px}
+    .ribbon{display:inline-flex;align-items:center;gap:8px;background:var(--badge);color:var(--badgeText);border:1px solid #f3d9b0;border-radius:999px;padding:6px 12px;font-weight:700;margin-bottom:8px}
+    h1{margin:10px 0 6px;font-size:26px}
+    .sub{margin:0 0 16px;color:var(--muted);line-height:1.55}
+    label{display:block;font-size:14px;margin-bottom:6px}
+    .input{width:100%;padding:14px 16px;border-radius:14px;font-size:16px;border:1px solid var(--border);background:#fff;color:#1b1b1b;outline:none;transition:box-shadow .2s,border-color .2s}
+    .input:focus{border-color:#cdb79a;box-shadow:0 0 0 6px rgba(205,183,154,.25)}
+    .btn{margin-top:14px;width:100%;padding:14px 16px;border-radius:14px;font-weight:800;letter-spacing:.2px;background:var(--accent);color:var(--accentText);border:none;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+    .btn[disabled]{opacity:.6;cursor:not-allowed}
+    .msg{margin-top:10px;font-size:14px}
+    .ok{color:var(--ok)} .err{color:var(--err)}
+    .timer{margin-top:8px;font-size:12px;color:#7a6a50;display:none}
   </style>
 </head>
 <body>
@@ -82,23 +45,36 @@
              required aria-required="true" />
       <button id="submitBtn" class="btn" type="submit">Déverrouiller</button>
       <div id="message" class="msg" role="status" aria-live="polite"></div>
-      <div id="timer" class="timer" hidden>Fermeture dans <span id="sec">3</span>s…</div>
+      <div id="timer" class="timer">Fermeture dans <span id="sec">3</span>s…</div>
     </form>
-
-    <div class="hint">Astuce : si tu ne reçois pas l’e-mail, vérifie les spams/promotions.</div>
-    <div class="info">ℹ️ Cette page envoie ton e-mail au bot et tente l’inscription automatique sur Systeme.io.</div>
   </main>
 
   <script>
   (function(){
     "use strict";
 
-    // Ton URL publique de tunnel Systeme.io
-    const SYSTEMEIO_PUBLIC_URL = "https://lcgpronos.systeme.io/f5c95517";
+    // ========= ⚙️ RENSEIGNE CES 3 CONSTANTES (depuis le HTML du form Systeme.io) =========
+    // 1) L’URL d’action exacte du <form action="...">
+    const SYSTEMEIO_ACTION = "https://EXEMPLE.systeme.io/form/xxxxxxxx/submit"; // <-- remplace
 
+    // 2) Le name du champ email (ex: "email" ou "contact[email]")
+    const EMAIL_FIELD_NAME = "email"; // <-- remplace si besoin
+
+    // 3) TOUS les <input type="hidden"> requis (name -> value)
+    const HIDDEN_FIELDS = {
+      // "form_id": "xxxxxxx",
+      // "step_id": "yyyyyyy",
+      // "redirect": "https://ton-lien-apres-submit",
+      // "csrf_token": "....",
+      // "tag": "from_telegram"
+    };
+    // =============================================================================
+
+    // Telegram SDK
     const tg = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp : null;
     if (tg) { try { tg.ready(); tg.expand(); } catch(e){} }
 
+    // UI
     const form = document.getElementById("gateForm");
     const emailInput = document.getElementById("email");
     const submitBtn = document.getElementById("submitBtn");
@@ -106,39 +82,35 @@
     const timerBox = document.getElementById("timer");
     const sec = document.getElementById("sec");
 
+    // Utils
     const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i;
     const clean = s => (s||"")
-      .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g, " ")
-      .replace(/[\u200B-\u200D\uFEFF]/g, "")
+      .replace(/[\u00A0\u2000-\u200B\u202F\u205F\u3000]/g," ")
+      .replace(/[\u200B-\u200D\uFEFF]/g,"")
       .trim().replace(/\s+/g,"").toLowerCase();
 
-    function setMsg(t,c){ message.textContent=t||""; message.className="msg "+(c||""); }
-    function countdown(n=3){ timerBox.hidden=false; sec.textContent=String(n);
-      const iv=setInterval(()=>{ n--; sec.textContent=String(n); if(n<=0){clearInterval(iv); try{tg&&tg.close()}catch(_){} }},1000); }
+    function setMsg(t,ok){ message.textContent=t||""; message.className="msg "+(ok?"ok":"err"); }
+    function countdown(n=3){ timerBox.style.display="block"; const secEl=document.getElementById("sec"); secEl.textContent=String(n);
+      const iv=setInterval(()=>{ n--; secEl.textContent=String(n); if(n<=0){clearInterval(iv); try{tg&&tg.close()}catch(_){} }},1000); }
 
-    // Soumission front-only à Systeme.io : formulaire caché
-    function submitToSysteme(email){
-      try{
-        const f = document.createElement("form");
-        f.method = "POST";
-        f.action = SYSTEMEIO_PUBLIC_URL;
-        f.target = "_blank"; // ouvre dans un nouvel onglet si possible
-        f.style.display = "none";
+    async function postSilentlyToSysteme(email){
+      // On poste en x-www-form-urlencoded (comme un vrai formulaire)
+      const params = new URLSearchParams();
+      params.append(EMAIL_FIELD_NAME, email);
+      for (const [k,v] of Object.entries(HIDDEN_FIELDS)) params.append(k, v);
 
-        // Essayons plusieurs names potentiels pour maximiser la compat :
-        const names = ["email", "contact[email]"];
-        names.forEach(n => {
-          const inp = document.createElement("input");
-          inp.type = "hidden";
-          inp.name = n;
-          inp.value = email;
-          f.appendChild(inp);
+      try {
+        // no-cors : on ne lit pas la réponse (CORS), mais la requête part bien.
+        await fetch(SYSTEMEIO_ACTION, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: params
         });
-
-        document.body.appendChild(f);
-        f.submit();
-        return true;
-      }catch(_){ return false; }
+        return true; // on suppose ok (pas de lecture possible en no-cors)
+      } catch (e) {
+        return false;
+      }
     }
 
     form.addEventListener("submit", async (e) => {
@@ -146,25 +118,24 @@
       setMsg("");
 
       const email = clean(emailInput.value);
-      if (!EMAIL_RE.test(email)) { setMsg("Merci d'entrer un e-mail valide.", "err"); return; }
+      if (!EMAIL_RE.test(email)) { setMsg("Merci d'entrer un e-mail valide.", false); return; }
 
       submitBtn.disabled = true; submitBtn.textContent = "Envoi…";
 
-      // (A) Envoi au bot => il répond dans le chat
+      // (A) Envoi au bot (immédiat, indépendant de Systeme.io)
       try { tg && tg.sendData(JSON.stringify({ email })); } catch(_) {}
 
-      // (B) Tentative d’inscription auto chez Systeme.io (front-only)
-      const ok = submitToSysteme(email);
-
-      // (C) Message et fallback d’ouverture du tunnel (assure la capture)
-      if (ok){
-        setMsg("✔️ Inscription envoyée. Le lien arrive par e-mail.", "ok");
-      } else {
-        setMsg("✔️ Email envoyé. Ouverture de la page pour finaliser l’inscription…", "ok");
-        try { window.open(SYSTEMEIO_PUBLIC_URL, "_blank"); } catch(_){ window.location.href = SYSTEMEIO_PUBLIC_URL; }
+      // (B) Envoi silencieux à Systeme.io (en arrière-plan, sans redirection)
+      let ok = false;
+      if (SYSTEMEIO_ACTION) {
+        ok = await postSilentlyToSysteme(email);
       }
 
-      emailInput.setAttribute("disabled", "true");
+      // (C) Feedback + fermeture
+      if (ok) setMsg("✔️ Inscription envoyée. Le lien arrive par e-mail.", true);
+      else    setMsg("✔️ Email envoyé au bot. L’inscription sera finalisée côté Systeme.io.", true);
+
+      emailInput.setAttribute("disabled","true");
       countdown(3);
 
       submitBtn.disabled = false; submitBtn.textContent = "Déverrouiller";
