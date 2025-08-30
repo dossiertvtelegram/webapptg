@@ -8,56 +8,75 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
+      /* Thème blanc & rouge */
       --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
-      --text:#0f172a; --muted:#6b7280; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
+      --text:#0f172a; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
       --green:#16a34a;
+
+      /* FOND romantique (change l'URL si tu veux la tienne) */
+      --bg-overlay:.62; /* 0 = très visible / 1 = très blanc */
+      --bg-img:url('https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1600&auto=format&fit=crop');
+
+      /* Or (Super-Like) */
+      --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
     }
+
     *{box-sizing:border-box}
     html,body{
       margin:0;background:var(--bg);color:var(--text);
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       -webkit-tap-highlight-color:transparent;
     }
+
+    /* BACKGROUND */
     .bg-wrap{position:fixed; inset:0; z-index:-2; overflow:hidden}
     .bg-photo{
       position:absolute; inset:0;
       background:
-        linear-gradient(0deg, rgba(255,255,255,.85), rgba(255,255,255,.85)),
-        url('https://images.unsplash.com/photo-1541542684-4a59d52f3f87?q=80&w=1600&auto=format&fit=crop');
+        linear-gradient(0deg, rgba(255,255,255,var(--bg-overlay)), rgba(255,255,255,var(--bg-overlay))),
+        var(--bg-img);
       background-position:center; background-size:cover;
-      filter:saturate(1.05) blur(0.4px); transform:scale(1.03);
+      filter:saturate(1.08) blur(.2px);
+      transform:scale(1.03);
     }
     .bg-bokeh{
       position:absolute; inset:-20% -10%;
       background:
-        radial-gradient(600px 300px at 10% 0%, rgba(224,25,63,.08), transparent 60%),
+        radial-gradient(600px 300px at 10% 0%, rgba(224,25,63,.09), transparent 60%),
         radial-gradient(700px 340px at 90% 100%, rgba(224,25,63,.08), transparent 60%);
       z-index:-1;
     }
+
     .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;}
     @supports(padding:max(0px)){
       .wrap{ padding-left:max(16px,env(safe-area-inset-left));
              padding-right:max(16px,env(safe-area-inset-right));
              padding-bottom:max(44px,env(safe-area-inset-bottom)); }
     }
+
+    /* Brand + logo flamme */
     .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
-    .brand-badge{width:44px;height:44px;border-radius:14px;
+    .brand-badge{
+      width:44px;height:44px;border-radius:14px;
       background:radial-gradient(circle at 30% 25%, #ff96aa, var(--brand));
-      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;
+      display:flex;align-items:center;justify-content:center;
       box-shadow:0 10px 22px rgba(224,25,63,.28);
     }
+    .brand-badge svg{width:22px;height:22px;fill:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28))}
     .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
 
+    /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
 
+    /* Accueil (type Meetic) */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
     .row{display:flex;align-items:center;gap:16px}
-    .sel, .input{
+    .sel,.input{
       appearance:none;-webkit-appearance:none;background:transparent;border:none;outline:none;
-      font:inherit;font-weight:900;color:#111827;width:100%;font-size:18px;letter-spacing:.2px;
+      font:inherit;font-weight:900;color:#111827;width:100%;font-size:18px;letter-spacing:.2px
     }
-    .field{position:relative;width:100%;padding:16px 0 14px;border-bottom:2px solid var(--line);}
+    .field{position:relative;width:100%;padding:16px 0 14px;border-bottom:2px solid var(--line)}
     .field::after{
       content:""; position:absolute; right:0; top:16px; width:22px; height:22px; pointer-events:none;
       background:
@@ -66,13 +85,11 @@
       opacity:.55;
     }
     .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
-    .cta{
-      display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
-      border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;
-      box-shadow:0 14px 36px rgba(224,25,63,.32);
-    }
+    .cta{display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
+      border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;box-shadow:0 14px 36px rgba(224,25,63,.32)}
     .cta:active{transform:scale(.98)}
 
+    /* Parcours */
     .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
     .count{font-size:14px;color:#6b7280;font-weight:800}
     .persona-box{margin:14px 14px 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid #eee}
@@ -88,11 +105,15 @@
 
     .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
     .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
-    .btn-pass{background:#f3f4f6}
-    .btn-slike{background:#ffe1e9;color:#7f1d1d;border:1px solid #ffc6d6}
-    .btn-like{background:var(--green);color:#fff}
+    .btn-pass{background:var(--brand);color:#fff} /* PASS rouge */
+    .btn-slike{ /* SUPER-LIKE doré */
+      background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
+      color:#6b4700; border:1px solid var(--gold-700); text-shadow:0 1px 0 rgba(255,255,255,.35)
+    }
+    .btn-like{background:var(--green);color:#fff} /* LIKE vert */
     .btn[disabled]{opacity:.6}
 
+    /* Modals */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
@@ -111,10 +132,10 @@
     const BRAND = "Flamme";
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
-    const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // remplace
-    const MATCH_CHAT_URL = "https://exemple.com/parler";                 // remplace
+    const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // 🔁 remplace
+    const MATCH_CHAT_URL = "https://exemple.com/parler";                 // 🔁 remplace
 
-    // Colle tes 98 images (chemins absolus ou ./images/xxx.jpg)
+    /* Tes 98 images (placer dans ./images/) */
     const PERSONA_IMAGES = [
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
@@ -151,6 +172,7 @@
       "./images/photo_97_2025-08-30_17-36-31.jpg","./images/photo_98_2025-08-30_17-36-31.jpg"
     ];
 
+    /* Fallback si pas d’images */
     const FALLBACK_IMAGES = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
@@ -202,11 +224,7 @@
 
     const rnd = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
     const pick = arr => arr[rnd(0,arr.length-1)];
-    const pickMany = (arr,n)=>{
-      const c=[...arr]; const out=[];
-      while(n-- && c.length){ out.push(c.splice(rnd(0,c.length-1),1)[0]); }
-      return out;
-    };
+    const pickMany = (arr,n)=>{ const c=[...arr]; const out=[]; while(n-- && c.length){ out.push(c.splice(rnd(0,c.length-1),1)[0]); } return out; };
 
     // Cache stable par liste d’images
     const PERSONA_CACHE_KEY = "flamme_personas_v1_" + (PERSONA_IMAGES.join("|").length) + "_" + PERSONA_IMAGES.length;
@@ -260,10 +278,20 @@
       return n;
     };
 
+    /* ============ BRAND HEADER ============ */
+    function renderBrand(){
+      const wrap = el("div",{class:"brand"});
+      const badge = el("div",{class:"brand-badge"});
+      badge.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 2c1.5 2 4.5 3.6 4.5 7.2 0 3.2-2.2 5.6-4.5 7.2-2.3-1.6-4.5-4-4.5-7.2 0-2.7 1.6-4.3 3.1-5.7L12 2z"/></svg>`;
+      wrap.appendChild(badge);
+      wrap.appendChild(el("h1",{text:BRAND}));
+      return wrap;
+    }
+
     /* ============ RENDER ROOT ============ */
     function render(){
       const root = $("#app"); root.innerHTML="";
-      root.appendChild(el("div",{class:"brand"},[ el("div",{class:"brand-badge",text:"❤"}), el("h1",{text:BRAND}) ]));
+      root.appendChild(renderBrand());
       if(state.step==="landing") root.appendChild(renderLanding());
       else root.appendChild(renderBrowse());
       ensureModals(root);
@@ -273,6 +301,7 @@
     function renderLanding(){
       const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
 
+      // Que recherchez-vous ?
       box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
       const genderSel = el("select",{id:"selGender",class:"sel"});
       [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
@@ -280,6 +309,7 @@
       genderSel.onchange = ()=> state.filters.gender = genderSel.value;
       box.appendChild(el("div",{class:"field"}, genderSel));
 
+      // Age min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
       const ageMinSel = el("select",{class:"sel"});
@@ -304,6 +334,7 @@
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
       box.appendChild(row);
 
+      // Ville (optionnel)
       box.appendChild(el("div",{class:"label",text:"Dans quelle ville habitez-vous ?"}));
       const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"});
       city.value = state.filters.city; city.oninput = ()=> state.filters.city = city.value.trim();
@@ -335,6 +366,7 @@
       const p = currentPersona();
       const mediaWrap = el("div",{class:"persona-box"});
       mediaWrap.appendChild(el("img",{class:"persona-img",src:p.photos[0],alt:p.name,loading:"eager"}));
+      mediaWrap.appendChild(el("div",{class:"cap",text:"Virtual persona"}));
       card.appendChild(mediaWrap);
 
       const body = el("div",{class:"persona-body"});
@@ -358,7 +390,7 @@
     /* ============ LOGIC ============ */
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
-    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap
+    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap tel
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
     function like(){
       if(state.likesLeft<=0){ openNoLikesModal(); return; }
@@ -372,6 +404,7 @@
 
     /* ============ MODALS ============ */
     function ensureModals(root){
+      // règles
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"Rappel rapide"}),
@@ -379,6 +412,7 @@
           el("div",{class:"modal-actions"},[ el("button",{class:"btn-ghost",text:"OK",onclick:()=>closeModal("#m_rules")}) ])
         ])
       ));
+      // plus de likes
       root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"Plus de likes"}),
@@ -389,6 +423,7 @@
           ])
         ])
       ));
+      // match
       root.appendChild(el("div",{class:"modal",id:"m_match"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"🎉 Match obtenu"}),
