@@ -65,6 +65,13 @@
     .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
     .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
 
+    /* Bouton admin flottant */
+    .fab-admin{
+      position:fixed; right:16px; bottom:16px; z-index:60;
+      background:#fff; border:1px solid #e5e7eb; border-radius:999px;
+      padding:10px 14px; box-shadow:var(--shadow); font-weight:900; cursor:pointer;
+    }
+
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
 
@@ -112,39 +119,110 @@
     .btn[disabled]{opacity:.6}
 
     /* Modals */
-    .modal-card.hot{
-      background: radial-gradient(120% 100% at 50% 0, #ffe4ea 0%, #fff 45%);
-      border:1px solid #ffd1dc;
-    }
-    .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
-    .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
-    .pulse{animation:pulse 1.2s infinite}
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
+    .modal-card.hot{background: radial-gradient(120% 100% at 50% 0, #ffe4ea 0%, #fff 45%);border:1px solid #ffd1dc;}
+    .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+    .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
     .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
+    .pulse{animation:pulse 1.2s infinite}
+    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
+    .admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .stat{background:#fff;border:1px solid #eee;border-radius:12px;padding:10px 12px;font-weight:800}
+    .stat small{display:block;color:#6b7280;font-weight:700}
   </style>
 </head>
 <body>
   <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
   <div class="wrap" id="app"></div>
+  <button class="fab-admin" id="btnAdmin" title="Panneau admin">⚙️</button>
 
   <script>
-    /* ============ CONFIG ============ */
+    /* ==================== Stats locales (localStorage) ==================== */
+    const STATS_KEY = "flamme_stats_v1";
+    const todayStr = ()=> new Date().toISOString().slice(0,10);
+
+    function loadStats(){
+      try{ const raw = localStorage.getItem(STATS_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+      return {
+        sessions: 0,                       // nombre de sessions (sur cet appareil)
+        totals: { opens:0, profiles_seen:0, pass:0, like:0, super_like:0, match:0, cta_more:0, cta_chat:0 },
+        byDay: {},                         // { "YYYY-MM-DD": { ...counters } }
+        events: []                         // [{ts,type,data}], limité à 1000
+      };
+    }
+    function saveStats(s){ try{ localStorage.setItem(STATS_KEY, JSON.stringify(s)); }catch(e){} }
+    function incStat(type, data={}){
+      const s = loadStats();
+      const d = todayStr();
+      s.totals[type] = (s.totals[type]||0) + 1;
+      s.byDay[d] = s.byDay[d] || {};
+      s.byDay[d][type] = (s.byDay[d][type]||0) + 1;
+      s.events.push({ ts: new Date().toISOString(), type, data });
+      if (s.events.length > 1000) s.events.splice(0, s.events.length - 1000);
+      saveStats(s);
+      return s;
+    }
+    function addSession(){
+      const s = loadStats();
+      s.sessions += 1;
+      const d = todayStr();
+      s.byDay[d] = s.byDay[d] || {};
+      s.byDay[d].sessions = (s.byDay[d].sessions||0) + 1;
+      saveStats(s);
+      return s;
+    }
+    function exportCSV(){
+      const s = loadStats();
+      const header = "ts,type,data\n";
+      const lines = s.events.map(e=>{
+        const safe = JSON.stringify(e.data || {}).replaceAll('"','""');
+        return `${e.ts},${e.type},"${safe}"`;
+      });
+      const blob = new Blob([header + lines.join("\n")], {type:"text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, `flamme_events_${todayStr()}.csv`);
+    }
+    function exportJSON(){
+      const s = loadStats();
+      const blob = new Blob([JSON.stringify(s,null,2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      triggerDownload(url, `flamme_stats_${todayStr()}.json`);
+    }
+    function triggerDownload(url, filename){
+      const a = document.createElement('a');
+      a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=> URL.revokeObjectURL(url), 1500);
+    }
+    function resetStats(){
+      localStorage.removeItem(STATS_KEY);
+      renderAdmin(); // refresh UI si ouverte
+    }
+
+    /* ==================== Config app ==================== */
+    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg){ try{ tg.ready(); tg.expand(); }catch(e){} }
+
     const BRAND = "Flamme";
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
-    const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // 🔁 remplace
-    const MATCH_CHAT_URL = "https://exemple.com/parler";                 // 🔁 remplace
+    const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // remplace si besoin
+    const MATCH_CHAT_URL = "https://exemple.com/parler";                 // remplace si besoin
     const dayKey = new Date().toISOString().slice(0,10);
     const likesKey = `flamme_likes_${dayKey}`;
     const superKey = `flamme_super_${dayKey}`;
 
-    /* Images */
+    // Session (compte local)
+    if (!sessionStorage.getItem("flamme_session_counted")){
+      sessionStorage.setItem("flamme_session_counted","1");
+      addSession();
+      incStat("opens");
+    }
+
+    /* ==================== Images / faux profils ==================== */
     const PERSONA_IMAGES = [
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
@@ -180,7 +258,6 @@
       "./images/photo_94_2025-08-30_17-36-31.jpg","./images/photo_95_2025-08-30_17-36-31.jpg","./images/photo_96_2025-08-30_17-36-31.jpg",
       "./images/photo_97_2025-08-30_17-36-31.jpg","./images/photo_98_2025-08-30_17-36-31.jpg"
     ];
-
     const FALLBACK_IMAGES = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
@@ -188,89 +265,29 @@
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
 
-    /* ============ TELEGRAM HELPERS (robuste) ============ */
-    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    let TG_READY = false;
-    const _queue = [];
-
-    function _flush(){
-      if (!tg || !TG_READY || !_queue.length) return;
-      try{
-        while(_queue.length){
-          const p = _queue.shift();
-          tg.sendData(JSON.stringify(p));
-        }
-      }catch(e){
-        // remet en file et re-tente
-        setTimeout(_flush, 400);
-      }
-    }
-
-    if (tg) {
-      try{ tg.ready(); tg.expand(); TG_READY = true; setTimeout(_flush, 80); }catch(e){}
-    }
-
-    function track(t, extra={}){
-      const payload = { t, ...extra, ts: Date.now() };
-      if (tg && TG_READY && tg.sendData){
-        try{ tg.sendData(JSON.stringify(payload)); }
-        catch(e){ _queue.push(payload); setTimeout(_flush, 300); }
-      } else {
-        _queue.push(payload);
-        setTimeout(_flush, 500);
-      }
-    }
-
-    // petit ping quand la vue revient au premier plan (utile pour voir un event arriver)
-    window.addEventListener('focus', ()=>track('focus'));
-    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) track('focus'); });
-
-    const openLinkTG = (url)=>{
-      if (typeof closeAllModals === 'function') closeAllModals();
-      if (tg) {
-        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
-        tg.openLink(url, { try_instant_view:false });
-        return;
-      }
-      window.open(url, "_self");
-    };
-
-    /* ============ RANDOM FABRIC ============ */
+    /* ==================== Helpers profils ==================== */
     const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
     const TAGS = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos","animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère","rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"];
     const DESCS = ["Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.","Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.","J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.","Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.","Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.","On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.","Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."];
 
-    const rnd = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
-    const pick = arr => arr[rnd(0,arr.length-1)];
-    const pickMany = (arr,n)=>{ const c=[...arr]; const out=[]; while(n-- && c.length){ out.push(c.splice(rnd(0,c.length-1),1)[0]); } return out; };
+    const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+    const pick=arr=>arr[rnd(0,arr.length-1)];
+    const pickMany=(arr,n)=>{const c=[...arr],out=[];while(n--&&c.length){out.push(c.splice(rnd(0,c.length-1),1)[0]);}return out;};
 
-    const PERSONA_CACHE_KEY = "flamme_personas_v1_" + (PERSONA_IMAGES.join("|").length) + "_" + PERSONA_IMAGES.length;
-
+    const PERSONA_CACHE_KEY="flamme_personas_v1_"+(PERSONA_IMAGES.join("|").length)+"_"+PERSONA_IMAGES.length;
     function buildPersonasFromImages(urls){
       const shuffled=[...urls].sort(()=>Math.random()-.5);
-      return shuffled.map((src,i)=>({
-        id:`img_${i+1}`,
-        name: pick(FNAMES),
-        gender: "women",
-        age: rnd(18,40),
-        tags: pickMany(TAGS, 3),
-        desc: pick(DESCS),
-        photos: [src]
-      }));
+      return shuffled.map((src,i)=>({ id:`img_${i+1}`, name:pick(FNAMES), gender:"women", age:rnd(18,40), tags:pickMany(TAGS,3), desc:pick(DESCS), photos:[src]}));
     }
-
     function loadOrGeneratePersonas(){
-      try{
-        const raw = localStorage.getItem(PERSONA_CACHE_KEY);
-        if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed) && parsed.length) return parsed; }
-      }catch(e){}
+      try{ const raw=localStorage.getItem(PERSONA_CACHE_KEY); if(raw){const p=JSON.parse(raw); if(Array.isArray(p)&&p.length) return p;} }catch(e){}
       const base = PERSONA_IMAGES.length ? PERSONA_IMAGES : FALLBACK_IMAGES;
       const generated = buildPersonasFromImages(base);
       try{ localStorage.setItem(PERSONA_CACHE_KEY, JSON.stringify(generated)); }catch(e){}
       return generated;
     }
 
-    /* ============ STATE ============ */
+    /* ==================== State & DOM helpers ==================== */
     const state = {
       step:"landing",
       filters:{ gender:"women", ageMin:18, ageMax:60, city:"" },
@@ -278,10 +295,7 @@
       likesLeft:LIKE_LIMIT, superLeft:SUPERLIKE_LIMIT,
       busy:false,
     };
-
     let PERSONAS = loadOrGeneratePersonas();
-
-    /* ============ DOM HELPERS ============ */
     const $ = s => document.querySelector(s);
     const el = (tag, props={}, children=[])=>{
       const n=document.createElement(tag);
@@ -295,7 +309,15 @@
       return n;
     };
 
-    /* ============ BRAND HEADER ============ */
+    function openLink(url){
+      if (tg){
+        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
+        tg.openLink(url,{try_instant_view:false}); return;
+      }
+      window.open(url,"_blank");
+    }
+
+    /* ==================== UI ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
       const logo = el("img", { src:"./images/image-removebg-preview.png", alt:"Flamme", style:"width:28px;height:28px;object-fit:contain;display:block" });
@@ -304,7 +326,6 @@
       return wrap;
     }
 
-    /* ============ RENDER ROOT ============ */
     function render(){
       const root = $("#app"); root.innerHTML="";
       root.appendChild(renderBrand());
@@ -313,11 +334,8 @@
       ensureModals(root);
     }
 
-    /* ============ LANDING ============ */
     function renderLanding(){
       const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
-
-      // Que recherchez-vous ?
       box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
       const genderSel = el("select",{id:"selGender",class:"sel"});
       [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
@@ -325,35 +343,20 @@
       genderSel.onchange = ()=> state.filters.gender = genderSel.value;
       box.appendChild(el("div",{class:"field"}, genderSel));
 
-      // Âge min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
-      const ageMinSel = el("select",{class:"sel"});
-      for(let a=18;a<=60;a++) ageMinSel.appendChild(el("option",{value:a,text:a}));
-      ageMinSel.value = state.filters.ageMin;
-      const ageMaxSel = el("select",{class:"sel"});
-      for(let a=18;a<=60;a++) ageMaxSel.appendChild(el("option",{value:a,text:a}));
-      ageMaxSel.value = state.filters.ageMax;
-      ageMinSel.onchange = ()=>{
-        state.filters.ageMin = parseInt(ageMinSel.value,10);
-        if(state.filters.ageMin > state.filters.ageMax){
-          state.filters.ageMax = state.filters.ageMin; ageMaxSel.value = String(state.filters.ageMax);
-        }
-      };
-      ageMaxSel.onchange = ()=>{
-        state.filters.ageMax = parseInt(ageMaxSel.value,10);
-        if(state.filters.ageMax < state.filters.ageMin){
-          state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin);
-        }
-      };
+      const ageMinSel = el("select",{class:"sel"}); for(let a=18;a<=60;a++) ageMinSel.appendChild(el("option",{value:a,text:a})); ageMinSel.value=state.filters.ageMin;
+      const ageMaxSel = el("select",{class:"sel"}); for(let a=18;a<=60;a++) ageMaxSel.appendChild(el("option",{value:a,text:a})); ageMaxSel.value=state.filters.ageMax;
+      ageMinSel.onchange = ()=>{ state.filters.ageMin = parseInt(ageMinSel.value,10);
+        if(state.filters.ageMin > state.filters.ageMax){ state.filters.ageMax = state.filters.ageMin; ageMaxSel.value = String(state.filters.ageMax);} };
+      ageMaxSel.onchange = ()=>{ state.filters.ageMax = parseInt(ageMaxSel.value,10);
+        if(state.filters.ageMax < state.filters.ageMin){ state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin);} };
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"Entre"}), el("div",{class:"field"}, ageMinSel) ]));
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
       box.appendChild(row);
 
-      // Ville (optionnel)
       box.appendChild(el("div",{class:"label",text:"Dans quelle ville habitez-vous ?"}));
-      const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"});
-      city.value = state.filters.city; city.oninput = ()=> state.filters.city = city.value.trim();
+      const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"}); city.value=state.filters.city; city.oninput=()=> state.filters.city=city.value.trim();
       box.appendChild(el("div",{class:"field"}, city));
 
       const cta = el("button",{class:"cta",text:"Voir les célibataires", onclick:()=>{
@@ -363,7 +366,7 @@
         state.idx=0;
         state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
         state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
-        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
+        incStat('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
         state.step="browse"; render(); openRulesModal();
       }});
       box.appendChild(cta);
@@ -373,7 +376,6 @@
       return card;
     }
 
-    /* ============ BROWSE ============ */
     function renderBrowse(){
       const card = el("div",{class:"card"});
 
@@ -396,33 +398,30 @@
 
       const actions = el("div",{class:"actions"});
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
-      const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
+      const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()}); // laissons cliquable même à 0
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
-      // IMPORTANT: on NE désactive PAS bSLike même à 0 pour re-ouvrir la popup match
-      // // if(state.superLeft<=0) bSLike.disabled=true;
-      // on laisse aussi le LIKE cliquable pour ré-afficher la popup "Plus de likes"
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
       return card;
     }
 
-    /* ============ LOGIC ============ */
+    /* ==================== Logique ==================== */
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
     function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
-    function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
+    function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; incStat('profiles_seen'); render(); }
 
     function doPass(){
-      track('pass', { persona_id: currentPersona().id });
+      incStat('pass', { id: currentPersona().id });
       nextPersona();
     }
 
     function like(){
-      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
+      if(state.likesLeft<=0){ openNoLikesModal(); incStat('like_blocked'); return; }
       const p = currentPersona();
       state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
-      track('like', { persona_id: p.id });
+      incStat('like', { id: p.id });
       nextPersona();
       if(state.likesLeft<=0) openNoLikesModal();
     }
@@ -430,19 +429,20 @@
     function superLike(){
       const p = currentPersona();
       if (state.superLeft > 0) {
-        state.superLeft -= 1;
-        localStorage.setItem(superKey, state.superLeft);
-        track('super_like', { persona_id: p.id });
+        state.superLeft -= 1; localStorage.setItem(superKey, state.superLeft);
+        incStat('super_like', { id: p.id });
       } else {
-        track('super_like_reopen', { persona_id: p.id });
+        // super-like déjà utilisé, on ré-ouvre quand même la popup Match
+        incStat('super_like_reopen', { id: p.id });
       }
       bumpGuard();
       openMatchModal(p);
-      track('match', { persona_id: p.id }); // on compte au moment d'ouvrir la popup
+      incStat('match', { id: p.id });
     }
 
-    /* ============ MODALS ============ */
+    /* ==================== Modals (règles / like / match / admin) ==================== */
     function ensureModals(root){
+      // Règles / onboarding
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"🔥 Rappel rapide"}),
@@ -453,17 +453,19 @@
         ])
       ));
 
+      // Plus de likes
       root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"💔 Plus de likes"}),
           el("div",{text:"Tu as épuisé tes 3 likes. Crée ton compte maintenant pour débloquer des likes supplémentaires."}),
           el("div",{class:"modal-actions"},[
             el("a",{href:"#",class:"btn-primary pulse",text:"S’inscrire et obtenir + de likes",
-              onclick:(e)=>{e.preventDefault(); openMoreLikes(); }})
+              onclick:(e)=>{e.preventDefault(); incStat('cta_more'); openLink(MORE_LIKES_URL); }})
           ])
         ])
       ));
 
+      // Match
       root.appendChild(el("div",{class:"modal",id:"m_match"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"🎉 Match obtenu !"}),
@@ -477,33 +479,67 @@
           ]),
           el("div",{class:"modal-actions"},[
             el("a",{href:"#",class:"btn-primary pulse",text:"Discuter maintenant",
-              onclick:(e)=>{e.preventDefault(); openChat(); }})
+              onclick:(e)=>{e.preventDefault(); incStat('cta_chat'); openLink(MATCH_CHAT_URL); }})
+          ])
+        ])
+      ));
+
+      // Admin
+      root.appendChild(el("div",{class:"modal",id:"m_admin"},
+        el("div",{class:"modal-card"},[
+          el("div",{class:"headline",text:"📊 Panneau admin (local)"}),
+          el("div",{id:"adminBody"}),
+          el("div",{class:"modal-actions"},[
+            el("button",{class:"btn-ghost",text:"Export CSV",onclick:()=>exportCSV()}),
+            el("button",{class:"btn-ghost",text:"Export JSON",onclick:()=>exportJSON()}),
+            el("button",{class:"btn-ghost",text:"Réinitialiser",onclick:()=>{ if(confirm('Réinitialiser les stats locales ?')){ resetStats(); } }}),
+            el("button",{class:"btn-primary",text:"Fermer",onclick:()=>closeModal("#m_admin")}),
           ])
         ])
       ));
     }
 
-    function openModal(sel){ const m=$(sel); if(m) m.classList.add("open"); }
+    function renderAdmin(){
+      const s = loadStats();
+      const b = $("#adminBody"); if(!b) return;
+      const t = s.totals, d = s.byDay[todayStr()] || {};
+      b.innerHTML = "";
+      b.appendChild(el("div",{class:"admin-grid"},[
+        cardStat("👥 Sessions (appareil)", s.sessions, d.sessions||0),
+        cardStat("🪟 Ouvertures", t.opens, d.opens||0),
+        cardStat("🖼️ Profils vus", t.profiles_seen, d.profiles_seen||0),
+        cardStat("👍 Likes", t.like, d.like||0),
+        cardStat("✨ Super-likes", t.super_like, d.super_like||0),
+        cardStat("🎉 Matchs", t.match, d.match||0),
+        cardStat("↩️ Pass", t.pass, d.pass||0),
+        cardStat("➡️ CTA +Likes", t.cta_more, d.cta_more||0),
+        cardStat("💬 CTA Discuter", t.cta_chat, d.cta_chat||0),
+      ]));
+      const info = el("p",{text:"Note : ces statistiques sont stockées uniquement en local sur cet appareil (localStorage). Pour agréger plusieurs utilisateurs, il faut un backend."});
+      info.style.color="#6b7280"; info.style.fontSize="12px"; info.style.marginTop="8px";
+      b.appendChild(info);
+    }
+    function cardStat(label, total, today){
+      const box = el("div",{class:"stat"});
+      box.appendChild(el("div",{text:label}));
+      box.appendChild(el("small",{text:`Total : ${total} • Aujourd’hui : ${today}`}));
+      return box;
+    }
+
+    function openModal(sel){ const m=$(sel); if(m) { renderAdmin(); m.classList.add("open"); } }
     function closeModal(sel){ const m=$(sel); if(m) m.classList.remove("open"); }
-    function closeAllModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
     function openRulesModal(){ openModal("#m_rules"); }
     function openNoLikesModal(){ openModal("#m_nolikes"); }
-
     function openMatchModal(p){
       const img = $("#matchImg"); const nm = $("#matchName");
       if (img) img.src = p.photos[0];
       if (nm)  nm.textContent = p.name;
-      openModal("#m_match");
+      const m=$("#m_match"); if(m) m.classList.add("open");
     }
 
-    // CTA wrappers avec tracking
-    function openMoreLikes(){ track('cta_more_likes'); openLinkTG(MORE_LIKES_URL); }
-    function openChat(){ track('cta_chat'); openLinkTG(MATCH_CHAT_URL); }
-
-    /* ============ BOOT ============ */
+    /* ==================== Boot ==================== */
     render();
-    // Envoie "open" après que Telegram soit prêt
-    setTimeout(()=>track('open'), 400);
+    document.getElementById('btnAdmin').addEventListener('click', ()=> openModal("#m_admin"));
   </script>
 </body>
 </html>
