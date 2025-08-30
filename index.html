@@ -8,33 +8,24 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      /* Blanc & Rouge */
-      --bg:#ffffff;
-      --brand:#e0193f;
-      --brand-700:#c81639;
-      --brand-50:#fff1f4;
-      --text:#0f172a;
-      --muted:#6b7280;
-      --line:#e5e7eb;
-      --shadow:0 22px 60px rgba(0,0,0,.14);
+      --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
+      --text:#0f172a; --muted:#6b7280; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
       --green:#16a34a;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;background:var(--bg);color:var(--text);
+    html,body{
+      margin:0;background:var(--bg);color:var(--text);
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       -webkit-tap-highlight-color:transparent;
     }
-    /* --- fond resto romantique --- */
     .bg-wrap{position:fixed; inset:0; z-index:-2; overflow:hidden}
     .bg-photo{
       position:absolute; inset:0;
       background:
         linear-gradient(0deg, rgba(255,255,255,.85), rgba(255,255,255,.85)),
         url('https://images.unsplash.com/photo-1541542684-4a59d52f3f87?q=80&w=1600&auto=format&fit=crop');
-      background-position:center;
-      background-size:cover;
-      filter:saturate(1.05) blur(0.4px);
-      transform:scale(1.03);
+      background-position:center; background-size:cover;
+      filter:saturate(1.05) blur(0.4px); transform:scale(1.03);
     }
     .bg-bokeh{
       position:absolute; inset:-20% -10%;
@@ -43,29 +34,22 @@
         radial-gradient(700px 340px at 90% 100%, rgba(224,25,63,.08), transparent 60%);
       z-index:-1;
     }
-
-    .wrap{max-width:480px; margin:0 auto; min-height:100vh;
-      padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;
-    }
+    .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;}
     @supports(padding:max(0px)){
       .wrap{ padding-left:max(16px,env(safe-area-inset-left));
              padding-right:max(16px,env(safe-area-inset-right));
              padding-bottom:max(44px,env(safe-area-inset-bottom)); }
     }
-
-    /* Brand */
     .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
     .brand-badge{width:44px;height:44px;border-radius:14px;
       background:radial-gradient(circle at 30% 25%, #ff96aa, var(--brand));
       display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:20px;
       box-shadow:0 10px 22px rgba(224,25,63,.28);
     }
-    .brand h1{margin:0;font-size:26px;font-weight:900;letter-spacing:.2px}
+    .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
 
-    /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
 
-   /* --- accueil (type meetic) --- */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
     .row{display:flex;align-items:center;gap:16px}
@@ -73,9 +57,7 @@
       appearance:none;-webkit-appearance:none;background:transparent;border:none;outline:none;
       font:inherit;font-weight:900;color:#111827;width:100%;font-size:18px;letter-spacing:.2px;
     }
-    .field{
-      position:relative;width:100%;padding:16px 0 14px;border-bottom:2px solid var(--line);
-    }
+    .field{position:relative;width:100%;padding:16px 0 14px;border-bottom:2px solid var(--line);}
     .field::after{
       content:""; position:absolute; right:0; top:16px; width:22px; height:22px; pointer-events:none;
       background:
@@ -84,7 +66,6 @@
       opacity:.55;
     }
     .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
-
     .cta{
       display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
       border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;
@@ -92,7 +73,6 @@
     }
     .cta:active{transform:scale(.98)}
 
-    /* --- browse --- */
     .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
     .count{font-size:14px;color:#6b7280;font-weight:800}
     .persona-box{margin:14px 14px 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid #eee}
@@ -113,7 +93,6 @@
     .btn-like{background:var(--green);color:#fff}
     .btn[disabled]{opacity:.6}
 
-    /* Modals */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
@@ -124,28 +103,54 @@
   </style>
 </head>
 <body>
-  <div class="bg-wrap">
-    <div class="bg-photo"></div>
-    <div class="bg-bokeh"></div>
-  </div>
+  <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
   <div class="wrap" id="app"></div>
 
   <script>
-    /* =================== CONFIG =================== */
+    /* ============ CONFIG ============ */
     const BRAND = "Flamme";
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
     const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // remplace
     const MATCH_CHAT_URL = "https://exemple.com/parler";                 // remplace
 
-    // 👉 Colle ICI tes 98 URLs d’images (hébergées ou dans /images du repo)
-    // Exemple si dans ton repo: "./images/01.jpg", "./images/02.jpg", ...
+    // Colle tes 98 images (chemins absolus ou ./images/xxx.jpg)
     const PERSONA_IMAGES = [
-      // "https://cdn.ton-domaine.com/ai/001.jpg",
-      // "./images/001.jpg",
+      "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
+      "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
+      "./images/photo_7_2025-08-30_17-36-31.jpg","./images/photo_8_2025-08-30_17-36-31.jpg","./images/photo_9_2025-08-30_17-36-31.jpg",
+      "./images/photo_10_2025-08-30_17-36-31.jpg","./images/photo_11_2025-08-30_17-36-31.jpg","./images/photo_12_2025-08-30_17-36-31.jpg",
+      "./images/photo_13_2025-08-30_17-36-31.jpg","./images/photo_14_2025-08-30_17-36-31.jpg","./images/photo_15_2025-08-30_17-36-31.jpg",
+      "./images/photo_16_2025-08-30_17-36-31.jpg","./images/photo_17_2025-08-30_17-36-31.jpg","./images/photo_18_2025-08-30_17-36-31.jpg",
+      "./images/photo_19_2025-08-30_17-36-31.jpg","./images/photo_20_2025-08-30_17-36-31.jpg","./images/photo_21_2025-08-30_17-36-31.jpg",
+      "./images/photo_22_2025-08-30_17-36-31.jpg","./images/photo_23_2025-08-30_17-36-31.jpg","./images/photo_24_2025-08-30_17-36-31.jpg",
+      "./images/photo_25_2025-08-30_17-36-31.jpg","./images/photo_26_2025-08-30_17-36-31.jpg","./images/photo_27_2025-08-30_17-36-31.jpg",
+      "./images/photo_28_2025-08-30_17-36-31.jpg","./images/photo_29_2025-08-30_17-36-31.jpg","./images/photo_30_2025-08-30_17-36-31.jpg",
+      "./images/photo_31_2025-08-30_17-36-31.jpg","./images/photo_32_2025-08-30_17-36-31.jpg","./images/photo_33_2025-08-30_17-36-31.jpg",
+      "./images/photo_34_2025-08-30_17-36-31.jpg","./images/photo_35_2025-08-30_17-36-31.jpg","./images/photo_36_2025-08-30_17-36-31.jpg",
+      "./images/photo_37_2025-08-30_17-36-31.jpg","./images/photo_38_2025-08-30_17-36-31.jpg","./images/photo_39_2025-08-30_17-36-31.jpg",
+      "./images/photo_40_2025-08-30_17-36-31.jpg","./images/photo_41_2025-08-30_17-36-31.jpg","./images/photo_42_2025-08-30_17-36-31.jpg",
+      "./images/photo_43_2025-08-30_17-36-31.jpg","./images/photo_44_2025-08-30_17-36-31.jpg","./images/photo_45_2025-08-30_17-36-31.jpg",
+      "./images/photo_46_2025-08-30_17-36-31.jpg","./images/photo_47_2025-08-30_17-36-31.jpg","./images/photo_48_2025-08-30_17-36-31.jpg",
+      "./images/photo_49_2025-08-30_17-36-31.jpg","./images/photo_50_2025-08-30_17-36-31.jpg","./images/photo_51_2025-08-30_17-36-31.jpg",
+      "./images/photo_52_2025-08-30_17-36-31.jpg","./images/photo_53_2025-08-30_17-36-31.jpg","./images/photo_54_2025-08-30_17-36-31.jpg",
+      "./images/photo_55_2025-08-30_17-36-31.jpg","./images/photo_56_2025-08-30_17-36-31.jpg","./images/photo_57_2025-08-30_17-36-31.jpg",
+      "./images/photo_58_2025-08-30_17-36-31.jpg","./images/photo_59_2025-08-30_17-36-31.jpg","./images/photo_60_2025-08-30_17-36-31.jpg",
+      "./images/photo_61_2025-08-30_17-36-31.jpg","./images/photo_62_2025-08-30_17-36-31.jpg","./images/photo_63_2025-08-30_17-36-31.jpg",
+      "./images/photo_64_2025-08-30_17-36-31.jpg","./images/photo_65_2025-08-30_17-36-31.jpg","./images/photo_66_2025-08-30_17-36-31.jpg",
+      "./images/photo_67_2025-08-30_17-36-31.jpg","./images/photo_68_2025-08-30_17-36-31.jpg","./images/photo_69_2025-08-30_17-36-31.jpg",
+      "./images/photo_70_2025-08-30_17-36-31.jpg","./images/photo_71_2025-08-30_17-36-31.jpg","./images/photo_72_2025-08-30_17-36-31.jpg",
+      "./images/photo_73_2025-08-30_17-36-31.jpg","./images/photo_74_2025-08-30_17-36-31.jpg","./images/photo_75_2025-08-30_17-36-31.jpg",
+      "./images/photo_76_2025-08-30_17-36-31.jpg","./images/photo_77_2025-08-30_17-36-31.jpg","./images/photo_78_2025-08-30_17-36-31.jpg",
+      "./images/photo_79_2025-08-30_17-36-31.jpg","./images/photo_80_2025-08-30_17-36-31.jpg","./images/photo_81_2025-08-30_17-36-31.jpg",
+      "./images/photo_82_2025-08-30_17-36-31.jpg","./images/photo_83_2025-08-30_17-36-31.jpg","./images/photo_84_2025-08-30_17-36-31.jpg",
+      "./images/photo_85_2025-08-30_17-36-31.jpg","./images/photo_86_2025-08-30_17-36-31.jpg","./images/photo_87_2025-08-30_17-36-31.jpg",
+      "./images/photo_88_2025-08-30_17-36-31.jpg","./images/photo_89_2025-08-30_17-36-31.jpg","./images/photo_90_2025-08-30_17-36-31.jpg",
+      "./images/photo_91_2025-08-30_17-36-31.jpg","./images/photo_92_2025-08-30_17-36-31.jpg","./images/photo_93_2025-08-30_17-36-31.jpg",
+      "./images/photo_94_2025-08-30_17-36-31.jpg","./images/photo_95_2025-08-30_17-36-31.jpg","./images/photo_96_2025-08-30_17-36-31.jpg",
+      "./images/photo_97_2025-08-30_17-36-31.jpg","./images/photo_98_2025-08-30_17-36-31.jpg"
     ];
 
-    // Si tu ne fournis pas encore d’images, petit jeu de données par défaut :
     const FALLBACK_IMAGES = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
@@ -153,27 +158,46 @@
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
 
-    /* =================== TELEGRAM HELPERS =================== */
+    /* ============ TELEGRAM HELPERS ============ */
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
     const openLinkTG = (url)=>{
       if (tg && tg.openLink) { tg.openLink(url, {try_instant_view:false}); return; }
-      // fallback hors Telegram
-      window.location.href = url;
+      window.location.href = url; // fallback
     };
 
-    /* =================== RANDOM FABRIC =================== */
-    const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma"];
-    const TAGS   = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect"];
-    const DESCS  = [
-      "Curieuse et positive. Ici pour un bon feeling ✨.",
-      "Fan de séries et de balades le soir.",
-      "Team respect & limites claires. On rigole, on chill.",
-      "Cosplay & papotes tardives. No pressure.",
-      "J’adore la bonne bouffe et les city-breaks.",
-      "Plutôt douce, j’aime les attentions simples.",
-      "Un peu taquine. Si la vibe passe, on voit 😉.",
-      "Virtual persona — roleplay only."
+    /* ============ RANDOM FABRIC ============ */
+    const FNAMES = [
+      "Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna",
+      "Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane",
+      "Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena",
+      "Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma",
+      "Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa",
+      "Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs",
+      "Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"
+    ];
+    const TAGS = [
+      "romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture",
+      "sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos",
+      "animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère",
+      "rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"
+    ];
+    const DESCS = [
+      "Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.",
+      "Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.",
+      "J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.",
+      "Un peu taquine. Si la vibe passe, on voit 😉.","Virtual persona — roleplay only.",
+      "Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.",
+      "Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.",
+      "Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.",
+      "Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.",
+      "Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.",
+      "Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.",
+      "Cosy nights > grosses soirées (la plupart du temps).","J’adore les chiens et les couchers de soleil.",
+      "Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.",
+      "Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.",
+      "On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.",
+      "Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."
     ];
 
     const rnd = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
@@ -184,8 +208,10 @@
       return out;
     };
 
+    // Cache stable par liste d’images
+    const PERSONA_CACHE_KEY = "flamme_personas_v1_" + (PERSONA_IMAGES.join("|").length) + "_" + PERSONA_IMAGES.length;
+
     function buildPersonasFromImages(urls){
-      // shuffle pour varier
       const shuffled=[...urls].sort(()=>Math.random()-.5);
       return shuffled.map((src,i)=>({
         id:`img_${i+1}`,
@@ -198,20 +224,29 @@
       }));
     }
 
-    /* =================== STATE =================== */
+    function loadOrGeneratePersonas(){
+      try{
+        const raw = localStorage.getItem(PERSONA_CACHE_KEY);
+        if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed) && parsed.length) return parsed; }
+      }catch(e){}
+      const base = PERSONA_IMAGES.length ? PERSONA_IMAGES : FALLBACK_IMAGES;
+      const generated = buildPersonasFromImages(base);
+      try{ localStorage.setItem(PERSONA_CACHE_KEY, JSON.stringify(generated)); }catch(e){}
+      return generated;
+    }
+
+    /* ============ STATE ============ */
     const state = {
       step:"landing",
-      filters:{ gender:"women", ageMin:18, ageMax:60, city:"" }, // 👉 Femme par défaut
+      filters:{ gender:"women", ageMin:18, ageMax:60, city:"" }, // Femme par défaut
       pool:[], idx:0,
       likesLeft:LIKE_LIMIT, superLeft:SUPERLIKE_LIMIT,
       busy:false,
     };
 
-    // Données persona (depuis tes images sinon fallback)
-    let PERSONAS = PERSONA_IMAGES.length ? buildPersonasFromImages(PERSONA_IMAGES)
-                                         : buildPersonasFromImages(FALLBACK_IMAGES);
+    let PERSONAS = loadOrGeneratePersonas();
 
-    /* =================== DOM HELPERS =================== */
+    /* ============ DOM HELPERS ============ */
     const $ = s => document.querySelector(s);
     const el = (tag, props={}, children=[])=>{
       const n=document.createElement(tag);
@@ -225,7 +260,7 @@
       return n;
     };
 
-    /* =================== RENDER ROOT =================== */
+    /* ============ RENDER ROOT ============ */
     function render(){
       const root = $("#app"); root.innerHTML="";
       root.appendChild(el("div",{class:"brand"},[ el("div",{class:"brand-badge",text:"❤"}), el("h1",{text:BRAND}) ]));
@@ -234,12 +269,10 @@
       ensureModals(root);
     }
 
-    /* =================== LANDING =================== */
+    /* ============ LANDING ============ */
     function renderLanding(){
-      const card = el("div",{class:"card"});
-      const box  = el("div",{class:"welcome"});
+      const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
 
-      // Que recherchez-vous ?
       box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
       const genderSel = el("select",{id:"selGender",class:"sel"});
       [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
@@ -247,17 +280,14 @@
       genderSel.onchange = ()=> state.filters.gender = genderSel.value;
       box.appendChild(el("div",{class:"field"}, genderSel));
 
-      // Age min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
       const ageMinSel = el("select",{class:"sel"});
       for(let a=18;a<=60;a++) ageMinSel.appendChild(el("option",{value:a,text:a}));
       ageMinSel.value = state.filters.ageMin;
-
       const ageMaxSel = el("select",{class:"sel"});
       for(let a=18;a<=60;a++) ageMaxSel.appendChild(el("option",{value:a,text:a}));
       ageMaxSel.value = state.filters.ageMax;
-
       ageMinSel.onchange = ()=>{
         state.filters.ageMin = parseInt(ageMinSel.value,10);
         if(state.filters.ageMin > state.filters.ageMax){
@@ -270,18 +300,10 @@
           state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin);
         }
       };
-
-      row.appendChild(el("div",{style:"flex:1"},[
-        el("div",{class:"label",text:"Entre"}),
-        el("div",{class:"field"}, ageMinSel)
-      ]));
-      row.appendChild(el("div",{style:"flex:1"},[
-        el("div",{class:"label",text:"et"}),
-        el("div",{class:"field"}, ageMaxSel)
-      ]));
+      row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"Entre"}), el("div",{class:"field"}, ageMinSel) ]));
+      row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
       box.appendChild(row);
 
-      // Ville (optionnel)
       box.appendChild(el("div",{class:"label",text:"Dans quelle ville habitez-vous ?"}));
       const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"});
       city.value = state.filters.city; city.oninput = ()=> state.filters.city = city.value.trim();
@@ -300,7 +322,7 @@
       return card;
     }
 
-    /* =================== BROWSE =================== */
+    /* ============ BROWSE ============ */
     function renderBrowse(){
       const card = el("div",{class:"card"});
 
@@ -311,7 +333,6 @@
       card.appendChild(meta);
 
       const p = currentPersona();
-
       const mediaWrap = el("div",{class:"persona-box"});
       mediaWrap.appendChild(el("img",{class:"persona-img",src:p.photos[0],alt:p.name,loading:"eager"}));
       mediaWrap.appendChild(el("div",{class:"cap",text:"Virtual persona"}));
@@ -335,10 +356,10 @@
       return card;
     }
 
-    /* =================== LOGIC =================== */
+    /* ============ LOGIC ============ */
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
-    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap tel
+    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
     function like(){
       if(state.likesLeft<=0){ openNoLikesModal(); return; }
@@ -350,19 +371,15 @@
       state.superLeft -= 1; bumpGuard(); openMatchModal();
     }
 
-    /* =================== MODALS =================== */
+    /* ============ MODALS ============ */
     function ensureModals(root){
-      // règles
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"Rappel rapide"}),
           el("div",{text:"Vous avez 3 likes et 1 super-like par compte non créé."}),
-          el("div",{class:"modal-actions"},[
-            el("button",{class:"btn-ghost",text:"OK",onclick:()=>closeModal("#m_rules")})
-          ])
+          el("div",{class:"modal-actions"},[ el("button",{class:"btn-ghost",text:"OK",onclick:()=>closeModal("#m_rules")}) ])
         ])
       ));
-      // plus de likes
       root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"Plus de likes"}),
@@ -373,7 +390,6 @@
           ])
         ])
       ));
-      // match
       root.appendChild(el("div",{class:"modal",id:"m_match"},
         el("div",{class:"modal-card"},[
           el("div",{class:"modal-title",text:"🎉 Match obtenu"}),
@@ -391,7 +407,7 @@
     function openNoLikesModal(){ openModal("#m_nolikes"); }
     function openMatchModal(){ openModal("#m_match"); }
 
-    /* =================== BOOT =================== */
+    /* ============ BOOT ============ */
     render();
   </script>
 </body>
