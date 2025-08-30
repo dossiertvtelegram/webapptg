@@ -1,397 +1,374 @@
-import React, { useEffect, useMemo, useState } from "react";
-
-/**
- * Telegram Virtual Dating WebApp (clean & consent-based)
- * -----------------------------------------------------
- * - Clear disclaimer: "Virtual / AI personas"
- * - Mini quiz ➜ swipe-like carousel (Like / Nope / Super-like)
- * - Match after X likes ➜ CTA to open partner/affiliate link
- * - Growth hooks: 1 super-like/day (+2 if gate complete, +1 if referral)
- * - subid tracking: `${user_id}|${persona_id}|${creative}|${ts}` appended to OFFER_URL_BASE
- * - All local state persisted per user via localStorage
- * - Designed for Telegram WebApp (uses window.Telegram.WebApp if present; graceful fallback otherwise)
- *
- * How to host:
- *  - This single React component can be served in any React app.
- *  - In Telegram bot, open as WebApp (ReplyKeyboardButton/WebAppInfo) with your URL.
- *  - Optionally pass gating/referral in start_param or query: ?gate=100&ref=1
- */
-
-// ======= CONFIG =======
-const OFFER_URL_BASE = "https://partner.example.com/offer"; // <-- change me
-const LIKE_TO_MATCH = 3;                                     // how many likes to trigger a match
-
-// 4 styles of progress bars (admin could toggle via query arg: ?pbar=2)
-const PROGRESS_STYLES = {
-  1: (v) => `▓`.repeat(v) + `░`.repeat(Math.max(0, LIKE_TO_MATCH - v)),
-  2: (v) => `❤`.repeat(v) + `🤍`.repeat(Math.max(0, LIKE_TO_MATCH - v)),
-  3: (v) => {
-    const pct = Math.min(100, Math.round((v / LIKE_TO_MATCH) * 100));
-    return `Progress: ${pct}%`;
-  },
-  4: (v) => `${v} / ${LIKE_TO_MATCH} matches`
-};
-
-// Simple persona dataset (virtual)
-const PERSONAS = [
-  {
-    id: "ai_amber",
-    name: "Amber (Virtual)",
-    age: 24,
-    badges: ["chatty", "adventurous", "roleplay"],
-    bio: "Curieuse, j’adore tester des jeux de rôle soft. Ici pour matcher avec les bonnes vibes ✨.",
-    photos: [
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=1200&auto=format&fit=crop"
-    ]
-  },
-  {
-    id: "ai_nova",
-    name: "Nova (Virtual)",
-    age: 22,
-    badges: ["cosplay", "friendly", "open-minded"],
-    bio: "Cosplay chill + discussions tard le soir. No pressure, juste du fun.",
-    photos: [
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1549351512-c5e12b12f3a0?q=80&w=1200&auto=format&fit=crop"
-    ]
-  },
-  {
-    id: "ai_luna",
-    name: "Luna (Virtual)",
-    age: 27,
-    badges: ["soft-kinks", "teasing", "respect"],
-    bio: "Team respect & limites claires. Si le feeling passe ➜ on débloque une surprise…",
-    photos: [
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=1200&auto=format&fit=crop"
-    ]
-  }
-];
-
-// ======= Telegram helpers =======
-function useTelegram() {
-  const [tg, setTg] = useState(null);
-  useEffect(() => {
-    const t = typeof window !== "undefined" && window.Telegram ? window.Telegram.WebApp : null;
-    if (t) {
-      try { t.ready(); t.expand(); } catch (e) {}
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Virtual Dating (WebApp Telegram)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- React via CDN (dev) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <!-- Babel pour transformer JSX côté navigateur (ok pour démo) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root{
+      --bg:#0f0f12; --card:#17171b; --muted:#a1a1aa; --text:#fff;
+      --primary:#ec4899; --primary-2:#db2777; --ok:#10b981; --warn:#f59e0b;
+      --ring:rgba(236,72,153,.35);
     }
-    setTg(t);
-  }, []);
-  return tg;
-}
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      background:linear-gradient(180deg,#0f0f12 0%, #141418 100%);
+      color:var(--text);
+    }
+    .wrap{max-width:720px; margin:0 auto; padding:16px;}
+    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px}
+    .topbar h1{font-size:18px; margin:0}
+    .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 10px; border-radius:999px; background:#1f1f25; border:1px solid #26262d; color:#cbd5e1}
+    .card{background:var(--card); border:1px solid #26262d; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,.35)}
+    .row{display:flex; gap:12px; flex-wrap:wrap}
+    .btn{display:inline-flex; justify-content:center; align-items:center; gap:8px; padding:12px 16px; border-radius:12px; border:1px solid #2c2c36; cursor:pointer; font-weight:600; background:#1b1b21; color:#fff; text-decoration:none; user-select:none}
+    .btn:hover{background:#20202a}
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:var(--primary); border-color:transparent}
+    .btn-primary:hover{background:var(--primary-2)}
+    .btn-ok{background:var(--ok); border-color:transparent}
+    .btn-warn{background:var(--warn); color:#111; border-color:transparent}
+    .muted{color:var(--muted)}
+    .pill{border:1px solid #2c2c36; background:#1b1b21; border-radius:999px; padding:6px 10px; font-size:12px; display:inline-flex; align-items:center; gap:8px}
+    .grid{display:grid; grid-template-columns:1fr; gap:12px}
+    @media (min-width: 560px){ .grid-2{grid-template-columns:1fr 1fr} }
+    .persona{
+      overflow:hidden; border-radius:16px; border:1px solid #2c2c36; background:#111; position:relative
+    }
+    .persona img{width:100%; height:360px; object-fit:cover; display:block}
+    .dots{position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:8px}
+    .dot{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.45)}
+    .dot.on{background:#fff}
+    .ribbon{position:absolute; top:12px; left:12px; background:rgba(15,15,18,.75); border:1px solid #30303a; border-radius:999px; padding:6px 10px; font-size:12px; backdrop-filter:blur(6px)}
+    .row-actions{display:flex; gap:12px; margin-top:12px}
+    .k{padding:4px 8px; border:1px solid #2c2c36; border-radius:999px; background:#1b1b21; font-size:12px}
+    .sectionTitle{font-size:14px; font-weight:700; opacity:.9; margin:12px 0 6px}
+    .pbar{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; letter-spacing:.5px}
+    .disclaimer{font-size:12px; color:#cbd5e1}
+  </style>
+</head>
+<body>
+  <div id="app"></div>
 
-function getQuery() {
-  if (typeof window === "undefined") return {};
-  const q = Object.fromEntries(new URLSearchParams(window.location.search));
-  // Normalize common flags
-  return {
-    gate: q.gate || q.gateComplete || q.g,  // "100" or "1" means gate bonus
-    ref: q.ref || q.r,
-    pbar: q.pbar || 1,
-  };
-}
+  <script type="text/babel">
+    // ======= CONFIG =======
+    const OFFER_URL_BASE = "https://partner.example.com/offer"; // ← remplace par ton lien
+    const LIKE_TO_MATCH = 3;
 
-function todayKey() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
+    // 4 styles de barres de progression
+    const PROGRESS_STYLES = {
+      1: (v) => "▓".repeat(v) + "░".repeat(Math.max(0, LIKE_TO_MATCH - v)),
+      2: (v) => "❤".repeat(v) + "🤍".repeat(Math.max(0, LIKE_TO_MATCH - v)),
+      3: (v) => {
+        const pct = Math.min(100, Math.round((v / LIKE_TO_MATCH) * 100));
+        return `Progress: ${pct}%`;
+      },
+      4: (v) => `${v} / ${LIKE_TO_MATCH} matches`,
+    };
 
-function lsGet(key, def) {
-  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; } catch { return def; }
-}
-function lsSet(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
-}
+    // Dataset simple (personas virtuelles)
+    const PERSONAS = [
+      {
+        id: "ai_amber",
+        name: "Amber (Virtual)",
+        age: 24,
+        badges: ["chatty", "adventurous", "roleplay"],
+        bio: "Curieuse, j’adore tester des jeux de rôle soft. Ici pour matcher avec les bonnes vibes ✨.",
+        photos: [
+          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=1200&auto=format&fit=crop",
+        ],
+      },
+      {
+        id: "ai_nova",
+        name: "Nova (Virtual)",
+        age: 22,
+        badges: ["cosplay", "friendly", "open-minded"],
+        bio: "Cosplay chill + discussions tard le soir. No pressure, juste du fun.",
+        photos: [
+          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1549351512-c5e12b12f3a0?q=80&w=1200&auto=format&fit=crop",
+        ],
+      },
+      {
+        id: "ai_luna",
+        name: "Luna (Virtual)",
+        age: 27,
+        badges: ["soft-kinks", "teasing", "respect"],
+        bio: "Team respect & limites claires. Si le feeling passe ➜ on débloque une surprise…",
+        photos: [
+          "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=1200&auto=format&fit=crop",
+        ],
+      },
+    ];
 
-// ======= Main Component =======
-export default function TelegramDatingWebApp() {
-  const tg = useTelegram();
-  const query = useMemo(() => getQuery(), []);
-  const initUser = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) || null;
-  const userId = initUser?.id || 999999; // fallback for preview
+    // ======= Helpers =======
+    const { useState, useEffect, useMemo } = React;
 
-  // quiz state (super simple)
-  const [step, setStep] = useState(0); // 0 = quiz, 1 = carousel, 2 = matched
-  const [prefs, setPrefs] = useState({ gender: "all", soft: ["tease"], limits: ["no-violence"] });
-
-  // carousel state
-  const [idx, setIdx] = useState(0);
-  const [likes, setLikes] = useState(0);
-  const [lastAction, setLastAction] = useState("");
-
-  // super-like daily logic
-  const dayKey = `${userId}:${todayKey()}:superlikes`;
-  const usedSL = lsGet(dayKey, 0);
-  const baseSL = 1;
-  const gateBonus = (query.gate === "100" || query.gate === "1") ? 2 : 0;
-  const refBonus = (query.ref === "1") ? 1 : 0;
-  const totalSL = baseSL + gateBonus + refBonus;
-  const remainingSL = Math.max(0, totalSL - usedSL);
-
-  // picked progress style
-  const pbarIdx = Math.max(1, Math.min(4, parseInt(query.pbar || 1, 10)));
-  const progressText = PROGRESS_STYLES[pbarIdx](likes);
-
-  // current persona
-  const persona = PERSONAS[idx % PERSONAS.length];
-  const [photoIndex, setPhotoIndex] = useState(0);
-  useEffect(() => setPhotoIndex(0), [idx]);
-
-  // subid helpers
-  const ts = () => Date.now().toString();
-  const buildSubId = (p, creative = "main") => `${userId}|${p.id}|${creative}|${ts()}`;
-
-  function sendEvent(payload) {
-    try {
-      if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));
-      // also log for debugging
-      // eslint-disable-next-line no-console
-      console.log("[sendData]", payload);
-    } catch {}
-  }
-
-  function handleLike(superLike = false) {
-    setLastAction(superLike ? "SUPER LIKE" : "LIKE");
-    // track
-    sendEvent({ t: "like", user_id: userId, persona_id: persona.id, super: superLike, subid: buildSubId(persona, superLike ? "super" : "like") });
-
-    if (superLike) {
-      // consume super-like if available
-      if (remainingSL <= 0) {
-        setLastAction("NO SUPER-LIKE LEFT");
-        return;
-      }
-      lsSet(dayKey, usedSL + 1);
-      // super-like counts as +2 likes
-      const newLikes = Math.min(LIKE_TO_MATCH, likes + 2);
-      setLikes(newLikes);
-      if (newLikes >= LIKE_TO_MATCH) {
-        setStep(2); // matched
-        return;
-      }
-    } else {
-      const newLikes = Math.min(LIKE_TO_MATCH, likes + 1);
-      setLikes(newLikes);
-      if (newLikes >= LIKE_TO_MATCH) {
-        setStep(2); // matched
-        return;
-      }
+    function useTelegram() {
+      const [tg, setTg] = useState(null);
+      useEffect(() => {
+        const t = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+        if (t) { try { t.ready(); t.expand(); } catch(e){} }
+        setTg(t);
+      }, []);
+      return tg;
     }
 
-    // next persona
-    setIdx((v) => v + 1);
-  }
+    function getQuery() {
+      const q = Object.fromEntries(new URLSearchParams(window.location.search));
+      return {
+        gate: q.gate || q.gateComplete || q.g, // "100" ou "1"
+        ref: q.ref || q.r,
+        pbar: q.pbar || 1,
+      };
+    }
 
-  function handleNope() {
-    setLastAction("NOPE");
-    sendEvent({ t: "nope", user_id: userId, persona_id: persona.id, subid: buildSubId(persona, "nope") });
-    setIdx((v) => v + 1);
-  }
+    function todayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function lsGet(key, def){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }catch{return def} }
+    function lsSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch{} }
 
-  function openOffer(p) {
-    const subid = buildSubId(p, "match");
-    const url = `${OFFER_URL_BASE}?subid=${encodeURIComponent(subid)}`;
-    sendEvent({ t: "open_offer", user_id: userId, persona_id: p.id, subid });
-    if (tg && tg.openLink) return tg.openLink(url, { try_instant_view: false });
-    window.open(url, "_blank");
-  }
+    // ======= App =======
+    function App() {
+      const tg = useTelegram();
+      const query = useMemo(() => getQuery(), []);
+      const initUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+      const userId = initUser?.id || 999999;
 
-  // UI helpers
-  const Ribbon = () => (
-    <div className="absolute left-4 top-4 select-none rounded-full bg-pink-600/90 px-3 py-1 text-xs font-semibold text-white shadow">
-      Virtual / AI Persona
-    </div>
-  );
+      // quiz
+      const [step, setStep] = useState(0); // 0 quiz, 1 carousel, 2 matched
+      const [prefs, setPrefs] = useState({ gender: "all", soft: ["tease"], limits: ["no-violence"] });
 
-  const Badge = ({ children }) => (
-    <span className="rounded-full border px-2 py-1 text-xs font-medium text-foreground/80">
-      {children}
-    </span>
-  );
+      // carousel
+      const [idx, setIdx] = useState(0);
+      const [likes, setLikes] = useState(0);
+      const [lastAction, setLastAction] = useState("");
+      const [photoIndex, setPhotoIndex] = useState(0);
+      useEffect(() => setPhotoIndex(0), [idx]);
 
-  const LikeButton = ({ children, onClick }) => (
-    <button onClick={onClick} className="rounded-2xl border bg-background px-6 py-3 text-lg font-semibold shadow hover:shadow-md active:scale-95">
-      {children}
-    </button>
-  );
+      // super-like/day
+      const dayKey = `${userId}:${todayKey()}:superlikes`;
+      const usedSL = lsGet(dayKey, 0);
+      const baseSL = 1;
+      const gateBonus = (query.gate === "100" || query.gate === "1") ? 2 : 0;
+      const refBonus = (query.ref === "1") ? 1 : 0;
+      const totalSL = baseSL + gateBonus + refBonus;
+      const remainingSL = Math.max(0, totalSL - usedSL);
 
-  // ====== SCREENS ======
+      // progress style
+      const pbarIdx = Math.max(1, Math.min(4, parseInt(query.pbar || 1, 10)));
+      const progressText = PROGRESS_STYLES[pbarIdx](likes);
 
-  // 0) QUIZ
-  const Quiz = () => (
-    <div className="mx-auto max-w-md space-y-4 p-4">
-      <h1 className="text-2xl font-bold">Trouvons ton vibe ✨</h1>
-      <p className="text-sm text-foreground/70">Discret, soft & respect. Les profils sont virtuels (roleplay).</p>
+      const persona = PERSONAS[idx % PERSONAS.length];
 
-      <div className="rounded-2xl border p-4 shadow-sm">
-        <div className="mb-2 text-sm font-semibold">Genres qui t’intéressent</div>
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { k: "women", label: "Femmes" },
-            { k: "men", label: "Hommes" },
-            { k: "all", label: "Tous" }
-          ].map((opt) => (
-            <button
-              key={opt.k}
-              onClick={() => setPrefs((p) => ({ ...p, gender: opt.k }))}
-              className={`rounded-xl border px-3 py-2 text-sm ${prefs.gender === opt.k ? "border-pink-600 bg-pink-50" : "hover:bg-accent"}`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      const ts = () => Date.now().toString();
+      const buildSubId = (p, creative="main") => `${userId}|${p.id}|${creative}|${ts()}`;
 
-      <div className="rounded-2xl border p-4 shadow-sm">
-        <div className="mb-2 text-sm font-semibold">Kinks soft (sélection)</div>
-        <div className="flex flex-wrap gap-2">
-          {["tease", "cosplay", "lingerie", "chat"]
-            .map((k) => (
-              <button
-                key={k}
-                onClick={() => setPrefs((p) => ({ ...p, soft: p.soft.includes(k) ? p.soft.filter((x) => x !== k) : [...p.soft, k] }))}
-                className={`rounded-full border px-3 py-1 text-xs ${prefs.soft.includes(k) ? "border-pink-600 bg-pink-50" : "hover:bg-accent"}`}
-              >
-                {k}
-              </button>
-            ))}
-        </div>
-      </div>
+      function sendEvent(payload){
+        try{
+          if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));
+          console.log("[sendData]", payload);
+        }catch{}
+      }
 
-      <div className="rounded-2xl border p-4 shadow-sm">
-        <div className="mb-2 text-sm font-semibold">Limites</div>
-        <div className="flex flex-wrap gap-2">
-          {["no-violence", "no-illegal", "no-nonconsent"]
-            .map((k) => (
-              <button
-                key={k}
-                onClick={() => setPrefs((p) => ({ ...p, limits: p.limits.includes(k) ? p.limits.filter((x) => x !== k) : [...p.limits, k] }))}
-                className={`rounded-full border px-3 py-1 text-xs ${prefs.limits.includes(k) ? "border-emerald-600 bg-emerald-50" : "hover:bg-accent"}`}
-              >
-                {k}
-              </button>
-            ))}
-        </div>
-      </div>
+      function handleLike(superLike=false){
+        setLastAction(superLike ? "SUPER LIKE" : "LIKE");
+        sendEvent({ t:"like", user_id:userId, persona_id:persona.id, super:superLike, subid:buildSubId(persona, superLike?"super":"like") });
 
-      <div className="flex items-center justify-between rounded-2xl border p-3 text-sm">
-        <div>
-          <div className="font-semibold">Super-like quotidien</div>
-          <div className="text-foreground/70">1/jour +2 si gate 100% {query.gate ? "(reçu)" : ""} +1 si parrainage {query.ref ? "(reçu)" : ""}</div>
-        </div>
-        <div className="text-right">
-          <div className="text-2xl font-bold">{remainingSL}</div>
-          <div className="text-xs text-foreground/60">restant(s)</div>
-        </div>
-      </div>
+        if (superLike) {
+          if (remainingSL <= 0) { setLastAction("NO SUPER-LIKE LEFT"); return; }
+          lsSet(dayKey, usedSL + 1);
+          const newLikes = Math.min(LIKE_TO_MATCH, likes + 2);
+          setLikes(newLikes);
+          if (newLikes >= LIKE_TO_MATCH) { setStep(2); return; }
+        } else {
+          const newLikes = Math.min(LIKE_TO_MATCH, likes + 1);
+          setLikes(newLikes);
+          if (newLikes >= LIKE_TO_MATCH) { setStep(2); return; }
+        }
+        setIdx(v => v+1);
+      }
 
-      <button onClick={() => setStep(1)} className="w-full rounded-2xl bg-pink-600 px-4 py-3 text-white shadow hover:bg-pink-700 active:scale-[.98]">
-        Commencer ➜
-      </button>
-    </div>
-  );
+      function handleNope(){
+        setLastAction("NOPE");
+        sendEvent({ t:"nope", user_id:userId, persona_id:persona.id, subid:buildSubId(persona, "nope") });
+        setIdx(v => v+1);
+      }
 
-  // 1) CAROUSEL
-  const Carousel = () => (
-    <div className="mx-auto max-w-md p-4">
-      {/* Header */}
-      <div className="mb-3 flex items-center justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wide text-foreground/50">Compat progression</div>
-          <div className="font-mono text-sm">{progressText}</div>
-        </div>
-        <div className="text-right">
-          <div className="text-xs text-foreground/50">Super-likes restants</div>
-          <div className="text-xl font-bold">{remainingSL}</div>
-        </div>
-      </div>
+      function openOffer(p){
+        const subid = buildSubId(p, "match");
+        const url = `${OFFER_URL_BASE}?subid=${encodeURIComponent(subid)}`;
+        sendEvent({ t:"open_offer", user_id:userId, persona_id:p.id, subid });
+        if (tg && tg.openLink) tg.openLink(url, { try_instant_view:false });
+        else window.open(url, "_blank");
+      }
 
-      {/* Card */}
-      <div className="relative overflow-hidden rounded-3xl border shadow-sm">
-        <Ribbon />
-        <div className="h-72 w-full bg-muted">
-          <img src={persona.photos[photoIndex]} alt={persona.name} className="h-full w-full object-cover" />
-        </div>
-        {/* Image dots */}
-        <div className="absolute bottom-3 left-0 right-0 mx-auto flex justify-center gap-1">
-          {persona.photos.map((_, i) => (
-            <button key={i} onClick={() => setPhotoIndex(i)} className={`h-2 w-2 rounded-full ${i === photoIndex ? "bg-white" : "bg-white/50"}`} />
-          ))}
-        </div>
-        <div className="space-y-2 p-4">
-          <div className="flex items-center justify-between">
-            <div className="text-lg font-bold">{persona.name} <span className="font-normal text-foreground/70">• {persona.age}</span></div>
-            <div className="text-xs text-foreground/60">#{persona.id}</div>
+      // --- UI bits ---
+      const Ribbon = () => <div className="ribbon">Virtual / AI Persona</div>;
+      const K = ({children}) => <span className="k">{children}</span>;
+
+      // Screens
+      const Quiz = () => (
+        <div className="card grid">
+          <div>
+            <div className="sectionTitle">Trouvons ton vibe ✨</div>
+            <div className="muted">Discret, soft & respect. Les profils sont virtuels (roleplay).</div>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {persona.badges.map((b) => <Badge key={b}>{b}</Badge>)}
+
+          <div>
+            <div className="sectionTitle">Genres qui t’intéressent</div>
+            <div className="row">
+              {[
+                {k:"women", label:"Femmes"},
+                {k:"men", label:"Hommes"},
+                {k:"all", label:"Tous"},
+              ].map(opt => (
+                <button
+                  key={opt.k}
+                  className="btn"
+                  style={prefs.gender===opt.k ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
+                  onClick={()=>setPrefs(p=>({...p, gender:opt.k}))}
+                >{opt.label}</button>
+              ))}
+            </div>
           </div>
-          <p className="text-sm text-foreground/80">{persona.bio}</p>
+
+          <div>
+            <div className="sectionTitle">Kinks soft (sélection)</div>
+            <div className="row">
+              {["tease","cosplay","lingerie","chat"].map(k => {
+                const on = prefs.soft.includes(k);
+                return (
+                  <button key={k} className="btn" style={on ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
+                          onClick={()=>setPrefs(p=>({...p, soft: on ? p.soft.filter(x=>x!==k) : [...p.soft,k]}))}>
+                    {k}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div>
+            <div className="sectionTitle">Limites</div>
+            <div className="row">
+              {["no-violence","no-illegal","no-nonconsent"].map(k => {
+                const on = prefs.limits.includes(k);
+                return (
+                  <button key={k} className="btn" style={on ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
+                          onClick={()=>setPrefs(p=>({...p, limits: on ? p.limits.filter(x=>x!==k) : [...p.limits,k]}))}>
+                    {k}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="row" style={{alignItems:"center", justifyContent:"space-between"}}>
+            <div>
+              <div className="sectionTitle">Super-like quotidien</div>
+              <div className="muted">1/jour • +2 si gate 100% {query.gate ? "(reçu)" : ""} • +1 si parrainage {query.ref ? "(reçu)" : ""}</div>
+            </div>
+            <div className="pill"><b>{remainingSL}</b> restant(s)</div>
+          </div>
+
+          <button className="btn btn-primary" onClick={()=>setStep(1)}>Commencer ➜</button>
         </div>
-      </div>
+      );
 
-      {/* Actions */}
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        <LikeButton onClick={handleNope}>👎 Nope</LikeButton>
-        <LikeButton onClick={() => handleLike(false)}>👍 Like</LikeButton>
-        <LikeButton onClick={() => handleLike(true)}>⭐ Super-like</LikeButton>
-      </div>
+      const Carousel = () => (
+        <div className="grid">
+          <div className="card">
+            <div className="row" style={{justifyContent:"space-between", alignItems:"center"}}>
+              <div>
+                <div className="sectionTitle">Compat progression</div>
+                <div className="pbar">{progressText}</div>
+              </div>
+              <div className="pill">⭐ Super-likes restants: <b style={{marginLeft:6}}>{remainingSL}</b></div>
+            </div>
+          </div>
 
-      <div className="mt-3 text-center text-xs text-foreground/60">Dernière action : {lastAction || "—"}</div>
+          <div className="card">
+            <div className="persona">
+              <Ribbon/>
+              <img src={persona.photos[photoIndex]} alt={persona.name} />
+              <div className="dots">
+                {persona.photos.map((_,i)=>(
+                  <div key={i} className={"dot" + (i===photoIndex?" on":"")} onClick={()=>setPhotoIndex(i)}></div>
+                ))}
+              </div>
+            </div>
+            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:12}}>
+              <div style={{fontWeight:700}}>{persona.name} • {persona.age}</div>
+              <div className="muted">#{persona.id}</div>
+            </div>
+            <div className="row" style={{marginTop:8}}>
+              {persona.badges.map((b,i)=><K key={i}>{b}</K>)}
+            </div>
+            <div style={{marginTop:8}} className="muted">{persona.bio}</div>
 
-      <div className="mt-6 rounded-2xl border p-3 text-xs text-foreground/70">
-        Transparence : ce sont des <strong>profils virtuels/roleplay</strong>, conçus pour le fun & des offres partenaires consenties.
-      </div>
-    </div>
-  );
+            <div className="row-actions">
+              <button className="btn" onClick={handleNope}>👎 Nope</button>
+              <button className="btn btn-ok" onClick={()=>handleLike(false)}>👍 Like</button>
+              <button className="btn btn-warn" onClick={()=>handleLike(true)}>⭐ Super-like</button>
+            </div>
 
-  // 2) MATCHED / REWARD
-  const Matched = () => (
-    <div className="mx-auto max-w-md space-y-4 p-4 text-center">
-      <div className="text-3xl">🎉 Match !</div>
-      <p className="text-foreground/80">Bonne vibe détectée. Tu peux débloquer une offre partenaires (officielle) — sans promesse de chat réel.</p>
-
-      <div className="rounded-3xl border p-4 shadow-sm">
-        <div className="mb-2 text-sm uppercase tracking-wide text-foreground/50">Tracking</div>
-        <code className="block truncate rounded bg-muted p-2 text-xs">
-          subid = {buildSubId(persona, "match")}
-        </code>
-      </div>
-
-      <button onClick={() => openOffer(persona)} className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-white shadow hover:bg-emerald-700 active:scale-[.98]">
-        Ouvrir l’offre ➜
-      </button>
-
-      <button onClick={() => { setLikes(0); setIdx((v) => v + 1); setStep(1); }} className="w-full rounded-2xl border px-4 py-3 font-semibold">
-        Continuer à swiper
-      </button>
-    </div>
-  );
-
-  // root render
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="mx-auto max-w-md py-4">
-        {/* Top bar */}
-        <div className="mb-3 flex items-center justify-between px-4">
-          <div className="text-sm font-semibold">Virtual Dating</div>
-          <div className="text-xs text-foreground/60">UID: {userId}</div>
+            <div className="muted" style={{marginTop:8}}>Dernière action : {lastAction || "—"}</div>
+            <div className="disclaimer" style={{marginTop:8}}>
+              Transparence : ce sont des profils virtuels/roleplay, conçus pour le fun & des offres partenaires consenties.
+            </div>
+          </div>
         </div>
+      );
 
-        {step === 0 && <Quiz />}
-        {step === 1 && <Carousel />}
-        {step === 2 && <Matched />}
+      const Matched = () => (
+        <div className="card grid">
+          <div>
+            <div className="sectionTitle">🎉 Match !</div>
+            <div className="muted">Bonne vibe détectée. Tu peux débloquer une offre partenaire — sans promesse de chat réel.</div>
+          </div>
 
-        {/* Footer tips */}
-        <div className="mt-8 px-4 pb-6 text-center text-[10px] text-foreground/50">
-          Astuces : 1 super-like/jour (+2 si gate 100%, +1 si parrainage). subid = user_id|persona_id|creative|ts.
+          <div className="pill">tracking subid = {buildSubId(persona, "match")}</div>
+
+          <button className="btn btn-ok" onClick={()=>openOffer(persona)}>Ouvrir l’offre ➜</button>
+          <button className="btn" onClick={()=>{ setLikes(0); setIdx(v=>v+1); setStep(1); }}>Continuer à swiper</button>
         </div>
-      </div>
-    </div>
-  );
-}
+      );
+
+      return (
+        <div className="wrap">
+          <div className="topbar">
+            <h1>Virtual Dating</h1>
+            <span className="badge">UID: {userId}</span>
+          </div>
+
+          {step===0 && <Quiz/>}
+          {step===1 && <Carousel/>}
+          {step===2 && <Matched/>}
+
+          <div className="muted" style={{marginTop:16, fontSize:12}}>
+            Astuces : 1 super-like/jour (+2 si gate 100%, +1 si parrainage). subid = user_id|persona_id|creative|ts.
+          </div>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("app"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
