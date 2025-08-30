@@ -13,9 +13,9 @@
       --text:#0f172a; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
       --green:#16a34a;
 
-      /* FOND romantique (change l'URL si tu veux la tienne) */
-      --bg-overlay: .35;                                  /* léger voile blanc */
-      --bg-img: url('./images/mayur-gala-2PODhmrvLik-unsplash.jpg');
+      /* FOND romantique */
+      --bg-overlay:.35; /* léger voile blanc */
+      --bg-img:url('./images/mayur-gala-2PODhmrvLik-unsplash.jpg');
 
       /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
@@ -29,9 +29,10 @@
     }
 
     /* BACKGROUND */
-      .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-      .wrap   { position:relative; z-index:1; }  /* la carte passe au-dessus */
-      .bg-photo{
+    .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+    .wrap   { position:relative; z-index:1; }  /* la carte passe au-dessus */
+
+    .bg-photo{
       position:absolute; inset:0;
       background-image: var(--bg-img);
       background-position:center;
@@ -43,8 +44,8 @@
       content:"";
       position:absolute; inset:0;
       background:linear-gradient(0deg,
-                  rgba(255,255,255,var(--bg-overlay)),
-                  rgba(255,255,255,var(--bg-overlay)));
+        rgba(255,255,255,var(--bg-overlay)),
+        rgba(255,255,255,var(--bg-overlay)));
     }
     .bg-bokeh{
       position:absolute; inset:-20% -10%;
@@ -61,21 +62,14 @@
              padding-bottom:max(44px,env(safe-area-inset-bottom)); }
     }
 
-    /* Brand + logo flamme */
+    /* Brand + logo */
     .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
-    .brand-badge{
-      width:44px;height:44px;border-radius:14px;
-      background:radial-gradient(circle at 30% 25%, #ff96aa, var(--brand));
-      display:flex;align-items:center;justify-content:center;
-      box-shadow:0 10px 22px rgba(224,25,63,.28);
-    }
-    .brand-badge svg{width:22px;height:22px;fill:#fff;filter:drop-shadow(0 2px 6px rgba(0,0,0,.28))}
     .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
 
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
 
-    /* Accueil (type Meetic) */
+    /* Accueil */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
     .row{display:flex;align-items:center;gap:16px}
@@ -102,8 +96,6 @@
     .persona-box{margin:14px 14px 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid #eee}
     .persona-img{width:100%;height:440px;object-fit:cover;display:block}
     @media(max-width:380px){.persona-img{height:380px}}
-    .cap{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
-      border:1px solid #ffd1dc;color:#7f1d1d;border-radius:999px;padding:6px 10px;font-size:12px}
     .persona-body{padding:12px 12px 16px}
     .title{font-weight:900;font-size:22px}
     .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
@@ -122,8 +114,7 @@
 
     /* Modals */
     .modal-card.hot{
-      background:
-        radial-gradient(120% 100% at 50% 0, #ffe4ea 0%, #fff 45%);
+      background: radial-gradient(120% 100% at 50% 0, #ffe4ea 0%, #fff 45%);
       border:1px solid #ffd1dc;
     }
     .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
@@ -134,7 +125,6 @@
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
-    .modal-title{font-weight:900;font-size:18px;margin:0 0 8px}
     .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
@@ -155,8 +145,8 @@
     const likesKey = `flamme_likes_${dayKey}`;
     const superKey = `flamme_super_${dayKey}`;
 
-    /* Tes 98 images (placer dans ./images/) */
-    const PERSONA_IMAGES = [
+    /* Images */
+    const PERSONA_IMAGES = [ /* ... tes 98 URLs locales ... */ 
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
       "./images/photo_7_2025-08-30_17-36-31.jpg","./images/photo_8_2025-08-30_17-36-31.jpg","./images/photo_9_2025-08-30_17-36-31.jpg",
@@ -192,7 +182,6 @@
       "./images/photo_97_2025-08-30_17-36-31.jpg","./images/photo_98_2025-08-30_17-36-31.jpg"
     ];
 
-    /* Fallback si pas d’images */
     const FALLBACK_IMAGES = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
@@ -203,18 +192,22 @@
     /* ============ TELEGRAM HELPERS ============ */
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
+
+    // Tracking vers le bot (/web_app_data)
+    function track(t, extra={}) {
+      try { tg && tg.sendData(JSON.stringify({ t, ...extra })); } catch(e){}
+    }
+
     const openLinkTG = (url)=>{
       if (typeof closeAllModals === 'function') closeAllModals();
       if (tg) {
-        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) {  // liens Telegram purs
-          tg.openTelegramLink(url);
-          return;
-        }
-        tg.openLink(url, { try_instant_view: false });  // ouvre dans le webview Telegram
+        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
+        tg.openLink(url, { try_instant_view:false });
         return;
       }
-      window.open(url, '_self'); // fallback hors Telegram
+      window.open(url, "_self");
     };
+
     /* ============ RANDOM FABRIC ============ */
     const FNAMES = [
       "Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna",
@@ -235,16 +228,14 @@
       "Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.",
       "Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.",
       "J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.",
-      "Un peu taquine. Si la vibe passe, on voit 😉.",
-      "Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.",
-      "Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.",
-      "Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.",
-      "Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.",
-      "Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.",
-      "Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.",
-      "Cosy nights > grosses soirées (la plupart du temps).","J’adore les chiens et les couchers de soleil.",
-      "Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.",
-      "Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.",
+      "Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.",
+      "Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.",
+      "Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.",
+      "Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.",
+      "Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.",
+      "Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.",
+      "Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.",
+      "J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.",
       "On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.",
       "Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."
     ];
@@ -318,7 +309,6 @@
       return wrap;
     }
 
-
     /* ============ RENDER ROOT ============ */
     function render(){
       const root = $("#app"); root.innerHTML="";
@@ -340,7 +330,7 @@
       genderSel.onchange = ()=> state.filters.gender = genderSel.value;
       box.appendChild(el("div",{class:"field"}, genderSel));
 
-      // Age min / max
+      // Âge min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
       const ageMinSel = el("select",{class:"sel"});
@@ -375,7 +365,12 @@
         const g=state.filters.gender, a1=state.filters.ageMin, a2=state.filters.ageMax;
         state.pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
         if(!state.pool.length){ alert("Aucun profil trouvé. Élargis les filtres ✨"); return; }
-        state.idx=0; state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10); state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10); state.step="browse"; render(); openRulesModal();
+        // Compte & tracking
+        state.idx=0;
+        state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
+        state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
+        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
+        state.step="browse"; render(); openRulesModal();
       }});
       box.appendChild(cta);
       box.appendChild(el("p",{class:"hint",text:"3 likes + 1 super-like par compte non créé."}));
@@ -406,11 +401,11 @@
       card.appendChild(body);
 
       const actions = el("div",{class:"actions"});
-      const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && nextPersona()});
+      const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
       if(state.superLeft<=0) bSLike.disabled=true;
-      //if(state.likesLeft<=0) bLike.disabled=true;
+      // on laisse le LIKE cliquable même à 0 pour rouvrir la popup
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
@@ -422,17 +417,28 @@
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
     function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap tel
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
+
+    function doPass(){
+      track('pass', { persona_id: currentPersona().id });
+      nextPersona();
+    }
+
     function like(){
       if(state.likesLeft<=0){ openNoLikesModal(); return; }
-      state.likesLeft -= 1; bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render();
-      localStorage.setItem(likesKey, state.likesLeft);
+      const p = currentPersona();
+      state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
+      track('like', { persona_id: p.id });
+      nextPersona();
       if(state.likesLeft<=0) openNoLikesModal();
     }
+
     function superLike(){
       if(state.superLeft<=0){ openNoLikesModal(); return; }
-      state.superLeft -= 1; bumpGuard();
-      localStorage.setItem(superKey, state.superLeft);
-      openMatchModal(currentPersona()); // affiche la popup match avec la photo & le nom
+      const p = currentPersona();
+      state.superLeft -= 1; localStorage.setItem(superKey, state.superLeft);
+      track('super_like', { persona_id: p.id });
+      bumpGuard(); openMatchModal(p);
+      track('match', { persona_id: p.id }); // on compte un match quand on ouvre la popup
     }
 
     /* ============ MODALS ============ */
@@ -441,25 +447,25 @@
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"🔥 Rappel rapide"}),
-          el("div",{text:"Vous démarrez avec 3 Likes ❤️ et 1 Super-Like ✨. Vous pourrez créer votre compte plus tard pour obtenir des likes bonus immédiatement."}),
+          el("div",{text:"Tu démarres avec 3 Likes ❤️ et 1 Super-Like ✨. Tu pourras créer ton compte plus tard pour obtenir des likes bonus immédiatement."}),
           el("div",{class:"modal-actions"},[
             el("button",{class:"btn-ghost",text:"D’accord",onclick:()=>closeModal("#m_rules")})
           ])
         ])
       ));
-    
+
       // Plus de likes
       root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"💔 Plus de likes"}),
-          el("div",{text:"Vous avez épuisé vos 3 likes. Créez votre compte maintenant pour débloquer des likes supplémentaires."}),
+          el("div",{text:"Tu as épuisé tes 3 likes. Crée ton compte maintenant pour débloquer des likes supplémentaires."}),
           el("div",{class:"modal-actions"},[
             el("a",{href:"#",class:"btn-primary pulse",text:"S’inscrire et obtenir + de likes",
-              onclick:(e)=>{e.preventDefault(); openLinkTG(MORE_LIKES_URL);} })
+              onclick:(e)=>{e.preventDefault(); openMoreLikes(); }})
           ])
         ])
       ));
-    
+
       // Match
       root.appendChild(el("div",{class:"modal",id:"m_match"},
         el("div",{class:"modal-card hot"},[
@@ -474,36 +480,32 @@
           ]),
           el("div",{class:"modal-actions"},[
             el("a",{href:"#",class:"btn-primary pulse",text:"Discuter maintenant",
-              onclick:(e)=>{e.preventDefault(); openLinkTG(MATCH_CHAT_URL);} })
+              onclick:(e)=>{e.preventDefault(); openChat(); }})
           ])
         ])
       ));
-      /*
-      document.querySelectorAll('.modal').forEach(m=>{
-        m.addEventListener('click', (e)=>{
-          if (e.target === m) m.classList.remove('open');
-        }, { passive:true });
-      });*/
     }
 
     function openModal(sel){ const m=$(sel); if(m) m.classList.add("open"); }
     function closeModal(sel){ const m=$(sel); if(m) m.classList.remove("open"); }
-    function closeAllModals(){
-      document.querySelectorAll('.modal.open')
-        .forEach(m => m.classList.remove('open'));
-    }
+    function closeAllModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
     function openRulesModal(){ openModal("#m_rules"); }
     function openNoLikesModal(){ openModal("#m_nolikes"); }
+
     function openMatchModal(p){
-      const img = $("#matchImg");
-      const nm  = $("#matchName");
+      const img = $("#matchImg"); const nm = $("#matchName");
       if (img) img.src = p.photos[0];
       if (nm)  nm.textContent = p.name;
       openModal("#m_match");
     }
 
+    // CTA wrappers avec tracking
+    function openMoreLikes(){ track('cta_more_likes'); openLinkTG(MORE_LIKES_URL); }
+    function openChat(){ track('cta_chat'); openLinkTG(MATCH_CHAT_URL); }
+
     /* ============ BOOT ============ */
     render();
+    track('open'); // ouverture de la webapp
   </script>
 </body>
 </html>
