@@ -15,7 +15,7 @@
 
       /* FOND romantique (change l'URL si tu veux la tienne) */
       --bg-overlay:.62; /* 0 = très visible / 1 = très blanc */
-      --bg-img:url('https://images.unsplash.com/photo-1541807084-5c52b6b3adef?q=80&w=1600&auto=format&fit=crop');
+      --bg-img:url('https://unsplash.com/photos/silhouette-of-persons-hands-forming-heart-2PODhmrvLik');
 
       /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
@@ -366,7 +366,6 @@
       const p = currentPersona();
       const mediaWrap = el("div",{class:"persona-box"});
       mediaWrap.appendChild(el("img",{class:"persona-img",src:p.photos[0],alt:p.name,loading:"eager"}));
-      mediaWrap.appendChild(el("div",{class:"cap",text:"Virtual persona"}));
       card.appendChild(mediaWrap);
 
       const body = el("div",{class:"persona-body"});
