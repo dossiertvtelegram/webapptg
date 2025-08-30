@@ -2,373 +2,340 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Virtual Dating (WebApp Telegram)</title>
+  <title>Flamme — Rencontres</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- Telegram WebApp SDK -->
+  <!-- Telegram WebApp SDK (facultatif hors Telegram) -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- React via CDN (dev) -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <!-- Babel pour transformer JSX côté navigateur (ok pour démo) -->
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     :root{
-      --bg:#0f0f12; --card:#17171b; --muted:#a1a1aa; --text:#fff;
-      --primary:#ec4899; --primary-2:#db2777; --ok:#10b981; --warn:#f59e0b;
-      --ring:rgba(236,72,153,.35);
+      --bg:#ffffff; --text:#0f172a; --muted:#6b7280;
+      --card:#ffffff; --border:#e5e7eb; --shadow:0 10px 30px rgba(0,0,0,.08);
+      --primary:#dc2626; /* red-600 */
+      --primary-700:#b91c1c; --accent:#fee2e2; /* red-100 */
+      --ok:#16a34a; --warn:#f59e0b;
     }
     *{box-sizing:border-box}
-    body{
-      margin:0; font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-      background:linear-gradient(180deg,#0f0f12 0%, #141418 100%);
-      color:var(--text);
-    }
-    .wrap{max-width:720px; margin:0 auto; padding:16px;}
-    .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px}
-    .topbar h1{font-size:18px; margin:0}
-    .badge{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 10px; border-radius:999px; background:#1f1f25; border:1px solid #26262d; color:#cbd5e1}
-    .card{background:var(--card); border:1px solid #26262d; border-radius:16px; padding:16px; box-shadow:0 8px 24px rgba(0,0,0,.35)}
-    .row{display:flex; gap:12px; flex-wrap:wrap}
-    .btn{display:inline-flex; justify-content:center; align-items:center; gap:8px; padding:12px 16px; border-radius:12px; border:1px solid #2c2c36; cursor:pointer; font-weight:600; background:#1b1b21; color:#fff; text-decoration:none; user-select:none}
-    .btn:hover{background:#20202a}
-    .btn:active{transform:scale(.98)}
-    .btn-primary{background:var(--primary); border-color:transparent}
-    .btn-primary:hover{background:var(--primary-2)}
-    .btn-ok{background:var(--ok); border-color:transparent}
-    .btn-warn{background:var(--warn); color:#111; border-color:transparent}
+    html,body{margin:0; padding:0; background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica,Arial;}
+    .wrap{max-width:840px; margin:0 auto; padding:20px 16px 40px}
+    .brand{display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0 18px}
+    .brand-logo{width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #ef4444, #dc2626); display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; box-shadow:var(--shadow)}
+    .brand h1{font-size:22px; margin:0; letter-spacing:.3px}
+
+    .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow)}
+    .card-lg{padding:20px; border-radius:20px}
+    .title{font-weight:800; font-size:20px; margin:0 0 8px}
     .muted{color:var(--muted)}
-    .pill{border:1px solid #2c2c36; background:#1b1b21; border-radius:999px; padding:6px 10px; font-size:12px; display:inline-flex; align-items:center; gap:8px}
-    .grid{display:grid; grid-template-columns:1fr; gap:12px}
-    @media (min-width: 560px){ .grid-2{grid-template-columns:1fr 1fr} }
-    .persona{
-      overflow:hidden; border-radius:16px; border:1px solid #2c2c36; background:#111; position:relative
+    .grid{display:grid; gap:12px}
+    @media (min-width:700px){ .grid-2{grid-template-columns:1fr 1fr} }
+
+    .row{display:flex; gap:12px; align-items:center}
+    .select, .btn{
+      appearance:none; -webkit-appearance:none;
+      font:inherit; border:1px solid var(--border); background:#fff; color:var(--text);
+      border-radius:12px; padding:12px 14px; box-shadow:var(--shadow);
     }
-    .persona img{width:100%; height:360px; object-fit:cover; display:block}
-    .dots{position:absolute; left:0; right:0; bottom:10px; display:flex; justify-content:center; gap:8px}
-    .dot{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.45)}
-    .dot.on{background:#fff}
-    .ribbon{position:absolute; top:12px; left:12px; background:rgba(15,15,18,.75); border:1px solid #30303a; border-radius:999px; padding:6px 10px; font-size:12px; backdrop-filter:blur(6px)}
-    .row-actions{display:flex; gap:12px; margin-top:12px}
-    .k{padding:4px 8px; border:1px solid #2c2c36; border-radius:999px; background:#1b1b21; font-size:12px}
-    .sectionTitle{font-size:14px; font-weight:700; opacity:.9; margin:12px 0 6px}
-    .pbar{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New",monospace; letter-spacing:.5px}
-    .disclaimer{font-size:12px; color:#cbd5e1}
+    .select{width:100%}
+    .btn{cursor:pointer; font-weight:700; text-align:center}
+    .btn:active{transform:scale(.98)}
+    .btn-primary{background:var(--primary); color:#fff; border-color:transparent}
+    .btn-primary:hover{background:var(--primary-700)}
+    .btn-ghost{background:#fff}
+    .btn-pass{background:#f3f4f6}
+    .btn-like{background:#22c55e; color:#fff; border-color:transparent}
+    .btn-slike{background:#fca5a5; color:#7f1d1d; border-color:#fecaca}
+
+    /* Persona card */
+    .persona{overflow:hidden; border-radius:20px; border:1px solid var(--border); background:#fff}
+    .persona-img{width:100%; height:420px; object-fit:cover; display:block}
+    .persona-body{padding:14px 16px 16px}
+    .tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px}
+    .tag{font-size:12px; padding:6px 10px; border-radius:999px; background:var(--accent); color:#7f1d1d; border:1px solid #fecaca}
+    .desc{margin-top:8px; color:#374151}
+
+    .actions{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:14px}
+    .btn-big{padding:14px 10px; font-size:15px; border-radius:14px}
+
+    .badge-cap{position:absolute; top:12px; left:12px; background:rgba(255,255,255,.9); color:#7f1d1d; border:1px solid #fecaca; border-radius:999px; padding:6px 10px; font-size:12px; backdrop-filter:blur(6px)}
+
+    /* Modal / popup */
+    .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.35); z-index:50}
+    .modal.open{display:flex}
+    .modal-card{max-width:520px; width:100%; background:#fff; border-radius:16px; box-shadow:var(--shadow); border:1px solid var(--border); padding:18px}
+    .modal-title{font-weight:800; font-size:18px; margin:0 0 8px}
+    .modal-actions{display:flex; gap:10px; margin-top:14px; justify-content:flex-end}
+
+    .footer-tip{margin-top:16px; text-align:center; color:#9ca3af; font-size:12px}
   </style>
 </head>
 <body>
   <div id="app"></div>
 
-  <script type="text/babel">
-    // ======= CONFIG =======
-    const OFFER_URL_BASE = "https://partner.example.com/offer"; // ← remplace par ton lien
-    const LIKE_TO_MATCH = 3;
+  <script>
+    // ---------------- CONFIG À PERSONNALISER ----------------
+    const MORE_LIKES_URL = "https://exemple.com/obtenir-plus-de-likes"; // <— remplace par ton lien
+    const MATCH_CHAT_URL = "https://exemple.com/parler";                 // <— remplace par ton lien
+    const BRAND = "Flamme";
+    const LIKE_LIMIT = 3;
+    const SUPERLIKE_LIMIT = 1;
 
-    // 4 styles de barres de progression
-    const PROGRESS_STYLES = {
-      1: (v) => "▓".repeat(v) + "░".repeat(Math.max(0, LIKE_TO_MATCH - v)),
-      2: (v) => "❤".repeat(v) + "🤍".repeat(Math.max(0, LIKE_TO_MATCH - v)),
-      3: (v) => {
-        const pct = Math.min(100, Math.round((v / LIKE_TO_MATCH) * 100));
-        return `Progress: ${pct}%`;
-      },
-      4: (v) => `${v} / ${LIKE_TO_MATCH} matches`,
-    };
-
-    // Dataset simple (personas virtuelles)
+    // Dataset simple (mets tes images et profils).
     const PERSONAS = [
       {
-        id: "ai_amber",
-        name: "Amber (Virtual)",
-        age: 24,
-        badges: ["chatty", "adventurous", "roleplay"],
-        bio: "Curieuse, j’adore tester des jeux de rôle soft. Ici pour matcher avec les bonnes vibes ✨.",
-        photos: [
-          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1544006659-f0b21884ce1d?q=80&w=1200&auto=format&fit=crop",
-        ],
+        id: "p_amber", name: "Amber", gender:"women", age:24,
+        tags:["souriante","roleplay","teasing"],
+        desc:"Curieuse et fun. Ici pour matcher avec de bonnes vibes ✨.",
+        photos:["https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop"]
       },
       {
-        id: "ai_nova",
-        name: "Nova (Virtual)",
-        age: 22,
-        badges: ["cosplay", "friendly", "open-minded"],
-        bio: "Cosplay chill + discussions tard le soir. No pressure, juste du fun.",
-        photos: [
-          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1541534401786-2077eed87a72?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1549351512-c5e12b12f3a0?q=80&w=1200&auto=format&fit=crop",
-        ],
+        id: "p_nova", name: "Nova", gender:"women", age:22,
+        tags:["cosplay","friendly","night-owl"],
+        desc:"Cosplay chill + discussions tard le soir. No pressure.",
+        photos:["https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop"]
       },
       {
-        id: "ai_luna",
-        name: "Luna (Virtual)",
-        age: 27,
-        badges: ["soft-kinks", "teasing", "respect"],
-        bio: "Team respect & limites claires. Si le feeling passe ➜ on débloque une surprise…",
-        photos: [
-          "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1200&auto=format&fit=crop",
-          "https://images.unsplash.com/photo-1517935706615-2717063c2225?q=80&w=1200&auto=format&fit=crop",
-        ],
+        id: "p_luna", name: "Luna", gender:"women", age:27,
+        tags:["respect","soft","humour"],
+        desc:"Team respect & limites claires. Si le feeling passe…",
+        photos:["https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop"]
+      },
+      {
+        id: "p_max", name: "Max", gender:"men", age:28,
+        tags:["sport","voyage","détendu"],
+        desc:"Toujours partant pour un city-break. Cherche bonnes ondes.",
+        photos:["https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=1600&auto=format&fit=crop"]
       },
     ];
 
-    // ======= Helpers =======
-    const { useState, useEffect, useMemo } = React;
+    // Telegram helpers (facultatif)
+    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+    if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
 
-    function useTelegram() {
-      const [tg, setTg] = useState(null);
-      useEffect(() => {
-        const t = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
-        if (t) { try { t.ready(); t.expand(); } catch(e){} }
-        setTg(t);
-      }, []);
-      return tg;
+    // ---------------- VIEW HELPERS ----------------
+    const $ = (sel) => document.querySelector(sel);
+    const el = (tag, props={}, children=[]) => {
+      const n = document.createElement(tag);
+      Object.entries(props).forEach(([k,v])=>{
+        if (k==="class") n.className=v;
+        else if (k==="text") n.textContent=v;
+        else if (k.startsWith("on") && typeof v==="function") n.addEventListener(k.substring(2).toLowerCase(), v);
+        else n.setAttribute(k,v);
+      });
+      (Array.isArray(children)?children:[children]).filter(Boolean).forEach(c=>n.appendChild(c));
+      return n;
+    };
+
+    function openLink(url){
+      if (tg && tg.openLink) tg.openLink(url, {try_instant_view:false});
+      else window.open(url, "_blank");
     }
 
-    function getQuery() {
-      const q = Object.fromEntries(new URLSearchParams(window.location.search));
-      return {
-        gate: q.gate || q.gateComplete || q.g, // "100" ou "1"
-        ref: q.ref || q.r,
-        pbar: q.pbar || 1,
-      };
-    }
+    // ---------------- STATE ----------------
+    const state = {
+      step: "landing", // landing | browse
+      filters: { gender:"all", ageMin:18, ageMax:60 },
+      pool: [], idx: 0,
+      likesLeft: LIKE_LIMIT, superLeft: SUPERLIKE_LIMIT,
+    };
 
-    function todayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
-    function lsGet(key, def){ try{ const v = localStorage.getItem(key); return v ? JSON.parse(v) : def; }catch{return def} }
-    function lsSet(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch{} }
+    // ---------------- RENDER ----------------
+    function render(){
+      const root = $("#app");
+      root.innerHTML = "";
 
-    // ======= App =======
-    function App() {
-      const tg = useTelegram();
-      const query = useMemo(() => getQuery(), []);
-      const initUser = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-      const userId = initUser?.id || 999999;
+      // Brand
+      root.appendChild(
+        el("div", {class:"brand"},
+          [
+            el("div",{class:"brand-logo", text:"❤"}),
+            el("h1", {text: BRAND})
+          ]
+        )
+      );
 
-      // quiz
-      const [step, setStep] = useState(0); // 0 quiz, 1 carousel, 2 matched
-      const [prefs, setPrefs] = useState({ gender: "all", soft: ["tease"], limits: ["no-violence"] });
-
-      // carousel
-      const [idx, setIdx] = useState(0);
-      const [likes, setLikes] = useState(0);
-      const [lastAction, setLastAction] = useState("");
-      const [photoIndex, setPhotoIndex] = useState(0);
-      useEffect(() => setPhotoIndex(0), [idx]);
-
-      // super-like/day
-      const dayKey = `${userId}:${todayKey()}:superlikes`;
-      const usedSL = lsGet(dayKey, 0);
-      const baseSL = 1;
-      const gateBonus = (query.gate === "100" || query.gate === "1") ? 2 : 0;
-      const refBonus = (query.ref === "1") ? 1 : 0;
-      const totalSL = baseSL + gateBonus + refBonus;
-      const remainingSL = Math.max(0, totalSL - usedSL);
-
-      // progress style
-      const pbarIdx = Math.max(1, Math.min(4, parseInt(query.pbar || 1, 10)));
-      const progressText = PROGRESS_STYLES[pbarIdx](likes);
-
-      const persona = PERSONAS[idx % PERSONAS.length];
-
-      const ts = () => Date.now().toString();
-      const buildSubId = (p, creative="main") => `${userId}|${p.id}|${creative}|${ts()}`;
-
-      function sendEvent(payload){
-        try{
-          if (tg && tg.sendData) tg.sendData(JSON.stringify(payload));
-          console.log("[sendData]", payload);
-        }catch{}
+      if (state.step === "landing") {
+        root.appendChild(renderLanding());
+      } else if (state.step === "browse") {
+        root.appendChild(renderBrowse());
       }
 
-      function handleLike(superLike=false){
-        setLastAction(superLike ? "SUPER LIKE" : "LIKE");
-        sendEvent({ t:"like", user_id:userId, persona_id:persona.id, super:superLike, subid:buildSubId(persona, superLike?"super":"like") });
+      root.appendChild(el("div",{class:"footer-tip", text:"3 likes et 1 super-like sur ce compte non créé. Design inspiré Tinder/Meetic."}));
+      ensureModals(root);
+    }
 
-        if (superLike) {
-          if (remainingSL <= 0) { setLastAction("NO SUPER-LIKE LEFT"); return; }
-          lsSet(dayKey, usedSL + 1);
-          const newLikes = Math.min(LIKE_TO_MATCH, likes + 2);
-          setLikes(newLikes);
-          if (newLikes >= LIKE_TO_MATCH) { setStep(2); return; }
-        } else {
-          const newLikes = Math.min(LIKE_TO_MATCH, likes + 1);
-          setLikes(newLikes);
-          if (newLikes >= LIKE_TO_MATCH) { setStep(2); return; }
+    function renderLanding(){
+      const wrap = el("div", {class:"card card-lg grid"});
+      wrap.appendChild(el("div",{class:"title", text:"Que recherchez-vous ?"}));
+
+      // gender
+      const selGender = el("select",{class:"select"},
+        [
+          el("option",{value:"men",  text:"Homme"}),
+          el("option",{value:"women",text:"Femme"}),
+          el("option",{value:"all",  text:"Tout"}),
+        ]
+      );
+      selGender.value = state.filters.gender;
+      selGender.onchange = () => { state.filters.gender = selGender.value; };
+
+      // ages
+      const selMin = el("select",{class:"select"});
+      const selMax = el("select",{class:"select"});
+      for (let a=18; a<=60; a++){
+        selMin.appendChild(el("option",{value:String(a), text:String(a)}));
+        selMax.appendChild(el("option",{value:String(a), text:String(a)}));
+      }
+      selMin.value = String(state.filters.ageMin);
+      selMax.value = String(state.filters.ageMax);
+      selMin.onchange = () => { state.filters.ageMin = parseInt(selMin.value,10); if (state.filters.ageMin>state.filters.ageMax){ state.filters.ageMax=state.filters.ageMin; selMax.value=selMin.value; } };
+      selMax.onchange = () => { state.filters.ageMax = parseInt(selMax.value,10); if (state.filters.ageMax<state.filters.ageMin){ state.filters.ageMin=state.filters.ageMax; selMin.value=selMax.value; } };
+
+      const grid = el("div",{class:"grid grid-2"},[
+        el("div",{},[ el("div",{class:"muted", text:"Genre"}), selGender ]),
+        el("div",{},[ el("div",{class:"muted", text:"Âge min"}), selMin ]),
+        el("div",{},[ el("div",{class:"muted", text:"Âge max"}), selMax ]),
+      ]);
+      wrap.appendChild(grid);
+
+      const submit = el("button",{class:"btn btn-primary", text:"Voir les Célibataires"});
+      submit.onclick = () => {
+        // build pool
+        const {gender, ageMin, ageMax} = state.filters;
+        state.pool = PERSONAS.filter(p => (gender==="all" || p.gender===gender) && p.age>=ageMin && p.age<=ageMax);
+        if (state.pool.length===0) {
+          alert("Aucun profil dans cette tranche d’âge / genre. Essaie d’élargir les filtres.");
+          return;
         }
-        setIdx(v => v+1);
-      }
+        // reset cycle + counts
+        state.idx = 0; state.likesLeft = LIKE_LIMIT; state.superLeft = SUPERLIKE_LIMIT;
+        state.step = "browse";
+        render();
+        openRulesModal();
+      };
+      wrap.appendChild(submit);
 
-      function handleNope(){
-        setLastAction("NOPE");
-        sendEvent({ t:"nope", user_id:userId, persona_id:persona.id, subid:buildSubId(persona, "nope") });
-        setIdx(v => v+1);
-      }
-
-      function openOffer(p){
-        const subid = buildSubId(p, "match");
-        const url = `${OFFER_URL_BASE}?subid=${encodeURIComponent(subid)}`;
-        sendEvent({ t:"open_offer", user_id:userId, persona_id:p.id, subid });
-        if (tg && tg.openLink) tg.openLink(url, { try_instant_view:false });
-        else window.open(url, "_blank");
-      }
-
-      // --- UI bits ---
-      const Ribbon = () => <div className="ribbon">Virtual / AI Persona</div>;
-      const K = ({children}) => <span className="k">{children}</span>;
-
-      // Screens
-      const Quiz = () => (
-        <div className="card grid">
-          <div>
-            <div className="sectionTitle">Trouvons ton vibe ✨</div>
-            <div className="muted">Discret, soft & respect. Les profils sont virtuels (roleplay).</div>
-          </div>
-
-          <div>
-            <div className="sectionTitle">Genres qui t’intéressent</div>
-            <div className="row">
-              {[
-                {k:"women", label:"Femmes"},
-                {k:"men", label:"Hommes"},
-                {k:"all", label:"Tous"},
-              ].map(opt => (
-                <button
-                  key={opt.k}
-                  className="btn"
-                  style={prefs.gender===opt.k ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
-                  onClick={()=>setPrefs(p=>({...p, gender:opt.k}))}
-                >{opt.label}</button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <div className="sectionTitle">Kinks soft (sélection)</div>
-            <div className="row">
-              {["tease","cosplay","lingerie","chat"].map(k => {
-                const on = prefs.soft.includes(k);
-                return (
-                  <button key={k} className="btn" style={on ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
-                          onClick={()=>setPrefs(p=>({...p, soft: on ? p.soft.filter(x=>x!==k) : [...p.soft,k]}))}>
-                    {k}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div>
-            <div className="sectionTitle">Limites</div>
-            <div className="row">
-              {["no-violence","no-illegal","no-nonconsent"].map(k => {
-                const on = prefs.limits.includes(k);
-                return (
-                  <button key={k} className="btn" style={on ? {outline:`2px solid var(--ring)`, background:"#23232b"} : {}}
-                          onClick={()=>setPrefs(p=>({...p, limits: on ? p.limits.filter(x=>x!==k) : [...p.limits,k]}))}>
-                    {k}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="row" style={{alignItems:"center", justifyContent:"space-between"}}>
-            <div>
-              <div className="sectionTitle">Super-like quotidien</div>
-              <div className="muted">1/jour • +2 si gate 100% {query.gate ? "(reçu)" : ""} • +1 si parrainage {query.ref ? "(reçu)" : ""}</div>
-            </div>
-            <div className="pill"><b>{remainingSL}</b> restant(s)</div>
-          </div>
-
-          <button className="btn btn-primary" onClick={()=>setStep(1)}>Commencer ➜</button>
-        </div>
-      );
-
-      const Carousel = () => (
-        <div className="grid">
-          <div className="card">
-            <div className="row" style={{justifyContent:"space-between", alignItems:"center"}}>
-              <div>
-                <div className="sectionTitle">Compat progression</div>
-                <div className="pbar">{progressText}</div>
-              </div>
-              <div className="pill">⭐ Super-likes restants: <b style={{marginLeft:6}}>{remainingSL}</b></div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="persona">
-              <Ribbon/>
-              <img src={persona.photos[photoIndex]} alt={persona.name} />
-              <div className="dots">
-                {persona.photos.map((_,i)=>(
-                  <div key={i} className={"dot" + (i===photoIndex?" on":"")} onClick={()=>setPhotoIndex(i)}></div>
-                ))}
-              </div>
-            </div>
-            <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", marginTop:12}}>
-              <div style={{fontWeight:700}}>{persona.name} • {persona.age}</div>
-              <div className="muted">#{persona.id}</div>
-            </div>
-            <div className="row" style={{marginTop:8}}>
-              {persona.badges.map((b,i)=><K key={i}>{b}</K>)}
-            </div>
-            <div style={{marginTop:8}} className="muted">{persona.bio}</div>
-
-            <div className="row-actions">
-              <button className="btn" onClick={handleNope}>👎 Nope</button>
-              <button className="btn btn-ok" onClick={()=>handleLike(false)}>👍 Like</button>
-              <button className="btn btn-warn" onClick={()=>handleLike(true)}>⭐ Super-like</button>
-            </div>
-
-            <div className="muted" style={{marginTop:8}}>Dernière action : {lastAction || "—"}</div>
-            <div className="disclaimer" style={{marginTop:8}}>
-              Transparence : ce sont des profils virtuels/roleplay, conçus pour le fun & des offres partenaires consenties.
-            </div>
-          </div>
-        </div>
-      );
-
-      const Matched = () => (
-        <div className="card grid">
-          <div>
-            <div className="sectionTitle">🎉 Match !</div>
-            <div className="muted">Bonne vibe détectée. Tu peux débloquer une offre partenaire — sans promesse de chat réel.</div>
-          </div>
-
-          <div className="pill">tracking subid = {buildSubId(persona, "match")}</div>
-
-          <button className="btn btn-ok" onClick={()=>openOffer(persona)}>Ouvrir l’offre ➜</button>
-          <button className="btn" onClick={()=>{ setLikes(0); setIdx(v=>v+1); setStep(1); }}>Continuer à swiper</button>
-        </div>
-      );
-
-      return (
-        <div className="wrap">
-          <div className="topbar">
-            <h1>Virtual Dating</h1>
-            <span className="badge">UID: {userId}</span>
-          </div>
-
-          {step===0 && <Quiz/>}
-          {step===1 && <Carousel/>}
-          {step===2 && <Matched/>}
-
-          <div className="muted" style={{marginTop:16, fontSize:12}}>
-            Astuces : 1 super-like/jour (+2 si gate 100%, +1 si parrainage). subid = user_id|persona_id|creative|ts.
-          </div>
-        </div>
-      );
+      return wrap;
     }
 
-    const root = ReactDOM.createRoot(document.getElementById("app"));
-    root.render(<App />);
+    function renderBrowse(){
+      const p = currentPersona();
+      const card = el("div",{class:"card card-lg"});
+      // image block
+      const mediaWrap = el("div",{class:"persona"});
+      const img = el("img",{class:"persona-img", src:p.photos[0], alt:p.name});
+      mediaWrap.appendChild(img);
+      mediaWrap.appendChild(el("div",{class:"badge-cap", text:"Virtual persona"}));
+      card.appendChild(mediaWrap);
+
+      // body
+      const rowTop = el("div",{class:"row", style:"justify-content:space-between; margin-top:12px"});
+      rowTop.appendChild(el("div",{class:"title", text:`${p.name} • ${p.age}`}));
+      rowTop.appendChild(el("div",{class:"muted", text:`❤ Likes: ${state.likesLeft}  ⭐ Super: ${state.superLeft}`}));
+      card.appendChild(rowTop);
+
+      const tags = el("div",{class:"tags"}, p.tags.map(t=>el("span",{class:"tag", text:t})));
+      card.appendChild(tags);
+      card.appendChild(el("div",{class:"desc", text:p.desc}));
+
+      // actions: PASS • SUPER LIKE • LIKE
+      const rowActions = el("div",{class:"actions"});
+      const btnPass  = el("button",{class:"btn btn-pass btn-big", text:"PASS"});
+      const btnSLike = el("button",{class:"btn btn-slike btn-big", text:"SUPER LIKE"});
+      const btnLike  = el("button",{class:"btn btn-like btn-big", text:"LIKE"});
+
+      btnPass.onclick = () => nextPersona();
+      btnSLike.onclick = () => superLike();
+      btnLike.onclick = () => like();
+
+      // disable like when 0
+      if (state.likesLeft<=0) {
+        btnLike.disabled = true;
+        btnLike.style.opacity = .6;
+      }
+      if (state.superLeft<=0) {
+        btnSLike.disabled = true;
+        btnSLike.style.opacity = .7;
+      }
+
+      rowActions.append(btnPass, btnSLike, btnLike);
+      card.appendChild(rowActions);
+
+      return card;
+    }
+
+    // ---------------- LOGIC ----------------
+    function currentPersona(){
+      if (state.pool.length===0) return PERSONAS[0];
+      return state.pool[state.idx % state.pool.length];
+    }
+    function nextPersona(){
+      state.idx = (state.idx + 1) % state.pool.length;
+      render();
+    }
+    function like(){
+      if (state.likesLeft<=0){
+        openNoLikesModal();
+        return;
+      }
+      state.likesLeft -= 1;
+      nextPersona();
+      if (state.likesLeft<=0) openNoLikesModal();
+    }
+    function superLike(){
+      if (state.superLeft<=0) {
+        // petit feedback
+        alert("Vous n’avez plus de super-like.");
+        return;
+      }
+      state.superLeft -= 1;
+      openMatchModal(); // ouvre la popup “match”
+    }
+
+    // ---------------- MODALS ----------------
+    function ensureModals(root){
+      // Règles
+      const rules = el("div",{class:"modal", id:"m_rules"},
+        el("div",{class:"modal-card"},[
+          el("div",{class:"modal-title", text:"Rappel rapide"}),
+          el("div",{class:"muted", text:"Vous avez 3 likes et 1 super-like par compte non créé."}),
+          el("div",{class:"modal-actions"},[
+            el("button",{class:"btn btn-ghost", text:"OK", onclick:()=>closeModal("#m_rules")})
+          ])
+        ])
+      );
+      // Plus de likes
+      const nolikes = el("div",{class:"modal", id:"m_nolikes"},
+        el("div",{class:"modal-card"},[
+          el("div",{class:"modal-title", text:"Plus de likes"}),
+          el("div",{class:"muted", text:"Vous n’avez plus de like disponible."}),
+          el("div",{class:"modal-actions"},[
+            el("a",{class:"btn btn-primary", href:"#", text:"CLIQUEZ ici pour en obtenir plus", onclick:(e)=>{e.preventDefault(); closeModal('#m_nolikes'); openLink(MORE_LIKES_URL);} })
+          ])
+        ])
+      );
+      // Match obtenu
+      const match = el("div",{class:"modal", id:"m_match"},
+        el("div",{class:"modal-card"},[
+          el("div",{class:"modal-title", text:"🎉 Match obtenu"}),
+          el("div",{class:"muted", text:"Pour discuter, cliquez ci-dessous."}),
+          el("div",{class:"modal-actions"},[
+            el("a",{class:"btn btn-primary", href:"#", text:"Discuter maintenant", onclick:(e)=>{e.preventDefault(); closeModal('#m_match'); openLink(MATCH_CHAT_URL);} })
+          ])
+        ])
+      );
+
+      root.appendChild(rules);
+      root.appendChild(nolikes);
+      root.appendChild(match);
+    }
+    function openModal(sel){ const m=$(sel); if (m){ m.classList.add("open"); } }
+    function closeModal(sel){ const m=$(sel); if (m){ m.classList.remove("open"); } }
+    function openRulesModal(){ openModal("#m_rules"); }
+    function openNoLikesModal(){ openModal("#m_nolikes"); }
+    function openMatchModal(){ openModal("#m_match"); }
+
+    // ---------------- BOOT ----------------
+    render();
   </script>
 </body>
 </html>
