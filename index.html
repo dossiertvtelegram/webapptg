@@ -146,7 +146,7 @@
     const superKey = `flamme_super_${dayKey}`;
 
     /* Images */
-    const PERSONA_IMAGES = [ /* ... tes 98 URLs locales ... */ 
+    const PERSONA_IMAGES = [
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
       "./images/photo_7_2025-08-30_17-36-31.jpg","./images/photo_8_2025-08-30_17-36-31.jpg","./images/photo_9_2025-08-30_17-36-31.jpg",
@@ -369,7 +369,7 @@
         state.idx=0;
         state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
         state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
-        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
+        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city || "" });
         state.step="browse"; render(); openRulesModal();
       }});
       box.appendChild(cta);
@@ -404,8 +404,7 @@
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
-      if(state.superLeft<=0) bSLike.disabled=true;
-      // on laisse le LIKE cliquable même à 0 pour rouvrir la popup
+      if(state.superLeft<=0) bSLike.disabled=true; // le LIKE reste cliquable même à 0 pour re-ouvrir la popup
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
@@ -419,24 +418,25 @@
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
 
     function doPass(){
-      track('pass', { persona_id: currentPersona().id });
+      const p=currentPersona();
+      track('pass', { persona_id: p.id, name: p.name, age: p.age });
       nextPersona();
     }
 
     function like(){
+      const p=currentPersona();
       if(state.likesLeft<=0){ openNoLikesModal(); return; }
-      const p = currentPersona();
       state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
-      track('like', { persona_id: p.id });
+      track('like', { persona_id: p.id, name: p.name, age: p.age });
       nextPersona();
       if(state.likesLeft<=0) openNoLikesModal();
     }
 
     function superLike(){
+      const p=currentPersona();
       if(state.superLeft<=0){ openNoLikesModal(); return; }
-      const p = currentPersona();
       state.superLeft -= 1; localStorage.setItem(superKey, state.superLeft);
-      track('super_like', { persona_id: p.id });
+      track('super_like', { persona_id: p.id, name: p.name, age: p.age });
       bumpGuard(); openMatchModal(p);
       track('match', { persona_id: p.id }); // on compte un match quand on ouvre la popup
     }
@@ -505,7 +505,7 @@
 
     /* ============ BOOT ============ */
     render();
-    track('open'); // ouverture de la webapp
+    track('open'); // ouverture de la webapp (ne s’envoie que si ouvert depuis Telegram)
   </script>
 </body>
 </html>
