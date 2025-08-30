@@ -8,13 +8,12 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      /* Thème blanc & rouge */
       --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
       --text:#0f172a; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
       --green:#16a34a;
 
       /* FOND romantique */
-      --bg-overlay:.35; /* léger voile blanc */
+      --bg-overlay:.35;
       --bg-img:url('./images/mayur-gala-2PODhmrvLik-unsplash.jpg');
 
       /* Or (Super-Like) */
@@ -30,7 +29,7 @@
 
     /* BACKGROUND */
     .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-    .wrap   { position:relative; z-index:1; }  /* la carte passe au-dessus */
+    .wrap   { position:relative; z-index:1; }
 
     .bg-photo{
       position:absolute; inset:0;
@@ -104,12 +103,12 @@
 
     .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
     .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
-    .btn-pass{background:var(--brand);color:#fff} /* PASS rouge */
-    .btn-slike{ /* SUPER-LIKE doré */
+    .btn-pass{background:var(--brand);color:#fff}
+    .btn-slike{
       background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
       color:#fff; border:1px solid var(--gold-700); text-shadow:0 1px 0 rgba(255,255,255,.35)
     }
-    .btn-like{background:var(--green);color:#fff} /* LIKE vert */
+    .btn-like{background:var(--green);color:#fff}
     .btn[disabled]{opacity:.6}
 
     /* Modals */
@@ -189,14 +188,42 @@
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
 
-    /* ============ TELEGRAM HELPERS ============ */
+    /* ============ TELEGRAM HELPERS (robuste) ============ */
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
+    let TG_READY = false;
+    const _queue = [];
 
-    // Tracking vers le bot (/web_app_data)
-    function track(t, extra={}) {
-      try { tg && tg.sendData(JSON.stringify({ t, ...extra })); } catch(e){}
+    function _flush(){
+      if (!tg || !TG_READY || !_queue.length) return;
+      try{
+        while(_queue.length){
+          const p = _queue.shift();
+          tg.sendData(JSON.stringify(p));
+        }
+      }catch(e){
+        // remet en file et re-tente
+        setTimeout(_flush, 400);
+      }
     }
+
+    if (tg) {
+      try{ tg.ready(); tg.expand(); TG_READY = true; setTimeout(_flush, 80); }catch(e){}
+    }
+
+    function track(t, extra={}){
+      const payload = { t, ...extra, ts: Date.now() };
+      if (tg && TG_READY && tg.sendData){
+        try{ tg.sendData(JSON.stringify(payload)); }
+        catch(e){ _queue.push(payload); setTimeout(_flush, 300); }
+      } else {
+        _queue.push(payload);
+        setTimeout(_flush, 500);
+      }
+    }
+
+    // petit ping quand la vue revient au premier plan (utile pour voir un event arriver)
+    window.addEventListener('focus', ()=>track('focus'));
+    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) track('focus'); });
 
     const openLinkTG = (url)=>{
       if (typeof closeAllModals === 'function') closeAllModals();
@@ -209,42 +236,14 @@
     };
 
     /* ============ RANDOM FABRIC ============ */
-    const FNAMES = [
-      "Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna",
-      "Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane",
-      "Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena",
-      "Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma",
-      "Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa",
-      "Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs",
-      "Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"
-    ];
-    const TAGS = [
-      "romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture",
-      "sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos",
-      "animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère",
-      "rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"
-    ];
-    const DESCS = [
-      "Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.",
-      "Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.",
-      "J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.",
-      "Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.",
-      "Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.",
-      "Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.",
-      "Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.",
-      "Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.",
-      "Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.",
-      "Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.",
-      "J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.",
-      "On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.",
-      "Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."
-    ];
+    const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
+    const TAGS = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos","animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère","rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"];
+    const DESCS = ["Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.","Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.","J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.","Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.","Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.","On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.","Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."];
 
     const rnd = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
     const pick = arr => arr[rnd(0,arr.length-1)];
     const pickMany = (arr,n)=>{ const c=[...arr]; const out=[]; while(n-- && c.length){ out.push(c.splice(rnd(0,c.length-1),1)[0]); } return out; };
 
-    // Cache stable par liste d’images
     const PERSONA_CACHE_KEY = "flamme_personas_v1_" + (PERSONA_IMAGES.join("|").length) + "_" + PERSONA_IMAGES.length;
 
     function buildPersonasFromImages(urls){
@@ -274,7 +273,7 @@
     /* ============ STATE ============ */
     const state = {
       step:"landing",
-      filters:{ gender:"women", ageMin:18, ageMax:60, city:"" }, // Femme par défaut
+      filters:{ gender:"women", ageMin:18, ageMax:60, city:"" },
       pool:[], idx:0,
       likesLeft:LIKE_LIMIT, superLeft:SUPERLIKE_LIMIT,
       busy:false,
@@ -299,11 +298,7 @@
     /* ============ BRAND HEADER ============ */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      const logo = el("img", {
-        src: "./images/image-removebg-preview.png",
-        alt: "Flamme",
-        style: "width:28px;height:28px;object-fit:contain;display:block"
-      });
+      const logo = el("img", { src:"./images/image-removebg-preview.png", alt:"Flamme", style:"width:28px;height:28px;object-fit:contain;display:block" });
       wrap.appendChild(logo);
       wrap.appendChild(el("h1",{text:BRAND}));
       return wrap;
@@ -365,11 +360,10 @@
         const g=state.filters.gender, a1=state.filters.ageMin, a2=state.filters.ageMax;
         state.pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
         if(!state.pool.length){ alert("Aucun profil trouvé. Élargis les filtres ✨"); return; }
-        // Compte & tracking
         state.idx=0;
         state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
         state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
-        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city || "" });
+        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
         state.step="browse"; render(); openRulesModal();
       }});
       box.appendChild(cta);
@@ -404,6 +398,9 @@
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
+      // IMPORTANT: on NE désactive PAS bSLike même à 0 pour re-ouvrir la popup match
+      // // if(state.superLeft<=0) bSLike.disabled=true;
+      // on laisse aussi le LIKE cliquable pour ré-afficher la popup "Plus de likes"
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
@@ -413,36 +410,39 @@
     /* ============ LOGIC ============ */
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
-    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); } // anti double-tap tel
+    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
 
     function doPass(){
-      const p=currentPersona();
-      track('pass', { persona_id: p.id, name: p.name, age: p.age });
+      track('pass', { persona_id: currentPersona().id });
       nextPersona();
     }
 
     function like(){
-      const p=currentPersona();
-      if(state.likesLeft<=0){ openNoLikesModal(); return; }
+      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
+      const p = currentPersona();
       state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
-      track('like', { persona_id: p.id, name: p.name, age: p.age });
+      track('like', { persona_id: p.id });
       nextPersona();
       if(state.likesLeft<=0) openNoLikesModal();
     }
 
     function superLike(){
-      const p=currentPersona();
-      if(state.superLeft<=0){ openNoLikesModal(); return; }
-      state.superLeft -= 1; localStorage.setItem(superKey, state.superLeft);
-      track('super_like', { persona_id: p.id, name: p.name, age: p.age });
-      bumpGuard(); openMatchModal(p);
-      track('match', { persona_id: p.id }); // on compte un match quand on ouvre la popup
+      const p = currentPersona();
+      if (state.superLeft > 0) {
+        state.superLeft -= 1;
+        localStorage.setItem(superKey, state.superLeft);
+        track('super_like', { persona_id: p.id });
+      } else {
+        track('super_like_reopen', { persona_id: p.id });
+      }
+      bumpGuard();
+      openMatchModal(p);
+      track('match', { persona_id: p.id }); // on compte au moment d'ouvrir la popup
     }
 
     /* ============ MODALS ============ */
     function ensureModals(root){
-      // Règles / onboarding
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"🔥 Rappel rapide"}),
@@ -453,7 +453,6 @@
         ])
       ));
 
-      // Plus de likes
       root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"💔 Plus de likes"}),
@@ -465,7 +464,6 @@
         ])
       ));
 
-      // Match
       root.appendChild(el("div",{class:"modal",id:"m_match"},
         el("div",{class:"modal-card hot"},[
           el("div",{class:"headline",text:"🎉 Match obtenu !"}),
@@ -504,7 +502,8 @@
 
     /* ============ BOOT ============ */
     render();
-    track('open'); // ouverture de la webapp (ne s’envoie que si ouvert depuis Telegram)
+    // Envoie "open" après que Telegram soit prêt
+    setTimeout(()=>track('open'), 400);
   </script>
 </body>
 </html>
