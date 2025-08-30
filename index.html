@@ -29,7 +29,7 @@
     }
 
     /* BACKGROUND */
-    .bg-wrap{position:fixed; inset:0; z-index:-2; overflow:hidden}
+    .bg-wrap{position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none}
     .bg-photo{
       position:absolute; inset:0;
       background:
@@ -198,9 +198,7 @@
     if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
     const openLinkTG = (url)=>{
       if (typeof closeAllModals === 'function') closeAllModals();
-      tg.openLink(url, { try_instant_view: false });  // ouvre dans le webview Telegram
-
-      /*if (tg) {
+      if (tg) {
         if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) {  // liens Telegram purs
           tg.openTelegramLink(url);
           return;
@@ -208,7 +206,7 @@
         tg.openLink(url, { try_instant_view: false });  // ouvre dans le webview Telegram
         return;
       }
-      window.open(url, '_self'); // fallback hors Telegram*/
+      window.open(url, '_self'); // fallback hors Telegram
     };
     /* ============ RANDOM FABRIC ============ */
     const FNAMES = [
