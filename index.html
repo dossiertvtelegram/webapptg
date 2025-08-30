@@ -197,6 +197,7 @@
     const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
     if (tg) { try{ tg.ready(); tg.expand(); }catch(e){} }
     const openLinkTG = (url)=>{
+      if (typeof closeAllModals === 'function') closeAllModals();
       tg.openLink(url, { try_instant_view: false });  // ouvre dans le webview Telegram
 
       /*if (tg) {
@@ -472,10 +473,19 @@
           ])
         ])
       ));
+      document.querySelectorAll('.modal').forEach(m=>{
+        m.addEventListener('click', (e)=>{
+          if (e.target === m) m.classList.remove('open');
+        }, { passive:true });
+      });
     }
 
     function openModal(sel){ const m=$(sel); if(m) m.classList.add("open"); }
     function closeModal(sel){ const m=$(sel); if(m) m.classList.remove("open"); }
+    function closeAllModals(){
+      document.querySelectorAll('.modal.open')
+        .forEach(m => m.classList.remove('open'));
+    }
     function openRulesModal(){ openModal("#m_rules"); }
     function openNoLikesModal(){ openModal("#m_nolikes"); }
     function openMatchModal(p){
