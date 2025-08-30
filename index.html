@@ -404,7 +404,6 @@
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
-      if(state.superLeft<=0) bSLike.disabled=true; // le LIKE reste cliquable même à 0 pour re-ouvrir la popup
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
