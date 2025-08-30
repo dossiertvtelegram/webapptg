@@ -186,7 +186,7 @@
       "Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.",
       "Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.",
       "J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.",
-      "Un peu taquine. Si la vibe passe, on voit 😉.","Virtual persona — roleplay only.",
+      "Un peu taquine. Si la vibe passe, on voit 😉.",
       "Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.",
       "Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.",
       "Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.",
@@ -335,7 +335,6 @@
       const p = currentPersona();
       const mediaWrap = el("div",{class:"persona-box"});
       mediaWrap.appendChild(el("img",{class:"persona-img",src:p.photos[0],alt:p.name,loading:"eager"}));
-      mediaWrap.appendChild(el("div",{class:"cap",text:"Virtual persona"}));
       card.appendChild(mediaWrap);
 
       const body = el("div",{class:"persona-body"});
