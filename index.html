@@ -411,6 +411,7 @@
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
     function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
     function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; track('profiles_seen'); render(); }
+    function openSuperLikeDoneModal(){ openModal("#m_superdone"); }
 
     function doPass(){
       track('pass', { persona_id: currentPersona().id });
@@ -432,13 +433,17 @@
         state.superLeft -= 1;
         localStorage.setItem(superKey, state.superLeft);
         track('super_like', { persona_id: p.id });
+        bumpGuard();
+        openMatchModal(p);
+        track('match', { persona_id: p.id });
       } else {
+        // plus de super-like : on n'ouvre PAS la popup Match
         track('super_like_reopen', { persona_id: p.id });
+        bumpGuard();
+        openSuperLikeDoneModal();
       }
-      bumpGuard();
-      openMatchModal(p);
-      track('match', { persona_id: p.id }); // on compte au moment d'ouvrir la popup
     }
+
 
     /* ============ MODALS ============ */
     function ensureModals(root){
@@ -459,6 +464,17 @@
           el("div",{class:"modal-actions"},[
             el("a",{href:"#",class:"btn-primary pulse",text:"S’inscrire et obtenir + de likes",
               onclick:(e)=>{e.preventDefault(); openMoreLikes(); }})
+          ])
+        ])
+      ));
+      root.appendChild(el("div",{class:"modal",id:"m_superdone"},
+        el("div",{class:"modal-card hot"},[
+          el("div",{class:"headline",text:"✨ Super-Like déjà utilisé"}),
+          el("div",{text:"Tu as déjà utilisé ton Super-Like du jour et obtenu ton match. Pour discuter avec lui, clique ci-dessous."}),
+          el("div",{class:"modal-actions"},[
+            el("a",{href:"#",class:"btn-primary pulse",text:"Discuter maintenant",
+              onclick:(e)=>{e.preventDefault(); openChat(); }}),
+            el("button",{class:"btn-ghost",text:"Fermer",onclick:()=>closeModal("#m_superdone")})
           ])
         ])
       ));
