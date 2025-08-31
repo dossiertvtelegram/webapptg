@@ -1,11 +1,14 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <script defer data-domain="dossiertvtelegram.github.io/webapptg" src="https://plausible.io/js/script.outbound-links.tagged-events.js"></script>  <meta charset="utf-8" />
+  <!-- Plausible (events + outbound links) -->
+  <script defer data-domain="dossiertvtelegram.github.io/webapptg" src="https://plausible.io/js/script.outbound-links.tagged-events.js"></script>
+
+  <meta charset="utf-8" />
   <title>Flamme — Rencontres</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no" />
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <!-- (facultatif désormais) <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
   <style>
     :root{
       --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
@@ -134,6 +137,33 @@
   <div class="wrap" id="app"></div>
 
   <script>
+    /* ==================== Analytics (Plausible) ==================== */
+    // Wrapper sûr + petite file d'attente si plausible n'est pas encore chargé
+    (function(){
+      const q = [];
+      function flush(){
+        if (!window.plausible) { setTimeout(flush, 150); return; }
+        while(q.length){
+          const [name, props] = q.shift();
+          try { window.plausible(name, props ? { props } : undefined); } catch(e){}
+        }
+      }
+      window.track = function(name, props){
+        if (window.plausible) {
+          try { window.plausible(name, props ? { props } : undefined); } catch(e){}
+        } else {
+          q.push([name, props]);
+        }
+      };
+      setTimeout(flush, 150);
+    })();
+
+    // Ouvre un lien (remplace l'ancien openLinkTG)
+    function openLinkTG(url){
+      if (typeof closeAllModals === 'function') closeAllModals();
+      window.open(url, "_self");
+    }
+
     /* ============ CONFIG ============ */
     const BRAND = "Flamme";
     const LIKE_LIMIT = 3;
@@ -187,53 +217,6 @@
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
-
-    /* ============ TELEGRAM HELPERS (robuste) ============ */
-    const tg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
-    let TG_READY = false;
-    const _queue = [];
-
-    function _flush(){
-      if (!tg || !TG_READY || !_queue.length) return;
-      try{
-        while(_queue.length){
-          const p = _queue.shift();
-          tg.sendData(JSON.stringify(p));
-        }
-      }catch(e){
-        // remet en file et re-tente
-        setTimeout(_flush, 400);
-      }
-    }
-
-    if (tg) {
-      try{ tg.ready(); tg.expand(); TG_READY = true; setTimeout(_flush, 80); }catch(e){}
-    }
-
-    function track(t, extra={}){
-      const payload = { t, ...extra, ts: Date.now() };
-      if (tg && TG_READY && tg.sendData){
-        try{ tg.sendData(JSON.stringify(payload)); }
-        catch(e){ _queue.push(payload); setTimeout(_flush, 300); }
-      } else {
-        _queue.push(payload);
-        setTimeout(_flush, 500);
-      }
-    }
-
-    // petit ping quand la vue revient au premier plan (utile pour voir un event arriver)
-    window.addEventListener('focus', ()=>track('focus'));
-    document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) track('focus'); });
-
-    const openLinkTG = (url)=>{
-      if (typeof closeAllModals === 'function') closeAllModals();
-      if (tg) {
-        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
-        tg.openLink(url, { try_instant_view:false });
-        return;
-      }
-      window.open(url, "_self");
-    };
 
     /* ============ RANDOM FABRIC ============ */
     const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
@@ -360,6 +343,7 @@
         const g=state.filters.gender, a1=state.filters.ageMin, a2=state.filters.ageMax;
         state.pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
         if(!state.pool.length){ alert("Aucun profil trouvé. Élargis les filtres ✨"); return; }
+        // Compte & tracking
         state.idx=0;
         state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
         state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
@@ -399,7 +383,6 @@
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
       // IMPORTANT: on NE désactive PAS bSLike même à 0 pour re-ouvrir la popup match
-      // // if(state.superLeft<=0) bSLike.disabled=true;
       // on laisse aussi le LIKE cliquable pour ré-afficher la popup "Plus de likes"
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
@@ -411,7 +394,7 @@
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
     function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
-    function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; render(); }
+    function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; track('profiles_seen'); render(); }
 
     function doPass(){
       track('pass', { persona_id: currentPersona().id });
@@ -496,14 +479,14 @@
       openModal("#m_match");
     }
 
-    // CTA wrappers avec tracking
-    function openMoreLikes(){ track('cta_more_likes'); openLinkTG(MORE_LIKES_URL); }
+    // CTA wrappers avec tracking (événements Plausible)
+    function openMoreLikes(){ track('cta_more'); openLinkTG(MORE_LIKES_URL); }
     function openChat(){ track('cta_chat'); openLinkTG(MATCH_CHAT_URL); }
 
     /* ============ BOOT ============ */
     render();
-    // Envoie "open" après que Telegram soit prêt
-    setTimeout(()=>track('open'), 400);
+    // Event "open" au boot
+    setTimeout(()=>track('open'), 300);
   </script>
 </body>
 </html>
