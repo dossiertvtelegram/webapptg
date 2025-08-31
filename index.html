@@ -8,7 +8,7 @@
   <title>Flamme — Rencontres</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no" />
-  <!-- (facultatif désormais) <script src="https://telegram.org/js/telegram-web-app.js"></script> -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
       --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
@@ -22,7 +22,7 @@
       /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
     }
-
+    html, body { height: 100%; }
     *{box-sizing:border-box}
     html,body{
       margin:0;background:var(--bg);color:var(--text);
@@ -137,6 +137,16 @@
   <div class="wrap" id="app"></div>
 
   <script>
+    // Telegram WebApp boot (plein écran)
+    const tg = window.Telegram?.WebApp || null;
+    if (tg) {
+      try { tg.ready(); } catch (e) {}
+      const expand = () => { try { tg.expand(); } catch (e) {} };
+      expand();
+      setTimeout(expand, 200);       // re-tente juste après l’ouverture
+      window.addEventListener('focus', expand);
+    }
+
     /* ==================== Analytics (Plausible) ==================== */
     // Wrapper sûr + petite file d'attente si plausible n'est pas encore chargé
     (function(){
@@ -161,8 +171,14 @@
     // Ouvre un lien (remplace l'ancien openLinkTG)
     function openLinkTG(url){
       if (typeof closeAllModals === 'function') closeAllModals();
-      window.open(url, "_self");
+      if (tg) {
+        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
+        tg.openLink(url, { try_instant_view: false });  // ouvre dans la webview Telegram
+        return;
+      }
+      window.open(url, "_self");                         // fallback navigateur
     }
+
 
     /* ============ CONFIG ============ */
     const BRAND = "Flamme";
