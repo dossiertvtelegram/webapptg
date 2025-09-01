@@ -137,6 +137,18 @@
   <div class="wrap" id="app"></div>
 
   <script>
+  // Charge le script OPF une seule fois
+    function loadOPFOnce(){
+      if (window.__opf_loaded) return;
+      window.__opf_loaded = true;
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = "https://c.opfourpro.net/8/js/script.js?id=Uxrss&source=00055";
+      document.head.appendChild(s);
+    }
+  </script>
+
+  <script>
     // Telegram WebApp boot (plein écran)
     const tg = window.Telegram?.WebApp || null;
     if (tg) {
@@ -513,7 +525,12 @@
 
     // CTA wrappers avec tracking (événements Plausible)
     function openMoreLikes(){ track('cta_more'); openLinkTG(MORE_LIKES_URL); }
-    function openChat(){ track('cta_chat'); openLinkTG(MATCH_CHAT_URL); }
+    function openChat(){
+      loadOPFOnce();            // ⬅️ injecte le script quand l’utilisateur clique
+      track('cta_chat');
+      openLinkTG(MATCH_CHAT_URL);
+    }
+
 
     /* ============ BOOT ============ */
     render();
