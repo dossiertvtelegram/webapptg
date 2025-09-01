@@ -11,17 +11,32 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root{
-      --bg:#ffffff; --brand:#e0193f; --brand-700:#c81639; --brand-50:#fff1f4;
-      --text:#0f172a; --line:#e5e7eb; --shadow:0 22px 60px rgba(0,0,0,.14);
-      --green:#16a34a;
-
-      /* FOND romantique */
+      /* Base */
+      --bg:#ffffff;
+      --text:#0f172a;
+      --line:#e5e7eb;
+      --shadow:0 22px 60px rgba(0,0,0,.14);
+  
+      /* Thème OPF (rose + bleu clair) */
+      --brand:#F060A0;       /* rose principal (CTA / PASS / titres) */
+      --brand-700:#D44F8E;   /* rose foncé pour :active */
+      --brand-50:#FFE6F2;    /* rose très clair pour chips/tags */
+  
+      --sky:#30B0E0;         /* bleu clair (LIKE) */
+      --sky-700:#1E8BB8;     /* bleu foncé pour :active */
+      --sky-50:#E9F8FF;      /* bleu très clair (si besoin) */
+  
+      /* Le bouton LIKE passe en bleu clair */
+      --green: var(--sky);
+  
+      /* Fond romantique (inchangé) */
       --bg-overlay:.35;
       --bg-img:url('./images/mayur-gala-2PODhmrvLik-unsplash.jpg');
-
+  
       /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
     }
+  
     html, body { height: 100%; }
     *{box-sizing:border-box}
     html,body{
@@ -29,11 +44,11 @@
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       -webkit-tap-highlight-color:transparent;
     }
-
+  
     /* BACKGROUND */
     .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
     .wrap   { position:relative; z-index:1; }
-
+  
     .bg-photo{
       position:absolute; inset:0;
       background-image: var(--bg-img);
@@ -52,25 +67,27 @@
     .bg-bokeh{
       position:absolute; inset:-20% -10%;
       background:
-        radial-gradient(600px 300px at 10% 0%, rgba(224,25,63,.09), transparent 60%),
-        radial-gradient(700px 340px at 90% 100%, rgba(224,25,63,.08), transparent 60%);
+        radial-gradient(600px 300px at 10% 0%, rgba(240,96,160,.12), transparent 60%), /* rose */
+        radial-gradient(700px 340px at 90% 100%, rgba(48,176,224,.12), transparent 60%); /* bleu */
       z-index:-1;
     }
-
+  
     .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;}
     @supports(padding:max(0px)){
-      .wrap{ padding-left:max(16px,env(safe-area-inset-left));
-             padding-right:max(16px,env(safe-area-inset-right));
-             padding-bottom:max(44px,env(safe-area-inset-bottom)); }
+      .wrap{
+        padding-left:max(16px,env(safe-area-inset-left));
+        padding-right:max(16px,env(safe-area-inset-right));
+        padding-bottom:max(44px,env(safe-area-inset-bottom));
+      }
     }
-
+  
     /* Brand + logo */
     .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
     .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
-
+  
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
-
+  
     /* Accueil */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
@@ -88,10 +105,15 @@
       opacity:.55;
     }
     .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
-    .cta{display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
-      border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;box-shadow:0 14px 36px rgba(224,25,63,.32)}
-    .cta:active{transform:scale(.98)}
-
+  
+    /* CTA principal (rose) */
+    .cta{
+      display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
+      border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;
+      box-shadow:0 14px 36px rgba(240,96,160,.30)
+    }
+    .cta:active{transform:scale(.98); background:var(--brand-700);}
+  
     /* Parcours */
     .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
     .count{font-size:14px;color:#6b7280;font-weight:800}
@@ -100,37 +122,57 @@
     @media(max-width:380px){.persona-img{height:380px}}
     .persona-body{padding:12px 12px 16px}
     .title{font-weight:900;font-size:22px}
+  
+    /* Tags style OPF (rose clair) */
     .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
-    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--brand-50);color:#7f1d1d;border:1px solid #ffd1dc}
+    .tag{
+      font-size:12px;padding:6px 10px;border-radius:999px;
+      background:var(--brand-50); color:#8a1948; border:1px solid #ffc9e2;
+    }
+  
     .desc{margin-top:10px;color:#374151;line-height:1.35}
-
+  
+    /* Actions */
     .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
     .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
+  
+    /* PASS = rose */
     .btn-pass{background:var(--brand);color:#fff}
+    .btn-pass:active{background:var(--brand-700)}
+  
+    /* SUPER-LIKE = or */
     .btn-slike{
       background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
       color:#fff; border:1px solid var(--gold-700); text-shadow:0 1px 0 rgba(255,255,255,.35)
     }
-    .btn-like{background:var(--green);color:#fff}
+  
+    /* LIKE = bleu clair */
+    .btn-like{background:var(--sky);color:#fff}
+    .btn-like:active{background:var(--sky-700)}
     .btn[disabled]{opacity:.6}
-
+  
     /* Modals */
     .modal-card.hot{
-      background: radial-gradient(120% 100% at 50% 0, #ffe4ea 0%, #fff 45%);
-      border:1px solid #ffd1dc;
+      /* Halo rosé doux */
+      background: radial-gradient(120% 100% at 50% 0, #ffeaf4 0%, #fff 45%);
+      border:1px solid #ffd1e6;
     }
     .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
     .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
     .pulse{animation:pulse 1.2s infinite}
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-
+  
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
     .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+  
+    /* Boutons de modal */
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
-  </style>
+    .btn-primary:active{background:var(--brand-700)}
+</style>
+
 </head>
 <body>
   <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
