@@ -17,7 +17,8 @@
       --text:#0f172a;
       --line:#e5e7eb;
       --shadow:0 22px 60px rgba(0,0,0,.14);
-
+      --logo-size: 64px;
+      
       /* Thème OPF (rose + bleu clair) */
       --brand:#F060A0;       /* rose principal (CTA / PASS / titres) */
       --brand-700:#D44F8E;   /* rose foncé pour :active */
@@ -91,14 +92,19 @@
       margin-top:6px;
     }
     
-    /* taille forcée */
+    /* Taille forcée du logo */
     .brand img.brand-logo{
-      width:28px !important;
-      height:28px !important;
+      width:var(--logo-size) !important;
+      height:var(--logo-size) !important;
+      max-width:none !important;
+      max-height:none !important;
       display:block;
       object-fit:contain;
+      flex-shrink:0;
     }
-
+    @media (max-width:360px){
+      :root{ --logo-size: 56px; }
+    }
 
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
@@ -437,17 +443,18 @@
     /* ==================== BRAND HEADER ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      const logo = el("img", {
+      const logo = el("img",{
         src:"./images/1756677245823-85225351.png",
         alt:"Logo",
         class:"brand-logo",
-        width:"28",
-        height:"28",
-        draggable:"false"
+        draggable:"false",
+        decoding:"async",
+        loading:"eager"
       });
       wrap.appendChild(logo);
       return wrap;
     }
+
 
 
     /* ==================== RENDER ROOT ==================== */
