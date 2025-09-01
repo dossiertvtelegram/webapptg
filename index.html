@@ -84,7 +84,12 @@
 
     /* Brand (uniquement le logo centré) */
     .brand{display:flex;align-items:center;justify-content:center;margin-top:6px}
-    .brand-logo{width:120px;height:auto;display:block;object-fit:contain}
+    .brand-logo{
+      width:72px;            /* taille fixée propre */
+      height:auto;
+      display:block;
+      object-fit:contain;
+    }
 
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
@@ -144,7 +149,7 @@
     /* SUPER-LIKE = or */
     .btn-slike{
       background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
-      color:#fff; border:1px solid var(--gold-700); text-shadow:0 1px 0 rgba(255,255,255,.35)
+      color:#fff; border:1px solid #gold-700; text-shadow:0 1px 0 rgba(255,255,255,.35)
     }
 
     /* LIKE = bleu clair */
@@ -152,23 +157,16 @@
     .btn-like:active{background:var(--sky-700)}
     .btn[disabled]{opacity:.6}
 
-    /* Modals */
-    .modal-card.hot{
-      /* Halo rosé doux */
-      background: radial-gradient(120% 100% at 50% 0, #ffeaf4 0%, #fff 45%);
-      border:1px solid #ffd1e6;
-    }
+    /* Modals (tonalité rosée) */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
+    .modal.open{display:flex}
+    .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #ffd1e6;padding:22px}
+    .modal-card.hot{background: radial-gradient(120% 100% at 50% 0, #ffeaf4 0%, #fff 45%);}
+    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
     .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
     .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
     .pulse{animation:pulse 1.2s infinite}
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
-    .modal.open{display:flex}
-    .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
-    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
-
-    /* Boutons de modal */
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
     .btn-primary:active{background:var(--brand-700)}
@@ -177,6 +175,52 @@
 <body>
   <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
   <div class="wrap" id="app"></div>
+
+  <!-- ===== Modals montés une fois dans <body> (pas dans #app) ===== -->
+  <div class="modal" id="m_rules">
+    <div class="modal-card hot">
+      <div class="headline">🔥 Rappel rapide</div>
+      <div>Tu démarres avec 3 Likes ❤️ et 1 Super-Like ✨. Tu pourras créer ton compte plus tard pour obtenir des likes bonus immédiatement.</div>
+      <div class="modal-actions">
+        <button class="btn-ghost" data-close="#m_rules">D’accord</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="m_nolikes">
+    <div class="modal-card hot">
+      <div class="headline">💔 Plus de likes</div>
+      <div>Tu as épuisé tes 3 likes. Crée ton compte maintenant pour débloquer des likes supplémentaires.</div>
+      <div class="modal-actions">
+        <a href="#" class="btn-primary pulse" id="cta_more">S’inscrire et obtenir + de likes</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="m_superdone">
+    <div class="modal-card hot">
+      <div class="headline">✨ Super-Like déjà utilisé</div>
+      <div>Tu as déjà utilisé ton Super-Like du jour et obtenu ton match. Pour discuter avec lui, clique ci-dessous.</div>
+      <div class="modal-actions">
+        <a href="#" class="btn-primary pulse" id="cta_chat_redisplay">Discuter maintenant</a>
+        <button class="btn-ghost" data-close="#m_superdone">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="m_match">
+    <div class="modal-card hot">
+      <div class="headline">🎉 Match obtenu !</div>
+      <div class="modal-hero"><img id="matchImg" src="" alt="Match" style="width:100%;display:block"/></div>
+      <div style="font-weight:800;margin-top:2px">
+        Vous avez matché avec <span id="matchName">cette personne</span> 💞
+      </div>
+      <div class="modal-actions">
+        <a href="#" class="btn-primary pulse" id="cta_chat">Discuter maintenant</a>
+        <button class="btn-ghost" data-close="#m_match" id="close_match">Fermer</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Charge le script OPF une seule fois
@@ -223,7 +267,7 @@
 
     // Ouvre un lien (webview TG si dispo)
     function openLinkTG(url){
-      if (typeof closeAllModals === 'function') closeAllModals();
+      closeAllModals();
       if (tg) {
         if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
         tg.openLink(url, { try_instant_view: false });
@@ -270,8 +314,12 @@
       restoreFilters();
       if (localStorage.getItem(stepKey) === "browse") {
         const pool = rebuildPoolFromFilters();
-        if (pool.length) { state.pool = pool; state.step = "browse"; }
+        if (pool.length) {
+          state.pool = pool; state.step = "browse";
+        }
       }
+      state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
+      state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
     }
 
     /* ==================== IMAGES / RANDOM FABRIC ==================== */
@@ -361,7 +409,7 @@
     };
 
     let PERSONAS = loadOrGeneratePersonas();
-    resumeIfPossible(); // reprise de session si possible
+    resumeIfPossible();
 
     /* ==================== DOM HELPERS ==================== */
     const $ = s => document.querySelector(s);
@@ -380,7 +428,6 @@
     /* ==================== BRAND HEADER ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      // Logo fourni par toi, centré, sans titre
       const logo = el("img", { src:"./images/1756677245823-85225351.png", alt:"Logo", class:"brand-logo" });
       wrap.appendChild(logo);
       return wrap;
@@ -392,7 +439,6 @@
       root.appendChild(renderBrand());
       if(state.step==="landing") root.appendChild(renderLanding());
       else root.appendChild(renderBrowse());
-      ensureModals(root);
       persistStep();
     }
 
@@ -519,16 +565,16 @@
       showNextAfterRemoval();
     }
 
+    let _lastMatched = null;
+
     function superLike(){
       const p = currentPersona();
       if (state.superLeft > 0) {
         state.superLeft -= 1;
         localStorage.setItem(superKey, state.superLeft);
         track('super_like', { persona_id: p.id });
-        openMatchModal(p);
-        markSeen(p.id);
-        state.pool.splice(state.idx % state.pool.length, 1);
-        showNextAfterRemoval();
+        _lastMatched = p;                 // on garde en mémoire pour avancer après action
+        openMatchModal(p);                // ⬅️ on OUVRE le modal et on NE rerend PAS tout de suite
         track('match', { persona_id: p.id });
       } else {
         track('super_like_reopen', { persona_id: p.id });
@@ -536,64 +582,13 @@
       }
     }
 
-    /* ==================== MODALS ==================== */
-    function ensureModals(root){
-      root.appendChild(el("div",{class:"modal",id:"m_rules"},
-        el("div",{class:"modal-card hot"},[
-          el("div",{class:"headline",text:"🔥 Rappel rapide"}),
-          el("div",{text:"Tu démarres avec 3 Likes ❤️ et 1 Super-Like ✨. Tu pourras créer ton compte plus tard pour obtenir des likes bonus immédiatement."}),
-          el("div",{class:"modal-actions"},[
-            el("button",{class:"btn-ghost",text:"D’accord",onclick:()=>closeModal("#m_rules")})
-          ])
-        ])
-      ));
-
-      root.appendChild(el("div",{class:"modal",id:"m_nolikes"},
-        el("div",{class:"modal-card hot"},[
-          el("div",{class:"headline",text:"💔 Plus de likes"}),
-          el("div",{text:"Tu as épuisé tes 3 likes. Crée ton compte maintenant pour débloquer des likes supplémentaires."}),
-          el("div",{class:"modal-actions"},[
-            el("a",{href:"#",class:"btn-primary pulse",text:"S’inscrire et obtenir + de likes",
-              onclick:(e)=>{e.preventDefault(); openMoreLikes(); }})
-          ])
-        ])
-      ));
-      root.appendChild(el("div",{class:"modal",id:"m_superdone"},
-        el("div",{class:"modal-card hot"},[
-          el("div",{class:"headline",text:"✨ Super-Like déjà utilisé"}),
-          el("div",{text:"Tu as déjà utilisé ton Super-Like du jour et obtenu ton match. Pour discuter avec lui, clique ci-dessous."}),
-          el("div",{class:"modal-actions"},[
-            el("a",{href:"#",class:"btn-primary pulse",text:"Discuter maintenant",
-              onclick:(e)=>{e.preventDefault(); openChat(); }}),
-            el("button",{class:"btn-ghost",text:"Fermer",onclick:()=>closeModal("#m_superdone")})
-          ])
-        ])
-      ));
-
-      root.appendChild(el("div",{class:"modal",id:"m_match"},
-        el("div",{class:"modal-card hot"},[
-          el("div",{class:"headline",text:"🎉 Match obtenu !"}),
-          el("div",{class:"modal-hero"},
-            el("img",{id:"matchImg",src:"",alt:"Match",style:"width:100%;display:block"})
-          ),
-          el("div",{style:"font-weight:800;margin-top:2px"},[
-            document.createTextNode("Vous avez matché avec "),
-            el("span",{id:"matchName",text:"cette personne"}),
-            document.createTextNode(" 💞")
-          ]),
-          el("div",{class:"modal-actions"},[
-            el("a",{href:"#",class:"btn-primary pulse",text:"Discuter maintenant",
-              onclick:(e)=>{e.preventDefault(); openChat(); }})
-          ])
-        ])
-      ));
-    }
-
+    /* ==================== MODALS HELPERS ==================== */
     function openModal(sel){ const m=$(sel); if(m) m.classList.add("open"); }
     function closeModal(sel){ const m=$(sel); if(m) m.classList.remove("open"); }
     function closeAllModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
     function openRulesModal(){ openModal("#m_rules"); }
     function openNoLikesModal(){ openModal("#m_nolikes"); }
+    function openSuperLikeDoneModal(){ openModal("#m_superdone"); }
 
     function openMatchModal(p){
       const img = $("#matchImg"); const nm = $("#matchName");
@@ -602,13 +597,53 @@
       openModal("#m_match");
     }
 
-    // CTA wrappers avec tracking (événements Plausible)
-    function openMoreLikes(){ track('cta_more'); openLinkTG(MORE_LIKES_URL); }
-    function openChat(){
-      loadOPFOnce();            // injecte le script quand l’utilisateur clique
-      track('cta_chat');
-      //openLinkTG(MATCH_CHAT_URL);
+    function advanceAfterMatch(){
+      if (!_lastMatched) return;
+      markSeen(_lastMatched.id);
+      const idx = state.pool.findIndex(x=>x.id===_lastMatched.id);
+      if (idx >= 0) state.pool.splice(idx,1);
+      _lastMatched = null;
+      showNextAfterRemoval();
     }
+
+    // ====== Events modals (fond click + boutons) ======
+    document.querySelectorAll('.modal').forEach(m=>{
+      m.addEventListener('click', (e)=>{
+        if (e.target === m) { // click sur l’overlay
+          if (m.id === 'm_match') advanceAfterMatch();
+          closeModal('#'+m.id);
+        }
+      });
+    });
+    document.querySelectorAll('[data-close]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        const sel = btn.getAttribute('data-close');
+        if (sel === '#m_match') advanceAfterMatch();
+        closeModal(sel);
+      });
+    });
+
+    // CTAs
+    document.getElementById('cta_more').addEventListener('click', (e)=>{ e.preventDefault(); track('cta_more'); openLinkTG(MORE_LIKES_URL); });
+    document.getElementById('cta_chat').addEventListener('click', (e)=>{
+      e.preventDefault();
+      loadOPFOnce();
+      track('cta_chat');
+      // openLinkTG(MATCH_CHAT_URL); // volontairement désactivé
+      closeModal('#m_match');
+      advanceAfterMatch(); // on passe au profil suivant après action
+    });
+    document.getElementById('cta_chat_redisplay').addEventListener('click', (e)=>{
+      e.preventDefault();
+      loadOPFOnce();
+      track('cta_chat');
+      // openLinkTG(MATCH_CHAT_URL);
+      closeModal('#m_superdone');
+    });
+    document.getElementById('close_match').addEventListener('click', ()=>{
+      closeModal('#m_match');
+      advanceAfterMatch();
+    });
 
     /* ==================== BOOT ==================== */
     render();
