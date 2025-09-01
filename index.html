@@ -12,6 +12,17 @@
 
   <style>
     :root{
+      /* hauteur visible du logo (ce qui reste à l’écran) */
+      --logo-visible-h: 140px;   /* ⇦ ajuste (120–180) */
+      /* taille réelle du PNG dans le cadre (un peu plus grand pour pouvoir couper) */
+      --logo-img-h: 220px;       /* ⇦ ajuste jusqu’à ce que ça rende bien */
+      /* décalage vertical du PNG dans le cadre (négatif = remonter) */
+      --logo-shift: -24px;       /* ⇦ ajuste (-40 à 0) */
+    
+      /* resserre l’espacement global en haut de page */
+      --page-padding-top: 8px;
+      --stack-gap: 8px;
+      
       /* Base */
       --bg:#ffffff;
       --text:#0f172a;
@@ -83,27 +94,43 @@
       }
     }
 
-    /* Brand (uniquement le logo centré) */
-   /* Brand (uniquement le logo centré) */
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-top:6px;
+   /* réduit l’espace au-dessus et entre les blocs */
+    .wrap{
+      padding-top: var(--page-padding-top);
+      gap: var(--stack-gap);
     }
     
-    /* Taille forcée du logo */
-    .brand img.brand-logo{
-      width:var(--logo-size) !important;
-      height:var(--logo-size) !important;
-      max-width:none !important;
-      max-height:none !important;
-      display:block;
-      object-fit:contain;
-      flex-shrink:0;
+    /* bloc logo centré */
+    .brand{
+      display:flex;
+      justify-content:center;
+      margin:0;                 /* pas de marge parasite */
     }
-    @media (max-width:360px){
-      :root{ --logo-size: 56px; }
+    
+    /* cadre qui "coupe" l'image si elle a des bords vides */
+    .brand-crop{
+      height: var(--logo-visible-h);
+      overflow: hidden;
+      display:flex;
+      align-items: center;
+      justify-content:center;
+    }
+    
+    /* le PNG est plus grand que le cadre + décalé pour supprimer le vide */
+    .brand-logo{
+      height: var(--logo-img-h);
+      width: auto;
+      transform: translateY(var(--logo-shift));
+      display:block;
+    }
+    
+    /* sécurité petits écrans : on compresse un peu */
+    @media (max-width: 360px){
+      :root{
+        --logo-visible-h: 120px;
+        --logo-img-h: 190px;
+        --logo-shift: -20px;
+      }
     }
 
     /* Cards */
@@ -443,6 +470,7 @@
     /* ==================== BRAND HEADER ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
+      const crop = el("div",{class:"brand-crop"});
       const logo = el("img",{
         src:"./images/1756677245823-85225351.png",
         alt:"Logo",
@@ -451,9 +479,11 @@
         decoding:"async",
         loading:"eager"
       });
-      wrap.appendChild(logo);
+      crop.appendChild(logo);
+      wrap.appendChild(crop);
       return wrap;
     }
+
 
 
 
