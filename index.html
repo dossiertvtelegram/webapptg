@@ -83,13 +83,22 @@
     }
 
     /* Brand (uniquement le logo centré) */
-    .brand{display:flex;align-items:center;justify-content:center;margin-top:6px}
-    .brand-logo{
-      width:72px;            /* taille fixée propre */
-      height:auto;
+   /* Brand (uniquement le logo centré) */
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:6px;
+    }
+    
+    /* taille forcée */
+    .brand img.brand-logo{
+      width:28px !important;
+      height:28px !important;
       display:block;
       object-fit:contain;
     }
+
 
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
@@ -428,10 +437,18 @@
     /* ==================== BRAND HEADER ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      const logo = el("img", { src:"./images/1756677245823-85225351.png", alt:"Logo", class:"brand-logo" });
+      const logo = el("img", {
+        src:"./images/1756677245823-85225351.png",
+        alt:"Logo",
+        class:"brand-logo",
+        width:"28",
+        height:"28",
+        draggable:"false"
+      });
       wrap.appendChild(logo);
       return wrap;
     }
+
 
     /* ==================== RENDER ROOT ==================== */
     function render(){
