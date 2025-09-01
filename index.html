@@ -5,7 +5,7 @@
   <script defer data-domain="flammeapp.xyz" src="https://plausible.io/js/script.outbound-links.tagged-events.js"></script>
 
   <meta charset="utf-8" />
-  <title>Rencontres</title>
+  <title>Flamme — Rencontres</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -30,7 +30,7 @@
       /* Le bouton LIKE passe en bleu clair */
       --green: var(--sky);
 
-      /* Fond romantique */
+      /* Fond */
       --bg-overlay:.35;
       --bg-img:url('./images/flamme_bg_desktop.png');
 
@@ -82,18 +82,9 @@
       }
     }
 
-    /* Brand (logo seul, centré) */
-    .brand{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      margin-top:6px;
-      padding:4px 0 8px;
-    }
-    .brand img{
-      width:140px; height:auto; display:block;
-      filter: drop-shadow(0 6px 18px rgba(0,0,0,.08));
-    }
+    /* Brand (uniquement le logo centré) */
+    .brand{display:flex;align-items:center;justify-content:center;margin-top:6px}
+    .brand-logo{width:120px;height:auto;display:block;object-fit:contain}
 
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
@@ -200,7 +191,7 @@
   </script>
 
   <script>
-    /* ==================== Telegram WebApp boot ==================== */
+    /* ==================== Telegram WebApp (plein écran) ==================== */
     const tg = window.Telegram?.WebApp || null;
     if (tg) {
       try { tg.ready(); } catch (e) {}
@@ -230,6 +221,7 @@
       setTimeout(flush, 150);
     })();
 
+    // Ouvre un lien (webview TG si dispo)
     function openLinkTG(url){
       if (typeof closeAllModals === 'function') closeAllModals();
       if (tg) {
@@ -240,21 +232,25 @@
       window.open(url, "_self");
     }
 
-    /* ==================== CONFIG + PERSIST ==================== */
+    /* ==================== CONFIG & PERSIST ==================== */
+    const BRAND = "Flamme"; // (non affiché)
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
     const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv";
     const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";
 
-    // Reset quotidien : nouvelle clé chaque jour -> les profils reviennent le lendemain
+    // Reset quotidien => les profils reviennent le lendemain
     const dayKey   = new Date().toISOString().slice(0,10);
     const likesKey = `flamme_likes_${dayKey}`;
     const superKey = `flamme_super_${dayKey}`;
-    const seenKey    = `flamme_seen_${dayKey}`;
-    const filtersKey = `flamme_filters`;
-    const stepKey    = `flamme_step`;
+    const seenKey    = `flamme_seen_${dayKey}`;  // profils vus aujourd'hui
+    const filtersKey = `flamme_filters`;         // derniers filtres choisis
+    const stepKey    = `flamme_step`;            // dernière étape (landing/browse)
 
-    function loadSeen(){ try { return new Set(JSON.parse(localStorage.getItem(seenKey) || "[]")); } catch(e){ return new Set(); } }
+    function loadSeen(){
+      try { return new Set(JSON.parse(localStorage.getItem(seenKey) || "[]")); }
+      catch(e){ return new Set(); }
+    }
     function saveSeen(set){ try { localStorage.setItem(seenKey, JSON.stringify([...set])); } catch(e){} }
     function markSeen(id){ const s = loadSeen(); s.add(id); saveSeen(s); }
 
@@ -278,7 +274,7 @@
       }
     }
 
-    /* ==================== DATA FABRIC ==================== */
+    /* ==================== IMAGES / RANDOM FABRIC ==================== */
     const PERSONA_IMAGES = [
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
@@ -365,7 +361,7 @@
     };
 
     let PERSONAS = loadOrGeneratePersonas();
-    resumeIfPossible(); // reprise si on était en "browse"
+    resumeIfPossible(); // reprise de session si possible
 
     /* ==================== DOM HELPERS ==================== */
     const $ = s => document.querySelector(s);
@@ -381,10 +377,11 @@
       return n;
     };
 
-    /* ==================== BRAND HEADER (logo seul) ==================== */
+    /* ==================== BRAND HEADER ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      const logo = el("img", { src:"./images/1756677245823-85225351.png", alt:"Logo" });
+      // Logo fourni par toi, centré, sans titre
+      const logo = el("img", { src:"./images/1756677245823-85225351.png", alt:"Logo", class:"brand-logo" });
       wrap.appendChild(logo);
       return wrap;
     }
@@ -403,7 +400,7 @@
     function renderLanding(){
       const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
 
-      // Que recherchez-vous ?
+      // Filtres
       box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
       const genderSel = el("select",{id:"selGender",class:"sel"});
       [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
@@ -411,7 +408,6 @@
       genderSel.onchange = ()=> state.filters.gender = genderSel.value;
       box.appendChild(el("div",{class:"field"}, genderSel));
 
-      // Âge min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
       const ageMinSel = el("select",{class:"sel"}), ageMaxSel = el("select",{class:"sel"});
@@ -429,7 +425,6 @@
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
       box.appendChild(row);
 
-      // Ville (optionnel)
       box.appendChild(el("div",{class:"label",text:"Dans quelle ville habitez-vous ?"}));
       const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"});
       city.value = state.filters.city; city.oninput = ()=> state.filters.city = city.value.trim();
@@ -610,15 +605,13 @@
     // CTA wrappers avec tracking (événements Plausible)
     function openMoreLikes(){ track('cta_more'); openLinkTG(MORE_LIKES_URL); }
     function openChat(){
-      loadOPFOnce();            // ⬅️ injecte le script quand l’utilisateur clique
+      loadOPFOnce();            // injecte le script quand l’utilisateur clique
       track('cta_chat');
       //openLinkTG(MATCH_CHAT_URL);
     }
 
-
-    /* ============ BOOT ============ */
+    /* ==================== BOOT ==================== */
     render();
-    // Event "open" au boot
     setTimeout(()=>track('open'), 300);
   </script>
 </body>
