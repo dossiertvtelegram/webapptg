@@ -5,10 +5,11 @@
   <script defer data-domain="flammeapp.xyz" src="https://plausible.io/js/script.outbound-links.tagged-events.js"></script>
 
   <meta charset="utf-8" />
-  <title>Flamme — Rencontres</title>
+  <title>Rencontres</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="format-detection" content="telephone=no" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
     :root{
       /* Base */
@@ -16,27 +17,27 @@
       --text:#0f172a;
       --line:#e5e7eb;
       --shadow:0 22px 60px rgba(0,0,0,.14);
-  
+
       /* Thème OPF (rose + bleu clair) */
       --brand:#F060A0;       /* rose principal (CTA / PASS / titres) */
       --brand-700:#D44F8E;   /* rose foncé pour :active */
       --brand-50:#FFE6F2;    /* rose très clair pour chips/tags */
-  
+
       --sky:#30B0E0;         /* bleu clair (LIKE) */
       --sky-700:#1E8BB8;     /* bleu foncé pour :active */
       --sky-50:#E9F8FF;      /* bleu très clair (si besoin) */
-  
+
       /* Le bouton LIKE passe en bleu clair */
       --green: var(--sky);
-  
-      /* Fond romantique (inchangé) */
+
+      /* Fond romantique */
       --bg-overlay:.35;
       --bg-img:url('./images/flamme_bg_desktop.png');
-  
+
       /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
     }
-  
+
     html, body { height: 100%; }
     *{box-sizing:border-box}
     html,body{
@@ -44,11 +45,11 @@
       font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
       -webkit-tap-highlight-color:transparent;
     }
-  
+
     /* BACKGROUND */
     .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
     .wrap   { position:relative; z-index:1; }
-  
+
     .bg-photo{
       position:absolute; inset:0;
       background-image: var(--bg-img);
@@ -71,7 +72,7 @@
         radial-gradient(700px 340px at 90% 100%, rgba(48,176,224,.12), transparent 60%); /* bleu */
       z-index:-1;
     }
-  
+
     .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;}
     @supports(padding:max(0px)){
       .wrap{
@@ -80,14 +81,23 @@
         padding-bottom:max(44px,env(safe-area-inset-bottom));
       }
     }
-  
-    /* Brand + logo */
-    .brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px}
-    .brand h1{margin:0;font-size:28px;font-weight:900;letter-spacing:.2px}
-  
+
+    /* Brand (logo seul, centré) */
+    .brand{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:6px;
+      padding:4px 0 8px;
+    }
+    .brand img{
+      width:140px; height:auto; display:block;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.08));
+    }
+
     /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
-  
+
     /* Accueil */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
@@ -105,7 +115,7 @@
       opacity:.55;
     }
     .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
-  
+
     /* CTA principal (rose) */
     .cta{
       display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
@@ -113,7 +123,7 @@
       box-shadow:0 14px 36px rgba(240,96,160,.30)
     }
     .cta:active{transform:scale(.98); background:var(--brand-700);}
-  
+
     /* Parcours */
     .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
     .count{font-size:14px;color:#6b7280;font-weight:800}
@@ -122,35 +132,35 @@
     @media(max-width:380px){.persona-img{height:380px}}
     .persona-body{padding:12px 12px 16px}
     .title{font-weight:900;font-size:22px}
-  
+
     /* Tags style OPF (rose clair) */
     .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
     .tag{
       font-size:12px;padding:6px 10px;border-radius:999px;
       background:var(--brand-50); color:#8a1948; border:1px solid #ffc9e2;
     }
-  
+
     .desc{margin-top:10px;color:#374151;line-height:1.35}
-  
+
     /* Actions */
     .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
     .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
-  
+
     /* PASS = rose */
     .btn-pass{background:var(--brand);color:#fff}
     .btn-pass:active{background:var(--brand-700)}
-  
+
     /* SUPER-LIKE = or */
     .btn-slike{
       background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
       color:#fff; border:1px solid var(--gold-700); text-shadow:0 1px 0 rgba(255,255,255,.35)
     }
-  
+
     /* LIKE = bleu clair */
     .btn-like{background:var(--sky);color:#fff}
     .btn-like:active{background:var(--sky-700)}
     .btn[disabled]{opacity:.6}
-  
+
     /* Modals */
     .modal-card.hot{
       /* Halo rosé doux */
@@ -161,25 +171,24 @@
     .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
     .pulse{animation:pulse 1.2s infinite}
     @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-  
+
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #eee;padding:22px}
     .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
-  
+
     /* Boutons de modal */
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
     .btn-primary:active{background:var(--brand-700)}
-</style>
-
+  </style>
 </head>
 <body>
   <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
   <div class="wrap" id="app"></div>
 
   <script>
-  // Charge le script OPF une seule fois
+    // Charge le script OPF une seule fois
     function loadOPFOnce(){
       if (window.__opf_loaded) return;
       window.__opf_loaded = true;
@@ -191,18 +200,17 @@
   </script>
 
   <script>
-    // Telegram WebApp boot (plein écran)
+    /* ==================== Telegram WebApp boot ==================== */
     const tg = window.Telegram?.WebApp || null;
     if (tg) {
       try { tg.ready(); } catch (e) {}
       const expand = () => { try { tg.expand(); } catch (e) {} };
       expand();
-      setTimeout(expand, 200);       // re-tente juste après l’ouverture
+      setTimeout(expand, 200);
       window.addEventListener('focus', expand);
     }
 
     /* ==================== Analytics (Plausible) ==================== */
-    // Wrapper sûr + petite file d'attente si plausible n'est pas encore chargé
     (function(){
       const q = [];
       function flush(){
@@ -222,29 +230,55 @@
       setTimeout(flush, 150);
     })();
 
-    // Ouvre un lien (remplace l'ancien openLinkTG)
     function openLinkTG(url){
       if (typeof closeAllModals === 'function') closeAllModals();
       if (tg) {
         if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
-        tg.openLink(url, { try_instant_view: false });  // ouvre dans la webview Telegram
+        tg.openLink(url, { try_instant_view: false });
         return;
       }
-      window.open(url, "_self");                         // fallback navigateur
+      window.open(url, "_self");
     }
 
-
-    /* ============ CONFIG ============ */
-    const BRAND = "Flamme";
+    /* ==================== CONFIG + PERSIST ==================== */
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
-    const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv"; // 🔁 remplace
-    const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";                 // 🔁 remplace
-    const dayKey = new Date().toISOString().slice(0,10);
+    const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv";
+    const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";
+
+    // Reset quotidien : nouvelle clé chaque jour -> les profils reviennent le lendemain
+    const dayKey   = new Date().toISOString().slice(0,10);
     const likesKey = `flamme_likes_${dayKey}`;
     const superKey = `flamme_super_${dayKey}`;
+    const seenKey    = `flamme_seen_${dayKey}`;
+    const filtersKey = `flamme_filters`;
+    const stepKey    = `flamme_step`;
 
-    /* Images */
+    function loadSeen(){ try { return new Set(JSON.parse(localStorage.getItem(seenKey) || "[]")); } catch(e){ return new Set(); } }
+    function saveSeen(set){ try { localStorage.setItem(seenKey, JSON.stringify([...set])); } catch(e){} }
+    function markSeen(id){ const s = loadSeen(); s.add(id); saveSeen(s); }
+
+    function persistFilters(){ try { localStorage.setItem(filtersKey, JSON.stringify(state.filters)); } catch(e){} }
+    function restoreFilters(){
+      try { const f = JSON.parse(localStorage.getItem(filtersKey) || "null"); if (f) state.filters = f; } catch(e){}
+    }
+    function persistStep(){ try { localStorage.setItem(stepKey, state.step); } catch(e){} }
+
+    function rebuildPoolFromFilters(){
+      const g = state.filters.gender, a1 = state.filters.ageMin, a2 = state.filters.ageMax;
+      let pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
+      const seen = loadSeen();
+      return pool.filter(p => !seen.has(p.id));
+    }
+    function resumeIfPossible(){
+      restoreFilters();
+      if (localStorage.getItem(stepKey) === "browse") {
+        const pool = rebuildPoolFromFilters();
+        if (pool.length) { state.pool = pool; state.step = "browse"; }
+      }
+    }
+
+    /* ==================== DATA FABRIC ==================== */
     const PERSONA_IMAGES = [
       "./images/photo_1_2025-08-30_17-36-31.jpg","./images/photo_2_2025-08-30_17-36-31.jpg","./images/photo_3_2025-08-30_17-36-31.jpg",
       "./images/photo_4_2025-08-30_17-36-31.jpg","./images/photo_5_2025-08-30_17-36-31.jpg","./images/photo_6_2025-08-30_17-36-31.jpg",
@@ -288,7 +322,6 @@
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
 
-    /* ============ RANDOM FABRIC ============ */
     const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
     const TAGS = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos","animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère","rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"];
     const DESCS = ["Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.","Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.","J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.","Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.","Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.","On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.","Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."];
@@ -311,7 +344,6 @@
         photos: [src]
       }));
     }
-
     function loadOrGeneratePersonas(){
       try{
         const raw = localStorage.getItem(PERSONA_CACHE_KEY);
@@ -323,7 +355,7 @@
       return generated;
     }
 
-    /* ============ STATE ============ */
+    /* ==================== STATE ==================== */
     const state = {
       step:"landing",
       filters:{ gender:"women", ageMin:18, ageMax:60, city:"" },
@@ -333,8 +365,9 @@
     };
 
     let PERSONAS = loadOrGeneratePersonas();
+    resumeIfPossible(); // reprise si on était en "browse"
 
-    /* ============ DOM HELPERS ============ */
+    /* ==================== DOM HELPERS ==================== */
     const $ = s => document.querySelector(s);
     const el = (tag, props={}, children=[])=>{
       const n=document.createElement(tag);
@@ -348,25 +381,25 @@
       return n;
     };
 
-    /* ============ BRAND HEADER ============ */
+    /* ==================== BRAND HEADER (logo seul) ==================== */
     function renderBrand(){
       const wrap = el("div",{class:"brand"});
-      const logo = el("img", { src:"./images/AdobeExpressfile-removebg-preview.png", alt:"Flamme", style:"width:28px;height:28px;object-fit:contain;display:block" });
+      const logo = el("img", { src:"./images/1756677245823-85225351.png", alt:"Logo" });
       wrap.appendChild(logo);
-      wrap.appendChild(el("h1",{text:BRAND}));
       return wrap;
     }
 
-    /* ============ RENDER ROOT ============ */
+    /* ==================== RENDER ROOT ==================== */
     function render(){
       const root = $("#app"); root.innerHTML="";
       root.appendChild(renderBrand());
       if(state.step==="landing") root.appendChild(renderLanding());
       else root.appendChild(renderBrowse());
       ensureModals(root);
+      persistStep();
     }
 
-    /* ============ LANDING ============ */
+    /* ==================== LANDING ==================== */
     function renderLanding(){
       const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
 
@@ -381,23 +414,16 @@
       // Âge min / max
       box.appendChild(el("div",{class:"label",text:"Âge"}));
       const row = el("div",{class:"row"});
-      const ageMinSel = el("select",{class:"sel"});
-      for(let a=18;a<=60;a++) ageMinSel.appendChild(el("option",{value:a,text:a}));
-      ageMinSel.value = state.filters.ageMin;
-      const ageMaxSel = el("select",{class:"sel"});
-      for(let a=18;a<=60;a++) ageMaxSel.appendChild(el("option",{value:a,text:a}));
-      ageMaxSel.value = state.filters.ageMax;
+      const ageMinSel = el("select",{class:"sel"}), ageMaxSel = el("select",{class:"sel"});
+      for(let a=18;a<=60;a++){ ageMinSel.appendChild(el("option",{value:a,text:a})); ageMaxSel.appendChild(el("option",{value:a,text:a})); }
+      ageMinSel.value = state.filters.ageMin; ageMaxSel.value = state.filters.ageMax;
       ageMinSel.onchange = ()=>{
         state.filters.ageMin = parseInt(ageMinSel.value,10);
-        if(state.filters.ageMin > state.filters.ageMax){
-          state.filters.ageMax = state.filters.ageMin; ageMaxSel.value = String(state.filters.ageMax);
-        }
+        if(state.filters.ageMin > state.filters.ageMax){ state.filters.ageMax = state.filters.ageMin; ageMaxSel.value = String(state.filters.ageMax); }
       };
       ageMaxSel.onchange = ()=>{
         state.filters.ageMax = parseInt(ageMaxSel.value,10);
-        if(state.filters.ageMax < state.filters.ageMin){
-          state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin);
-        }
+        if(state.filters.ageMax < state.filters.ageMin){ state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin); }
       };
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"Entre"}), el("div",{class:"field"}, ageMinSel) ]));
       row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
@@ -410,10 +436,9 @@
       box.appendChild(el("div",{class:"field"}, city));
 
       const cta = el("button",{class:"cta",text:"Voir les célibataires", onclick:()=>{
-        const g=state.filters.gender, a1=state.filters.ageMin, a2=state.filters.ageMax;
-        state.pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
-        if(!state.pool.length){ alert("Aucun profil trouvé. Élargis les filtres ✨"); return; }
-        // Compte & tracking
+        persistFilters();
+        state.pool = rebuildPoolFromFilters();
+        if(!state.pool.length){ alert("Aucun profil avec ces filtres pour le moment. Essaie d’élargir ✨"); return; }
         state.idx=0;
         state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
         state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
@@ -427,9 +452,19 @@
       return card;
     }
 
-    /* ============ BROWSE ============ */
+    /* ==================== BROWSE ==================== */
     function renderBrowse(){
       const card = el("div",{class:"card"});
+
+      // Empty state si plus de profils
+      if (!state.pool.length){
+        const box = el("div",{class:"welcome"});
+        box.appendChild(el("div",{class:"label",text:"Plus de profils pour l’instant 💫"}));
+        box.appendChild(el("p",{class:"hint",text:"Aucun nouveau profil avec ces filtres aujourd’hui."}));
+        box.appendChild(el("button",{class:"cta",text:"Modifier les filtres", onclick:()=>{ state.step="landing"; render(); }}));
+        card.appendChild(box);
+        return card;
+      }
 
       const meta = el("div",{class:"meta"},[
         el("div",{class:"count",text:`Likes: ${state.likesLeft} • Super-like: ${state.superLeft}`}),
@@ -452,33 +487,41 @@
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
       const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
       const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
-      // IMPORTANT: on NE désactive PAS bSLike même à 0 pour re-ouvrir la popup match
-      // on laisse aussi le LIKE cliquable pour ré-afficher la popup "Plus de likes"
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
       return card;
     }
 
-    /* ============ LOGIC ============ */
+    /* ==================== LOGIC ==================== */
     function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
     function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
     function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
-    function nextPersona(){ bumpGuard(); state.idx=(state.idx+1)%state.pool.length; track('profiles_seen'); render(); }
-    function openSuperLikeDoneModal(){ openModal("#m_superdone"); }
+
+    function showNextAfterRemoval(){
+      bumpGuard();
+      if (!state.pool.length){ render(); return; }
+      if (state.idx >= state.pool.length) state.idx = 0;
+      track('profiles_seen');
+      render();
+    }
 
     function doPass(){
-      track('pass', { persona_id: currentPersona().id });
-      nextPersona();
+      const p = currentPersona();
+      markSeen(p.id);
+      track('pass', { persona_id: p.id });
+      state.pool.splice(state.idx % state.pool.length, 1);
+      showNextAfterRemoval();
     }
 
     function like(){
-      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
       const p = currentPersona();
+      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
       state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
+      markSeen(p.id);
       track('like', { persona_id: p.id });
-      nextPersona();
-      if(state.likesLeft<=0) openNoLikesModal();
+      state.pool.splice(state.idx % state.pool.length, 1);
+      showNextAfterRemoval();
     }
 
     function superLike(){
@@ -487,19 +530,18 @@
         state.superLeft -= 1;
         localStorage.setItem(superKey, state.superLeft);
         track('super_like', { persona_id: p.id });
-        bumpGuard();
         openMatchModal(p);
+        markSeen(p.id);
+        state.pool.splice(state.idx % state.pool.length, 1);
+        showNextAfterRemoval();
         track('match', { persona_id: p.id });
       } else {
-        // plus de super-like : on n'ouvre PAS la popup Match
         track('super_like_reopen', { persona_id: p.id });
-        bumpGuard();
         openSuperLikeDoneModal();
       }
     }
 
-
-    /* ============ MODALS ============ */
+    /* ==================== MODALS ==================== */
     function ensureModals(root){
       root.appendChild(el("div",{class:"modal",id:"m_rules"},
         el("div",{class:"modal-card hot"},[
