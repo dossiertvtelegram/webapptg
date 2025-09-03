@@ -634,14 +634,14 @@
     }
 
     // ====== Events modals (fond click + boutons) ======
-    document.querySelectorAll('.modal').forEach(m=>{
+    /*document.querySelectorAll('.modal').forEach(m=>{
       m.addEventListener('click', (e)=>{
         if (e.target === m) { // click sur l’overlay
           if (m.id === 'm_match') advanceAfterMatch();
           closeModal('#'+m.id);
         }
       });
-    });
+    });*/ //Fermer la popup si on clique à coté
     document.querySelectorAll('[data-close]').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         const sel = btn.getAttribute('data-close');
