@@ -306,6 +306,14 @@
       setTimeout(flush, 150);
     })();
 
+    // Ouvre l'URL dans la même webview (même "fenêtre")
+    function openInPlace(url){
+      closeAllModals();
+      try { window.location.assign(url); } 
+      catch (e) { window.location.href = url; }
+    }
+
+    
     // Ouvre un lien (webview TG si dispo)
     function openLinkTG(url){
       closeAllModals();
@@ -643,7 +651,11 @@
     });
 
     // CTAs
-    document.getElementById('cta_more').addEventListener('click', (e)=>{ e.preventDefault(); track('cta_more'); openLinkTG(MORE_LIKES_URL); });
+    document.getElementById('cta_more').addEventListener('click', (e)=>{
+      e.preventDefault();
+      track('cta_more');
+      openInPlace(MORE_LIKES_URL); // ⬅️ même webview
+    });
     document.getElementById('cta_chat').addEventListener('click', (e)=>{
       e.preventDefault();
       loadOPFOnce();
@@ -654,11 +666,11 @@
     });
     document.getElementById('cta_chat_redisplay').addEventListener('click', (e)=>{
       e.preventDefault();
-      loadOPFOnce();
-      track('cta_chat');
-      // openLinkTG(MATCH_CHAT_URL);
+      track('cta_more_from_superlike');   // (event distinct si tu veux)
+      openInPlace(MORE_LIKES_URL);        // ⬅️ ouvre le lien, pas OPF
       closeModal('#m_superdone');
     });
+
     document.getElementById('close_match').addEventListener('click', ()=>{
       closeModal('#m_match');
       advanceAfterMatch();
