@@ -667,15 +667,15 @@
     // CTAs
     // Clics sur tes CTAs
     document.getElementById('cta_more').addEventListener('click', function(){
-      try { ttq.track('ClickButton', { content_name: 'cta_more', currency: 'EUR', value: 0 }); } catch(e){}
+      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay' });} catch(e){}
     });
     
     document.getElementById('cta_chat').addEventListener('click', function(){
-      try { ttq.track('ClickButton', { content_name: 'cta_chat', currency: 'EUR', value: 0 }); } catch(e){}
+      try { ttq.track('ClickButton', { button_name: 'cta_chat'}); } catch(e){}
     });
     
     document.getElementById('cta_chat_redisplay').addEventListener('click', function(){
-      try { ttq.track('ClickButton', { content_name: 'cta_chat_redisplay', currency: 'EUR', value: 0 }); } catch(e){}
+      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay'}); } catch(e){}
     });
     
     document.getElementById('cta_more').addEventListener('click', (e)=>{
