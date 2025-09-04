@@ -319,6 +319,8 @@
       };
       setTimeout(flush, 150);
     })();
+    
+    try { ttq.track('ViewContent'); } catch(e){}
 
     // Ouvre l'URL dans la même webview (même "fenêtre")
     function openInPlace(url){
@@ -665,6 +667,19 @@
     });
 
     // CTAs
+    // Clics sur tes CTAs
+    document.getElementById('cta_more').addEventListener('click', function(){
+      try { ttq.track('ClickButton', { content_name: 'cta_more', currency: 'EUR', value: 0 }); } catch(e){}
+    });
+    
+    document.getElementById('cta_chat').addEventListener('click', function(){
+      try { ttq.track('ClickButton', { content_name: 'cta_chat', currency: 'EUR', value: 0 }); } catch(e){}
+    });
+    
+    document.getElementById('cta_chat_redisplay').addEventListener('click', function(){
+      try { ttq.track('ClickButton', { content_name: 'cta_chat_redisplay', currency: 'EUR', value: 0 }); } catch(e){}
+    });
+    
     document.getElementById('cta_more').addEventListener('click', (e)=>{
       e.preventDefault();
       track('cta_more');
