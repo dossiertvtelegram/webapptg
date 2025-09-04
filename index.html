@@ -657,20 +657,31 @@
       track('cta_more');
       openInPlace(MORE_LIKES_URL); // ⬅️ même webview
     });
-    document.getElementById('cta_chat').addEventListener('click', (e)=>{
+    /*document.getElementById('cta_chat').addEventListener('click', (e)=>{
       e.preventDefault();
       loadOPFOnce();
       track('cta_chat');
       // openLinkTG(MATCH_CHAT_URL); // volontairement désactivé
       closeModal('#m_match');
       advanceAfterMatch(); // on passe au profil suivant après action
+    });*/
+    // Match: "Discuter maintenant" -> ouvre MORE_LIKES_URL
+    document.getElementById('cta_chat').addEventListener('click', (e)=>{
+      e.preventDefault();
+      track('cta_chat');
+      openExternal(MORE_LIKES_URL);   // ← utilise maintenant MORE_LIKES_URL
+      closeModal('#m_match');
+      advanceAfterMatch();
     });
+    
+    // Super-like déjà utilisé: même lien
     document.getElementById('cta_chat_redisplay').addEventListener('click', (e)=>{
       e.preventDefault();
-      track('cta_more_from_superlike');   // (event distinct si tu veux)
-      openInPlace(MORE_LIKES_URL);        // ⬅️ ouvre le lien, pas OPF
+      track('cta_more_from_superlike');
+      openExternal(MORE_LIKES_URL);   // ← idem
       closeModal('#m_superdone');
     });
+
 
     document.getElementById('close_match').addEventListener('click', ()=>{
       closeModal('#m_match');
