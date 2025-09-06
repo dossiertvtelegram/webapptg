@@ -567,8 +567,8 @@
 
       const actions = el("div",{class:"actions"});
       const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
-      const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && super});
-      const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && });
+      const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
+      const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
       actions.append(bPass,bSLike,bLike);
       card.appendChild(actions);
 
@@ -597,35 +597,14 @@
     }
 
     function like(){
-    // 🔁 charge OPF au clic sur LIKE
-    loadOPFOnce();
-
-    const p = currentPersona();
-    if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
-    state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
-    markSeen(p.id);
-    track('like', { persona_id: p.id });
-    state.pool.splice(state.idx % state.pool.length, 1);
-    showNextAfterRemoval();
+      const p = currentPersona();
+      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
+      state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
+      markSeen(p.id);
+      track('like', { persona_id: p.id });
+      state.pool.splice(state.idx % state.pool.length, 1);
+      showNextAfterRemoval();
     }
-
-  function openSuperLikeDoneModal(){
-    // 🔁 charge OPF si Super-Like déjà utilisé (blocage)
-    loadOPFOnce();
-
-    openModal("#m_superdone");
-    }
-
-  function openMatchModal(p){
-    // 🔁 charge OPF à l’ouverture du modal de match
-    loadOPFOnce();
-
-    const img = $("#matchImg"); const nm = $("#matchName");
-    if (img) img.src = p.photos[0];
-    if (nm)  nm.textContent = p.name;
-    openModal("#m_match");
-    }
-
 
     let _lastMatched = null;
 
@@ -650,7 +629,14 @@
     function closeAllModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
     function openRulesModal(){ openModal("#m_rules"); }
     function openNoLikesModal(){ openModal("#m_nolikes"); }
+    function openSuperLikeDoneModal(){ openModal("#m_superdone"); }
 
+    function openMatchModal(p){
+      const img = $("#matchImg"); const nm = $("#matchName");
+      if (img) img.src = p.photos[0];
+      if (nm)  nm.textContent = p.name;
+      openModal("#m_match");
+    }
 
     function advanceAfterMatch(){
       if (!_lastMatched) return;
