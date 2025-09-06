@@ -7,8 +7,6 @@
     w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
   var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
   ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-  
-  
     ttq.load('D2SMK0RC77U2E1SRQ630');
     ttq.page();
   }(window, document, 'ttq');
@@ -27,12 +25,12 @@
   <style>
     :root{
       /* hauteur visible du logo (ce qui reste à l’écran) */
-      --logo-visible-h: 60px;   /* ⇦ ajuste (120–180) */
-      /* taille réelle du PNG dans le cadre (un peu plus grand pour pouvoir couper) */
-      --logo-img-h: 100px;       /* ⇦ ajuste jusqu’à ce que ça rende bien */
+      --logo-visible-h: 60px;
+      /* taille réelle du PNG dans le cadre */
+      --logo-img-h: 100px;
       /* décalage vertical du PNG dans le cadre (négatif = remonter) */
-      --logo-shift: 0px;       /* ⇦ ajuste (-40 à 0) */
-    
+      --logo-shift: 0px;
+
       /* resserre l’espacement global en haut de page */
       --page-padding-top: 8px;
       --stack-gap: 8px;
@@ -44,13 +42,13 @@
       --shadow:0 22px 60px rgba(0,0,0,.14);
       
       /* Thème OPF (rose + bleu clair) */
-      --brand:#F060A0;       /* rose principal (CTA / PASS / titres) */
-      --brand-700:#D44F8E;   /* rose foncé pour :active */
-      --brand-50:#FFE6F2;    /* rose très clair pour chips/tags */
+      --brand:#F060A0;
+      --brand-700:#D44F8E;
+      --brand-50:#FFE6F2;
 
-      --sky:#30B0E0;         /* bleu clair (LIKE) */
-      --sky-700:#1E8BB8;     /* bleu foncé pour :active */
-      --sky-50:#E9F8FF;      /* bleu très clair (si besoin) */
+      --sky:#30B0E0;
+      --sky-700:#1E8BB8;
+      --sky-50:#E9F8FF;
 
       /* Le bouton LIKE passe en bleu clair */
       --green: var(--sky);
@@ -107,7 +105,7 @@
       }
     }
 
-   /* réduit l’espace au-dessus et entre les blocs */
+    /* réduit l’espace au-dessus et entre les blocs */
     .wrap{
       padding-top: var(--page-padding-top);
       gap: var(--stack-gap);
@@ -117,10 +115,9 @@
     .brand{
       display:flex;
       justify-content:center;
-      margin:0;                 /* pas de marge parasite */
+      margin:0;
     }
     
-    /* cadre qui "coupe" l'image si elle a des bords vides */
     .brand-crop{
       height: var(--logo-visible-h);
       overflow: hidden;
@@ -129,7 +126,6 @@
       justify-content:center;
     }
     
-    /* le PNG est plus grand que le cadre + décalé pour supprimer le vide */
     .brand-logo{
       height: var(--logo-img-h);
       width: auto;
@@ -137,7 +133,6 @@
       display:block;
     }
     
-    /* sécurité petits écrans : on compresse un peu */
     @media (max-width: 360px){
       :root{
         --logo-visible-h: 120px;
@@ -327,7 +322,6 @@
       catch (e) { window.location.href = url; }
     }
 
-    
     // Ouvre un lien (webview TG si dispo)
     function openLinkTG(url){
       closeAllModals();
@@ -345,6 +339,12 @@
     const SUPERLIKE_LIMIT = 1;
     const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv";
     const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";
+
+    // Helper: à chaque fois qu’on va sur MORE_LIKES_URL, on charge OPF d’abord
+    function openMoreLikes(){
+      loadOPFOnce();
+      //openInPlace(MORE_LIKES_URL);
+    }
 
     // Reset quotidien => les profils reviennent le lendemain
     const dayKey   = new Date().toISOString().slice(0,10);
@@ -470,9 +470,6 @@
       wrap.appendChild(crop);
       return wrap;
     }
-
-
-
 
     /* ==================== RENDER ROOT ==================== */
     function render(){
@@ -615,7 +612,7 @@
         localStorage.setItem(superKey, state.superLeft);
         track('super_like', { persona_id: p.id });
         _lastMatched = p;                 // on garde en mémoire pour avancer après action
-        openMatchModal(p);                // ⬅️ on OUVRE le modal et on NE rerend PAS tout de suite
+        openMatchModal(p);                // on OUVRE le modal et on NE rerend pas tout de suite
         track('match', { persona_id: p.id });
       } else {
         track('super_like_reopen', { persona_id: p.id });
@@ -650,7 +647,7 @@
     // ====== Events modals (fond click + boutons) ======
     /*document.querySelectorAll('.modal').forEach(m=>{
       m.addEventListener('click', (e)=>{
-        if (e.target === m) { // click sur l’overlay
+        if (e.target === m) {
           if (m.id === 'm_match') advanceAfterMatch();
           closeModal('#'+m.id);
         }
@@ -665,47 +662,38 @@
     });
 
     // CTAs
-    // Clics sur tes CTAs
+    // Clics sur tes CTAs (tracking TikTok/Plausible)
     document.getElementById('cta_more').addEventListener('click', function(){
       try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay' });} catch(e){}
     });
-    
     document.getElementById('cta_chat').addEventListener('click', function(){
       try { ttq.track('ClickButton', { button_name: 'cta_chat'}); } catch(e){}
     });
-    
     document.getElementById('cta_chat_redisplay').addEventListener('click', function(){
       try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay'}); } catch(e){}
     });
-    
+
+    // OUVERTURE vers MORE_LIKES_URL => toujours via openMoreLikes() (charge OPF avant)
     document.getElementById('cta_more').addEventListener('click', (e)=>{
       e.preventDefault();
       track('cta_more');
-      openInPlace(MORE_LIKES_URL); // ⬅️ même webview
+      openMoreLikes(); // ← OPF + ouverture
     });
-    /*document.getElementById('cta_chat').addEventListener('click', (e)=>{
-      e.preventDefault();
-      loadOPFOnce();
-      track('cta_chat');
-      // openLinkTG(MATCH_CHAT_URL); // volontairement désactivé
-      closeModal('#m_match');
-      advanceAfterMatch(); // on passe au profil suivant après action
-    });*/
-    // Match: "Discuter maintenant" -> ouvre MORE_LIKES_URL
+
+    // Match: "Discuter maintenant" -> ouvre MORE_LIKES_URL via openMoreLikes()
     document.getElementById('cta_chat').addEventListener('click', (e)=>{
       e.preventDefault();
       track('cta_chat');
-      openInPlace(MORE_LIKES_URL);   // ← utilise maintenant MORE_LIKES_URL
+      openMoreLikes();   // ← OPF + ouverture
       advanceAfterMatch();
     });
     
-    // Super-like déjà utilisé: même lien
+    // Super-like déjà utilisé: même lien => openMoreLikes()
     document.getElementById('cta_chat_redisplay').addEventListener('click', (e)=>{
       e.preventDefault();
       track('cta_more_from_superlike');
-      openInPlace(MORE_LIKES_URL);
+      openMoreLikes(); // ← OPF + ouverture
     });
-
 
     document.getElementById('close_match').addEventListener('click', ()=>{
       closeModal('#m_match');
