@@ -24,24 +24,18 @@
     
   <style>
     :root{
-      /* hauteur visible du logo (ce qui reste à l’écran) */
       --logo-visible-h: 60px;
-      /* taille réelle du PNG dans le cadre */
       --logo-img-h: 100px;
-      /* décalage vertical du PNG dans le cadre (négatif = remonter) */
       --logo-shift: 0px;
 
-      /* resserre l’espacement global en haut de page */
       --page-padding-top: 8px;
       --stack-gap: 8px;
       
-      /* Base */
       --bg:#ffffff;
       --text:#0f172a;
       --line:#e5e7eb;
       --shadow:0 22px 60px rgba(0,0,0,.14);
       
-      /* Thème OPF (rose + bleu clair) */
       --brand:#F060A0;
       --brand-700:#D44F8E;
       --brand-50:#FFE6F2;
@@ -50,14 +44,11 @@
       --sky-700:#1E8BB8;
       --sky-50:#E9F8FF;
 
-      /* Le bouton LIKE passe en bleu clair */
       --green: var(--sky);
 
-      /* Fond */
       --bg-overlay:.35;
       --bg-img:url('./images/flamme_bg_desktop.png');
 
-      /* Or (Super-Like) */
       --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
     }
 
@@ -91,8 +82,8 @@
     .bg-bokeh{
       position:absolute; inset:-20% -10%;
       background:
-        radial-gradient(600px 300px at 10% 0%, rgba(240,96,160,.12), transparent 60%), /* rose */
-        radial-gradient(700px 340px at 90% 100%, rgba(48,176,224,.12), transparent 60%); /* bleu */
+        radial-gradient(600px 300px at 10% 0%, rgba(240,96,160,.12), transparent 60%),
+        radial-gradient(700px 340px at 90% 100%, rgba(48,176,224,.12), transparent 60%);
       z-index:-1;
     }
 
@@ -105,46 +96,16 @@
       }
     }
 
-    /* réduit l’espace au-dessus et entre les blocs */
-    .wrap{
-      padding-top: var(--page-padding-top);
-      gap: var(--stack-gap);
-    }
+    .wrap{ padding-top: var(--page-padding-top); gap: var(--stack-gap); }
     
-    /* bloc logo centré */
-    .brand{
-      display:flex;
-      justify-content:center;
-      margin:0;
-    }
-    
-    .brand-crop{
-      height: var(--logo-visible-h);
-      overflow: hidden;
-      display:flex;
-      align-items: center;
-      justify-content:center;
-    }
-    
-    .brand-logo{
-      height: var(--logo-img-h);
-      width: auto;
-      transform: translateY(var(--logo-shift));
-      display:block;
-    }
-    
+    .brand{ display:flex; justify-content:center; margin:0; }
+    .brand-crop{ height: var(--logo-visible-h); overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    .brand-logo{ height: var(--logo-img-h); width:auto; transform: translateY(var(--logo-shift)); display:block; }
     @media (max-width: 360px){
-      :root{
-        --logo-visible-h: 120px;
-        --logo-img-h: 190px;
-        --logo-shift: -20px;
-      }
+      :root{ --logo-visible-h: 120px; --logo-img-h: 190px; --logo-shift: -20px; }
     }
 
-    /* Cards */
     .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
-
-    /* Accueil */
     .welcome{padding:22px 20px 22px}
     .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
     .row{display:flex;align-items:center;gap:16px}
@@ -162,7 +123,6 @@
     }
     .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
 
-    /* CTA principal (rose) */
     .cta{
       display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
       border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;
@@ -170,7 +130,6 @@
     }
     .cta:active{transform:scale(.98); background:var(--brand-700);}
 
-    /* Parcours */
     .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
     .count{font-size:14px;color:#6b7280;font-weight:800}
     .persona-box{margin:14px 14px 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid #eee}
@@ -179,35 +138,19 @@
     .persona-body{padding:12px 12px 16px}
     .title{font-weight:900;font-size:22px}
 
-    /* Tags style OPF (rose clair) */
     .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
-    .tag{
-      font-size:12px;padding:6px 10px;border-radius:999px;
-      background:var(--brand-50); color:#8a1948; border:1px solid #ffc9e2;
-    }
-
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--brand-50); color:#8a1948; border:1px solid #ffc9e2;}
     .desc{margin-top:10px;color:#374151;line-height:1.35}
 
-    /* Actions */
     .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
     .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
-
-    /* PASS = rose */
     .btn-pass{background:var(--brand);color:#fff}
     .btn-pass:active{background:var(--brand-700)}
-
-    /* SUPER-LIKE = or */
-    .btn-slike{
-      background:linear-gradient(180deg, var(--gold-200), var(--gold-500));
-      color:#fff; border:1px solid #gold-700; text-shadow:0 1px 0 rgba(255,255,255,.35)
-    }
-
-    /* LIKE = bleu clair */
+    .btn-slike{ background:linear-gradient(180deg, var(--gold-200), var(--gold-500)); color:#fff; border:1px solid #gold-700; text-shadow:0 1px 0 rgba(255,255,255,.35) }
     .btn-like{background:var(--sky);color:#fff}
     .btn-like:active{background:var(--sky-700)}
     .btn[disabled]{opacity:.6}
 
-    /* Modals (tonalité rosée) */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
     .modal.open{display:flex}
     .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #ffd1e6;padding:22px}
@@ -220,13 +163,40 @@
     .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
     .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
     .btn-primary:active{background:var(--brand-700)}
+
+    /* === Bouton Télégram flottant === */
+    .floating-tele{ 
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:16px; z-index:70; pointer-events:auto;
+    }
+    @supports(padding:max(0px)){
+      .floating-tele{ bottom:max(16px, env(safe-area-inset-bottom)); }
+    }
+    .btn-tele{
+      display:inline-flex; align-items:center; gap:8px;
+      background:linear-gradient(90deg, var(--sky), var(--brand));
+      color:#fff; border:none; text-decoration:none;
+      padding:14px 20px; border-radius:999px;
+      font-weight:900; font-size:16px; letter-spacing:.2px;
+      box-shadow:0 14px 34px rgba(240,96,160,.32), 0 10px 26px rgba(48,176,224,.25);
+      animation:bob 1.6s ease-in-out infinite, glow 2.8s ease-in-out infinite;
+    }
+    .btn-tele:active{ transform:scale(.98); }
+    @keyframes bob{
+      0%,100%{ transform:translateY(0); }
+      50%{ transform:translateY(-6px); }
+    }
+    @keyframes glow{
+      0%,100%{ box-shadow:0 14px 34px rgba(240,96,160,.32), 0 10px 26px rgba(48,176,224,.25); }
+      50%{ box-shadow:0 18px 46px rgba(240,96,160,.45), 0 14px 34px rgba(48,176,224,.35); }
+    }
   </style>
 </head>
 <body>
   <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
   <div class="wrap" id="app"></div>
 
-  <!-- ===== Modals montés une fois dans <body> (pas dans #app) ===== -->
+  <!-- ===== Modals ===== -->
   <div class="modal" id="m_rules">
     <div class="modal-card hot">
       <div class="headline">🔥 Rappel rapide</div>
@@ -315,14 +285,12 @@
       setTimeout(flush, 150);
     })();
     
-    // Ouvre l'URL dans la même webview (même "fenêtre")
     function openInPlace(url){
       closeAllModals();
       try { window.location.assign(url); } 
       catch (e) { window.location.href = url; }
     }
 
-    // Ouvre un lien (webview TG si dispo)
     function openLinkTG(url){
       closeAllModals();
       if (tg) {
@@ -334,25 +302,27 @@
     }
 
     /* ==================== CONFIG & PERSIST ==================== */
-    const BRAND = "Flamme"; // (non affiché)
+    const BRAND = "Flamme";
     const LIKE_LIMIT = 3;
     const SUPERLIKE_LIMIT = 1;
     const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv";
     const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";
 
-    // Helper: à chaque fois qu’on va sur MORE_LIKES_URL, on charge OPF d’abord
+    // <<< URL Telegram gratuit – À CHANGER ICI >>>
+    const TELEGRAM_FREE_URL = "https://t.me/tonLienIci"; // 👈 remplace par ton lien
+
     function openMoreLikes(){
       loadOPFOnce();
-      //openInPlace(MORE_LIKES_URL);
+      // ouverture volontairement désactivée
+      // openInPlace(MORE_LIKES_URL);
     }
 
-    // Reset quotidien => les profils reviennent le lendemain
     const dayKey   = new Date().toISOString().slice(0,10);
     const likesKey = `flamme_likes_${dayKey}`;
     const superKey = `flamme_super_${dayKey}`;
-    const seenKey    = `flamme_seen_${dayKey}`;  // profils vus aujourd'hui
-    const filtersKey = `flamme_filters`;         // derniers filtres choisis
-    const stepKey    = `flamme_step`;            // dernière étape (landing/browse)
+    const seenKey    = `flamme_seen_${dayKey}`;
+    const filtersKey = `flamme_filters`;
+    const stepKey    = `flamme_step`;
 
     function loadSeen(){
       try { return new Set(JSON.parse(localStorage.getItem(seenKey) || "[]")); }
@@ -387,14 +357,12 @@
 
     /* ==================== IMAGES / RANDOM FABRIC ==================== */
     const PERSONA_IMAGES = Array.from({ length: 162 }, (_, i) => `./images/${i + 1}.jpg`);
-
     const FALLBACK_IMAGES = [
       "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
     ];
-
     const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
     const TAGS = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos","animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère","rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"];
     const DESCS = ["Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.","Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.","J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.","Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.","Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.","On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.","Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."];
@@ -471,12 +439,38 @@
       return wrap;
     }
 
+    /* === CTA Telegram flottant (landing uniquement) === */
+    function mountTeleCTA(){
+      if (document.getElementById('tele_floating')) return;
+      const holder = document.createElement('div');
+      holder.id = 'tele_floating';
+      holder.className = 'floating-tele';
+      holder.innerHTML = `<a href="#" id="cta_telegram" class="btn-tele">📣 Mon Télégram Gratuit ici</a>`;
+      document.body.appendChild(holder);
+
+      document.getElementById('cta_telegram').addEventListener('click', (e)=>{
+        e.preventDefault();
+        try { ttq.track('ClickButton', { button_name: 'cta_telegram' }); } catch(e){}
+        track('cta_telegram');
+        openLinkTG(TELEGRAM_FREE_URL);
+      });
+    }
+    function unmountTeleCTA(){
+      const n = document.getElementById('tele_floating');
+      if (n) n.remove();
+    }
+
     /* ==================== RENDER ROOT ==================== */
     function render(){
       const root = $("#app"); root.innerHTML="";
       root.appendChild(renderBrand());
-      if(state.step==="landing") root.appendChild(renderLanding());
-      else root.appendChild(renderBrowse());
+      if(state.step==="landing"){
+        root.appendChild(renderLanding());
+        mountTeleCTA();          // ⇦ afficher le bouton en landing
+      } else {
+        root.appendChild(renderBrowse());
+        unmountTeleCTA();        // ⇦ cacher en browse
+      }
       persistStep();
     }
 
@@ -484,7 +478,6 @@
     function renderLanding(){
       const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
 
-      // Filtres
       box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
       const genderSel = el("select",{id:"selGender",class:"sel"});
       [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
@@ -535,7 +528,6 @@
     function renderBrowse(){
       const card = el("div",{class:"card"});
 
-      // Empty state si plus de profils
       if (!state.pool.length){
         const box = el("div",{class:"welcome"});
         box.appendChild(el("div",{class:"label",text:"Plus de profils pour l’instant 💫"}));
@@ -611,8 +603,8 @@
         state.superLeft -= 1;
         localStorage.setItem(superKey, state.superLeft);
         track('super_like', { persona_id: p.id });
-        _lastMatched = p;                 // on garde en mémoire pour avancer après action
-        openMatchModal(p);                // on OUVRE le modal et on NE rerend pas tout de suite
+        _lastMatched = p;
+        openMatchModal(p);
         track('match', { persona_id: p.id });
       } else {
         track('super_like_reopen', { persona_id: p.id });
@@ -644,15 +636,7 @@
       showNextAfterRemoval();
     }
 
-    // ====== Events modals (fond click + boutons) ======
-    /*document.querySelectorAll('.modal').forEach(m=>{
-      m.addEventListener('click', (e)=>{
-        if (e.target === m) {
-          if (m.id === 'm_match') advanceAfterMatch();
-          closeModal('#'+m.id);
-        }
-      });
-    });*/ //Fermer la popup si on clique à coté
+    // ====== Events modals ======
     document.querySelectorAll('[data-close]').forEach(btn=>{
       btn.addEventListener('click', (e)=>{
         const sel = btn.getAttribute('data-close');
@@ -661,38 +645,25 @@
       });
     });
 
-    // CTAs
-    // Clics sur tes CTAs (tracking TikTok/Plausible)
-    document.getElementById('cta_more').addEventListener('click', function(){
+    // CTAs (tracking)
+    document.getElementById('cta_more').addEventListener('click', function(e){
+      e.preventDefault();
       try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay' });} catch(e){}
-    });
-    document.getElementById('cta_chat').addEventListener('click', function(){
-      try { ttq.track('ClickButton', { button_name: 'cta_chat'}); } catch(e){}
-    });
-    document.getElementById('cta_chat_redisplay').addEventListener('click', function(){
-      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay'}); } catch(e){}
-    });
-
-    // OUVERTURE vers MORE_LIKES_URL => toujours via openMoreLikes() (charge OPF avant)
-    document.getElementById('cta_more').addEventListener('click', (e)=>{
-      e.preventDefault();
       track('cta_more');
-      openMoreLikes(); // ← OPF + ouverture
+      openMoreLikes(); // charge OPF mais ne redirige pas
     });
-
-    // Match: "Discuter maintenant" -> ouvre MORE_LIKES_URL via openMoreLikes()
-    document.getElementById('cta_chat').addEventListener('click', (e)=>{
+    document.getElementById('cta_chat').addEventListener('click', function(e){
       e.preventDefault();
+      try { ttq.track('ClickButton', { button_name: 'cta_chat'}); } catch(e){}
       track('cta_chat');
-      openMoreLikes();   // ← OPF + ouverture
+      openMoreLikes(); // idem
       advanceAfterMatch();
     });
-    
-    // Super-like déjà utilisé: même lien => openMoreLikes()
-    document.getElementById('cta_chat_redisplay').addEventListener('click', (e)=>{
+    document.getElementById('cta_chat_redisplay').addEventListener('click', function(e){
       e.preventDefault();
+      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay'}); } catch(e){}
       track('cta_more_from_superlike');
-      openMoreLikes(); // ← OPF + ouverture
+      openMoreLikes(); // idem
     });
 
     document.getElementById('close_match').addEventListener('click', ()=>{
