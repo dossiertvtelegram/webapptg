@@ -1,679 +1,162 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <!-- TikTok Pixel Code Start -->
-  <script>
-  !function (w, d, t) {
-    w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
-  var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
-  ;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-    ttq.load('D2SMK0RC77U2E1SRQ630');
-    ttq.page();
-  }(window, document, 'ttq');
-  </script>
-  <!-- TikTok Pixel Code End -->
-  
-  <!-- Plausible (events + outbound links) -->
-  <script defer data-domain="flammeapp.xyz" src="https://plausible.io/js/script.outbound-links.tagged-events.js"></script>
-
   <meta charset="utf-8" />
-  <title>Flamme — Rencontres</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="format-detection" content="telephone=no" />
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rejoins-moi sur Telegram</title>
+  <meta name="description" content="Appuie pour révéler mon lien Telegram." />
   <style>
-    :root{
-      --logo-visible-h: 60px;
-      --logo-img-h: 100px;
-      --logo-shift: 0px;
-
-      --page-padding-top: 8px;
-      --stack-gap: 8px;
-      
-      --bg:#ffffff;
-      --text:#0f172a;
-      --line:#e5e7eb;
-      --shadow:0 22px 60px rgba(0,0,0,.14);
-      
-      --brand:#F060A0;
-      --brand-700:#D44F8E;
-      --brand-50:#FFE6F2;
-
-      --sky:#30B0E0;
-      --sky-700:#1E8BB8;
-      --sky-50:#E9F8FF;
-
-      --green: var(--sky);
-
-      --bg-overlay:.35;
-      --bg-img:url('./images/flamme_bg_desktop.png');
-
-      --gold-50:#fff7da; --gold-200:#ffe8a3; --gold-400:#fbd24f; --gold-500:#f5c542; --gold-700:#d19b12;
+    :root {
+      --bg1: #0f1226; /* deep navy */
+      --bg2: #1a0f2e; /* purple night */
+      --card: rgba(255, 255, 255, 0.06);
+      --card-border: rgba(255, 255, 255, 0.15);
+      --text: #e9e9ff;
+      --muted: #b9b9d3;
+      --accent: #7c3aed; /* violet */
+      --accent-2: #22d3ee; /* cyan */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
     }
 
-    html, body { height: 100%; }
-    *{box-sizing:border-box}
-    html,body{
-      margin:0;background:var(--bg);color:var(--text);
-      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      -webkit-tap-highlight-color:transparent;
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(1200px 800px at 10% 10%, #1b0a2f55, transparent 60%),
+                  radial-gradient(900px 600px at 90% 20%, #0a3b5e55, transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow: hidden;
     }
 
-    /* BACKGROUND */
-    .bg-wrap{ position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
-    .wrap   { position:relative; z-index:1; }
+    /* Subtle animated glow blobs */
+    .glow {
+      position: fixed; inset: -20vmax; filter: blur(80px); opacity: .35; z-index: -1;
+      background: conic-gradient(from 0deg,
+        #5b21b6 0deg, #312e81 90deg, #0ea5e9 180deg, #a21caf 270deg, #5b21b6 360deg);
+      animation: rotate 22s linear infinite;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
 
-    .bg-photo{
-      position:absolute; inset:0;
-      background-image: var(--bg-img);
-      background-position:center;
-      background-size:cover;
-      filter:saturate(1.08) blur(.2px);
-      transform:scale(1.03);
-    }
-    .bg-photo::after{
-      content:"";
-      position:absolute; inset:0;
-      background:linear-gradient(0deg,
-        rgba(255,255,255,var(--bg-overlay)),
-        rgba(255,255,255,var(--bg-overlay)));
-    }
-    .bg-bokeh{
-      position:absolute; inset:-20% -10%;
-      background:
-        radial-gradient(600px 300px at 10% 0%, rgba(240,96,160,.12), transparent 60%),
-        radial-gradient(700px 340px at 90% 100%, rgba(48,176,224,.12), transparent 60%);
-      z-index:-1;
+    .card {
+      width: min(92vw, 560px);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: clamp(20px, 5vw, 36px);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
     }
 
-    .wrap{max-width:480px; margin:0 auto; min-height:100vh; padding:24px 16px 44px; display:flex; flex-direction:column; gap:16px;}
-    @supports(padding:max(0px)){
-      .wrap{
-        padding-left:max(16px,env(safe-area-inset-left));
-        padding-right:max(16px,env(safe-area-inset-right));
-        padding-bottom:max(44px,env(safe-area-inset-bottom));
-      }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.1;
+      letter-spacing: .3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    p { margin: 0 0 22px; color: var(--muted); font-size: 16px; }
+
+    .actions { display: grid; gap: 14px; margin-top: 18px; }
+
+    .btn {
+      --h: 56px;
+      height: var(--h);
+      border-radius: 14px;
+      border: 0;
+      cursor: pointer;
+      padding: 0 22px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      color: white;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 8px 20px rgba(124, 58, 237, .35), 0 2px 8px rgba(34, 211, 238, .25);
+      transition: transform .12s ease, filter .2s ease, box-shadow .2s ease;
+      position: relative;
+      overflow: hidden;
+      display: inline-grid;
+      place-items: center;
+      user-select: none;
+    }
+    .btn:hover { transform: translateY(-1px); filter: saturate(1.1); }
+    .btn:active { transform: translateY(0); filter: saturate(1); }
+
+    /* Sparkle pulse */
+    .btn::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(120px 40px at var(--x, 10%) 50%, #fff6, transparent 40%);
+      mix-blend-mode: overlay; pointer-events: none;
+      animation: sweep 3s ease-in-out infinite;
+    }
+    @keyframes sweep { 50% { --x: 90%; } }
+
+    /* First CTA big bounce */
+    #cta {
+      font-size: clamp(16px, 2.6vw, 18px);
+      text-transform: uppercase;
+      animation: pop 1.6s ease-in-out infinite;
+    }
+    @keyframes pop {
+      0%,100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(1.02); }
     }
 
-    .wrap{ padding-top: var(--page-padding-top); gap: var(--stack-gap); }
-    
-    .brand{ display:flex; justify-content:center; margin:0; }
-    .brand-crop{ height: var(--logo-visible-h); overflow:hidden; display:flex; align-items:center; justify-content:center; }
-    .brand-logo{ height: var(--logo-img-h); width:auto; transform: translateY(var(--logo-shift)); display:block; }
-    @media (max-width: 360px){
-      :root{ --logo-visible-h: 120px; --logo-img-h: 190px; --logo-shift: -20px; }
+    /* Telegram button (hidden then revealed) */
+    a.btn {
+      text-decoration: none;
     }
+    #tg { opacity: 0; transform: translateY(6px) scale(.98); pointer-events: none; }
+    #tg.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; transition: all .35s ease; }
 
-    .card{background:#fff;border-radius:22px;box-shadow:var(--shadow);border:1px solid #f3f4f6}
-    .welcome{padding:22px 20px 22px}
-    .label{font-size:16px;color:#374151;font-weight:800;margin:12px 0 10px}
-    .row{display:flex;align-items:center;gap:16px}
-    .sel,.input{
-      appearance:none;-webkit-appearance:none;background:transparent;border:none;outline:none;
-      font:inherit;font-weight:900;color:#111827;width:100%;font-size:18px;letter-spacing:.2px
-    }
-    .field{position:relative;width:100%;padding:16px 0 14px;border-bottom:2px solid var(--line)}
-    .field::after{
-      content:""; position:absolute; right:0; top:16px; width:22px; height:22px; pointer-events:none;
-      background:
-        radial-gradient(circle at 50% 45%, #6b7280 0 2px, transparent 3px),
-        linear-gradient(135deg, transparent 48%, #9ca3af 50%, transparent 52%) 3px 9px/12px 12px no-repeat;
-      opacity:.55;
-    }
-    .hint{font-size:12px;color:#9ca3af;text-align:center;margin:6px 8px 0}
-
-    .cta{
-      display:block;width:100%;margin-top:22px;background:var(--brand);color:#fff;border:none;
-      border-radius:30px;padding:18px 18px;font-weight:900;font-size:18px;letter-spacing:.2px;
-      box-shadow:0 14px 36px rgba(240,96,160,.30)
-    }
-    .cta:active{transform:scale(.98); background:var(--brand-700);}
-
-    .meta{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 0}
-    .count{font-size:14px;color:#6b7280;font-weight:800}
-    .persona-box{margin:14px 14px 0;position:relative;border-radius:18px;overflow:hidden;border:1px solid #eee}
-    .persona-img{width:100%;height:440px;object-fit:cover;display:block}
-    @media(max-width:380px){.persona-img{height:380px}}
-    .persona-body{padding:12px 12px 16px}
-    .title{font-weight:900;font-size:22px}
-
-    .tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0}
-    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:var(--brand-50); color:#8a1948; border:1px solid #ffc9e2;}
-    .desc{margin-top:10px;color:#374151;line-height:1.35}
-
-    .actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:16px}
-    .btn{padding:18px 10px;border-radius:14px;border:none;font-weight:900;font-size:16px}
-    .btn-pass{background:var(--brand);color:#fff}
-    .btn-pass:active{background:var(--brand-700)}
-    .btn-slike{ background:linear-gradient(180deg, var(--gold-200), var(--gold-500)); color:#fff; border:1px solid #gold-700; text-shadow:0 1px 0 rgba(255,255,255,.35) }
-    .btn-like{background:var(--sky);color:#fff}
-    .btn-like:active{background:var(--sky-700)}
-    .btn[disabled]{opacity:.6}
-
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.45);z-index:50}
-    .modal.open{display:flex}
-    .modal-card{max-width:460px;width:100%;background:#fff;border-radius:18px;box-shadow:var(--shadow);border:1px solid #ffd1e6;padding:22px}
-    .modal-card.hot{background: radial-gradient(120% 100% at 50% 0, #ffeaf4 0%, #fff 45%);}
-    .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
-    .headline{font-weight:900;font-size:20px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
-    .modal-hero{width:100%;border-radius:14px;overflow:hidden;margin:8px 0 12px}
-    .pulse{animation:pulse 1.2s infinite}
-    @keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-    .btn-ghost{background:#fff;border:1px solid #e5e7eb;font-weight:800;padding:10px 14px;border-radius:12px}
-    .btn-primary{background:var(--brand);color:#fff;border:none;padding:10px 14px;border-radius:12px;font-weight:900}
-    .btn-primary:active{background:var(--brand-700)}
-
-    /* === Bouton Télégram flottant === */
-    .floating-tele{ 
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:16px; z-index:70; pointer-events:auto;
-    }
-    @supports(padding:max(0px)){
-      .floating-tele{ bottom:max(16px, env(safe-area-inset-bottom)); }
-    }
-    .btn-tele{
-      display:inline-flex; align-items:center; gap:8px;
-      background:linear-gradient(90deg, var(--sky), var(--brand));
-      color:#fff; border:none; text-decoration:none;
-      padding:14px 20px; border-radius:999px;
-      font-weight:900; font-size:16px; letter-spacing:.2px;
-      box-shadow:0 14px 34px rgba(240,96,160,.32), 0 10px 26px rgba(48,176,224,.25);
-      animation:bob 1.6s ease-in-out infinite, glow 2.8s ease-in-out infinite;
-    }
-    .btn-tele:active{ transform:scale(.98); }
-    @keyframes bob{
-      0%,100%{ transform:translateY(0); }
-      50%{ transform:translateY(-6px); }
-    }
-    @keyframes glow{
-      0%,100%{ box-shadow:0 14px 34px rgba(240,96,160,.32), 0 10px 26px rgba(48,176,224,.25); }
-      50%{ box-shadow:0 18px 46px rgba(240,96,160,.45), 0 14px 34px rgba(48,176,224,.35); }
-    }
+    .note { font-size: 13px; opacity: .8; }
+    .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); margin: 18px 0; }
   </style>
 </head>
 <body>
-  <div class="bg-wrap"><div class="bg-photo"></div><div class="bg-bokeh"></div></div>
-  <div class="wrap" id="app"></div>
+  <div class="glow" aria-hidden="true"></div>
 
-  <!-- ===== Modals ===== -->
-  <div class="modal" id="m_rules">
-    <div class="modal-card hot">
-      <div class="headline">🔥 Rappel rapide</div>
-      <div>Tu démarres avec 3 Likes ❤️ et 1 Super-Like ✨. Tu pourras créer ton compte plus tard pour obtenir des likes bonus immédiatement.</div>
-      <div class="modal-actions">
-        <button class="btn-ghost" data-close="#m_rules">D’accord</button>
-      </div>
-    </div>
-  </div>
+  <main class="card" role="main">
+    <h1>Une petite surprise ✨</h1>
+    <p>Appuie sur le bouton ci‑dessous pour révéler le lien. C’est rapide 😉</p>
 
-  <div class="modal" id="m_nolikes">
-    <div class="modal-card hot">
-      <div class="headline">💔 Plus de likes</div>
-      <div>Tu as épuisé tes 3 likes. Crée ton compte maintenant pour débloquer des likes supplémentaires.</div>
-      <div class="modal-actions">
-        <a href="#" class="btn-primary pulse" id="cta_more">S’inscrire et obtenir + de likes</a>
-      </div>
+    <div class="actions">
+      <button id="cta" class="btn" type="button">CLIQUE ICI VITE</button>
+      <!--
+        🔧 Remplacez le href ci‑dessous par VOTRE lien Telegram (canal, groupe ou profil).
+        Exemple: https://t.me/monPseudo  ou  https://t.me/+inviteCode
+      -->
+      <a id="tg" class="btn" href="https://t.me/monPseudo" target="_blank" rel="noopener">MON TELEGRAM ICI</a>
     </div>
-  </div>
 
-  <div class="modal" id="m_superdone">
-    <div class="modal-card hot">
-      <div class="headline">✨ Super-Like déjà utilisé</div>
-      <div>Tu as déjà utilisé ton Super-Like du jour et obtenu ton match. Pour discuter avec lui, clique ci-dessous.</div>
-      <div class="modal-actions">
-        <a href="#" class="btn-primary pulse" id="cta_chat_redisplay">Discuter maintenant</a>
-        <button class="btn-ghost" data-close="#m_superdone">Fermer</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="m_match">
-    <div class="modal-card hot">
-      <div class="headline">🎉 Match obtenu !</div>
-      <div class="modal-hero"><img id="matchImg" src="" alt="Match" style="width:100%;display:block"/></div>
-      <div style="font-weight:800;margin-top:2px">
-        Vous avez matché avec <span id="matchName">cette personne</span> 💞
-      </div>
-      <div class="modal-actions">
-        <a href="#" class="btn-primary pulse" id="cta_chat">Discuter maintenant</a>
-        <button class="btn-ghost" data-close="#m_match" id="close_match">Fermer</button>
-      </div>
-    </div>
-  </div>
+    <div class="sep"></div>
+    <p class="note">Astuce : ajoutez cette page à votre bio / link‑in‑bio. Le second bouton s’affiche après le premier clic.</p>
+  </main>
 
   <script>
-    // Charge le script OPF une seule fois
-    function loadOPFOnce(){
-      if (window.__opf_loaded) return;
-      window.__opf_loaded = true;
-      var s = document.createElement('script');
-      s.async = true;
-      s.src = "https://c.opfourpro.net/8/js/script.js?id=Uxrss&source=00055";
-      document.head.appendChild(s);
-    }
-  </script>
+    const cta = document.getElementById('cta');
+    const tg  = document.getElementById('tg');
 
-  <script>
-    /* ==================== Telegram WebApp (plein écran) ==================== */
-    const tg = window.Telegram?.WebApp || null;
-    if (tg) {
-      try { tg.ready(); } catch (e) {}
-      const expand = () => { try { tg.expand(); } catch (e) {} };
-      expand();
-      setTimeout(expand, 200);
-      window.addEventListener('focus', expand);
-    }
+    // Reveal logic
+    cta.addEventListener('click', () => {
+      cta.disabled = true;
+      cta.style.opacity = .0;
+      cta.style.pointerEvents = 'none';
+      tg.classList.add('show');
+    });
 
-    /* ==================== Analytics (Plausible) ==================== */
-    (function(){
-      const q = [];
-      function flush(){
-        if (!window.plausible) { setTimeout(flush, 150); return; }
-        while(q.length){
-          const [name, props] = q.shift();
-          try { window.plausible(name, props ? { props } : undefined); } catch(e){}
-        }
-      }
-      window.track = function(name, props){
-        if (window.plausible) {
-          try { window.plausible(name, props ? { props } : undefined); } catch(e){}
-        } else {
-          q.push([name, props]);
-        }
-      };
-      setTimeout(flush, 150);
-    })();
-    
-    function openInPlace(url){
-      closeAllModals();
-      try { window.location.assign(url); } 
-      catch (e) { window.location.href = url; }
-    }
-
-    function openLinkTG(url){
-      closeAllModals();
-      if (tg) {
-        if (/^(tg:|https?:\/\/t\.me\/)/i.test(url)) { tg.openTelegramLink(url); return; }
-        tg.openLink(url, { try_instant_view: false });
-        return;
-      }
-      window.open(url, "_self");
-    }
-
-    /* ==================== CONFIG & PERSIST ==================== */
-    const BRAND = "Flamme";
-    const LIKE_LIMIT = 3;
-    const SUPERLIKE_LIMIT = 1;
-    const MORE_LIKES_URL = "https://go.cm-trk3.com/aff_f?h=Ufqz2x&aff_sub5=telegram&source=dossiertv";
-    const MATCH_CHAT_URL = "https://invitation.unlock-moi.net/?source=00055&premium=false";
-
-    // <<< URL Telegram gratuit – À CHANGER ICI >>>
-    const TELEGRAM_FREE_URL = "https://t.me/+kfZ-aiu0xkMyMzE0"; // 👈 remplace par ton lien
-
-    function openMoreLikes(){
-      loadOPFOnce();
-      // ouverture volontairement désactivée
-      // openInPlace(MORE_LIKES_URL);
-    }
-
-    const dayKey   = new Date().toISOString().slice(0,10);
-    const likesKey = `flamme_likes_${dayKey}`;
-    const superKey = `flamme_super_${dayKey}`;
-    const seenKey    = `flamme_seen_${dayKey}`;
-    const filtersKey = `flamme_filters`;
-    const stepKey    = `flamme_step`;
-
-    function loadSeen(){
-      try { return new Set(JSON.parse(localStorage.getItem(seenKey) || "[]")); }
-      catch(e){ return new Set(); }
-    }
-    function saveSeen(set){ try { localStorage.setItem(seenKey, JSON.stringify([...set])); } catch(e){} }
-    function markSeen(id){ const s = loadSeen(); s.add(id); saveSeen(s); }
-
-    function persistFilters(){ try { localStorage.setItem(filtersKey, JSON.stringify(state.filters)); } catch(e){} }
-    function restoreFilters(){
-      try { const f = JSON.parse(localStorage.getItem(filtersKey) || "null"); if (f) state.filters = f; } catch(e){}
-    }
-    function persistStep(){ try { localStorage.setItem(stepKey, state.step); } catch(e){} }
-
-    function rebuildPoolFromFilters(){
-      const g = state.filters.gender, a1 = state.filters.ageMin, a2 = state.filters.ageMax;
-      let pool = PERSONAS.filter(p => (g==="all"||p.gender===g) && p.age>=a1 && p.age<=a2);
-      const seen = loadSeen();
-      return pool.filter(p => !seen.has(p.id));
-    }
-    function resumeIfPossible(){
-      restoreFilters();
-      if (localStorage.getItem(stepKey) === "browse") {
-        const pool = rebuildPoolFromFilters();
-        if (pool.length) {
-          state.pool = pool; state.step = "browse";
-        }
-      }
-      state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
-      state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
-    }
-
-    /* ==================== IMAGES / RANDOM FABRIC ==================== */
-    const PERSONA_IMAGES = Array.from({ length: 162 }, (_, i) => `./images/${i + 1}.jpg`);
-    const FALLBACK_IMAGES = [
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1600&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1600&auto=format&fit=crop"
-    ];
-    const FNAMES = ["Léa","Emma","Chloé","Inès","Sarah","Camille","Luna","Manon","Zoé","Anna","Eva","Lola","Ambre","Jade","Nina","Alicia","Mila","Elisa","Noa","Romane","Léna","Clara","Hana","Aya","Maé","Tara","Maya","Carla","Sofia","Elena","Noémie","Dina","Alya","Malia","Nora","Livia","Sacha","Ava","Iris","Naïma","Salomé","Océane","Maëlle","Justine","Juliette","Pauline","Amandine","Mélissa","Margot","Maud","Charlotte","Élodie","Lucie","Adèle","Roxane","Candice","Anaïs","Laura","Marine","Mélanie","Cassandre","Estelle","Camila","Maïa","Héloïse"];
-    const TAGS = ["romantique","douce","fun","cosplay","roleplay","teasing","voyage","musique","ciné","lecture","sport","cuisine","photo","noctambule","respect","danse","yoga","gaming","art","tattoos","animaux","nature","brunch","café","sorties","karaoké","humour","ambitieuse","curieuse","sincère","rando","plage","netflix","streetwear","festivals","bien-être","jeux de société","énergie positive","minimaliste","foodie"];
-    const DESCS = ["Curieuse et positive. Ici pour un bon feeling ✨.","Fan de séries et de balades le soir.","Team respect & limites claires. On rigole, on chill.","Cosplay & papotes tardives. No pressure.","J’adore la bonne bouffe et les city-breaks.","Plutôt douce, j’aime les attentions simples.","Un peu taquine. Si la vibe passe, on voit 😉.","Musique, café et longues discussions.","Toujours partante pour un resto ou un walk.","Rires faciles, zéro drama.","Sport le matin, chill le soir.","Grande lectrice, petit cœur fondant.","Voyages improvisés et photos souvenirs.","Ambitieuse mais terre-à-terre.","Karaoké queen le vendredi soir.","Team brunch du dimanche.","Danse, bonne humeur, bonne vibe.","Créative, un brin rêveuse.","Nature & city breaks, j’aime les deux.","Netflix + plaid = bonheur.","Toujours respectueuse, toujours sincère.","Un message bienveillant fait ma journée.","Petite dose de teasing, beaucoup de respect.","Cosy nights > grosses soirées.","J’adore les chiens et les couchers de soleil.","Partenaire de jeux (de société) recherchée.","J’écris parfois, je ris souvent.","Trop de playlists, jamais assez de concerts.","Gourmande et curieuse de tout.","On garde ça simple et fun.","Discrète mais pas timide.","Je préfère la qualité à la quantité.","Toujours ok pour découvrir un nouveau café.","Roleplay soft, vibe chill, esprit ouvert."];
-
-    const rnd = (a,b)=> Math.floor(Math.random()*(b-a+1))+a;
-    const pick = arr => arr[rnd(0,arr.length-1)];
-    const pickMany = (arr,n)=>{ const c=[...arr]; const out=[]; while(n-- && c.length){ out.push(c.splice(rnd(0,c.length-1),1)[0]); } return out; };
-
-    const PERSONA_CACHE_KEY = "flamme_personas_v1_" + (PERSONA_IMAGES.join("|").length) + "_" + PERSONA_IMAGES.length;
-
-    function buildPersonasFromImages(urls){
-      const shuffled=[...urls].sort(()=>Math.random()-.5);
-      return shuffled.map((src,i)=>({
-        id:`img_${i+1}`,
-        name: pick(FNAMES),
-        gender: "women",
-        age: rnd(18,32),
-        tags: pickMany(TAGS, 3),
-        desc: pick(DESCS),
-        photos: [src]
-      }));
-    }
-    function loadOrGeneratePersonas(){
-      try{
-        const raw = localStorage.getItem(PERSONA_CACHE_KEY);
-        if(raw){ const parsed = JSON.parse(raw); if(Array.isArray(parsed) && parsed.length) return parsed; }
-      }catch(e){}
-      const base = PERSONA_IMAGES.length ? PERSONA_IMAGES : FALLBACK_IMAGES;
-      const generated = buildPersonasFromImages(base);
-      try{ localStorage.setItem(PERSONA_CACHE_KEY, JSON.stringify(generated)); }catch(e){}
-      return generated;
-    }
-
-    /* ==================== STATE ==================== */
-    const state = {
-      step:"landing",
-      filters:{ gender:"women", ageMin:18, ageMax:60, city:"" },
-      pool:[], idx:0,
-      likesLeft:LIKE_LIMIT, superLeft:SUPERLIKE_LIMIT,
-      busy:false,
-    };
-
-    let PERSONAS = loadOrGeneratePersonas();
-    resumeIfPossible();
-
-    /* ==================== DOM HELPERS ==================== */
-    const $ = s => document.querySelector(s);
-    const el = (tag, props={}, children=[])=>{
-      const n=document.createElement(tag);
-      Object.entries(props).forEach(([k,v])=>{
-        if(k==="class") n.className=v;
-        else if(k==="text") n.textContent=v;
-        else if(k.startsWith("on") && typeof v==="function") n.addEventListener(k.slice(2).toLowerCase(), v, {passive:true});
-        else n.setAttribute(k,v);
-      });
-      (Array.isArray(children)?children:[children]).filter(Boolean).forEach(c=>n.appendChild(c));
-      return n;
-    };
-
-    /* ==================== BRAND HEADER ==================== */
-    function renderBrand(){
-      const wrap = el("div",{class:"brand"});
-      const crop = el("div",{class:"brand-crop"});
-      const logo = el("img",{
-        src:"./images/1756677245823-85225351.png",
-        alt:"Logo",
-        class:"brand-logo",
-        draggable:"false",
-        decoding:"async",
-        loading:"eager"
-      });
-      crop.appendChild(logo);
-      wrap.appendChild(crop);
-      return wrap;
-    }
-
-    /* === CTA Telegram flottant (landing uniquement) === */
-    function mountTeleCTA(){
-      if (document.getElementById('tele_floating')) return;
-      const holder = document.createElement('div');
-      holder.id = 'tele_floating';
-      holder.className = 'floating-tele';
-      holder.innerHTML = `<a href="#" id="cta_telegram" class="btn-tele">📣 Mon Télégram Gratuit ici</a>`;
-      document.body.appendChild(holder);
-
-      document.getElementById('cta_telegram').addEventListener('click', (e)=>{
-        e.preventDefault();
-        try { ttq.track('ClickButton', { button_name: 'cta_telegram' }); } catch(e){}
-        track('cta_telegram');
-        openLinkTG(TELEGRAM_FREE_URL);
+    // Fancy hover highlight
+    for (const el of document.querySelectorAll('.btn')) {
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        el.style.setProperty('--x', x + '%');
       });
     }
-    function unmountTeleCTA(){
-      const n = document.getElementById('tele_floating');
-      if (n) n.remove();
-    }
-
-    /* ==================== RENDER ROOT ==================== */
-    function render(){
-      const root = $("#app"); root.innerHTML="";
-      root.appendChild(renderBrand());
-      if(state.step==="landing"){
-        root.appendChild(renderLanding());
-        mountTeleCTA();          // ⇦ afficher le bouton en landing
-      } else {
-        root.appendChild(renderBrowse());
-        unmountTeleCTA();        // ⇦ cacher en browse
-      }
-      persistStep();
-    }
-
-    /* ==================== LANDING ==================== */
-    function renderLanding(){
-      const card = el("div",{class:"card"}), box  = el("div",{class:"welcome"});
-
-      box.appendChild(el("div",{class:"label",text:"Que recherchez-vous ?"}));
-      const genderSel = el("select",{id:"selGender",class:"sel"});
-      [["women","Femme"],["men","Homme"],["all","Tout"]].forEach(([v,l])=> genderSel.appendChild(el("option",{value:v,text:l})));
-      genderSel.value = state.filters.gender;
-      genderSel.onchange = ()=> state.filters.gender = genderSel.value;
-      box.appendChild(el("div",{class:"field"}, genderSel));
-
-      box.appendChild(el("div",{class:"label",text:"Âge"}));
-      const row = el("div",{class:"row"});
-      const ageMinSel = el("select",{class:"sel"}), ageMaxSel = el("select",{class:"sel"});
-      for(let a=18;a<=60;a++){ ageMinSel.appendChild(el("option",{value:a,text:a})); ageMaxSel.appendChild(el("option",{value:a,text:a})); }
-      ageMinSel.value = state.filters.ageMin; ageMaxSel.value = state.filters.ageMax;
-      ageMinSel.onchange = ()=>{
-        state.filters.ageMin = parseInt(ageMinSel.value,10);
-        if(state.filters.ageMin > state.filters.ageMax){ state.filters.ageMax = state.filters.ageMin; ageMaxSel.value = String(state.filters.ageMax); }
-      };
-      ageMaxSel.onchange = ()=>{
-        state.filters.ageMax = parseInt(ageMaxSel.value,10);
-        if(state.filters.ageMax < state.filters.ageMin){ state.filters.ageMin = state.filters.ageMax; ageMinSel.value = String(state.filters.ageMin); }
-      };
-      row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"Entre"}), el("div",{class:"field"}, ageMinSel) ]));
-      row.appendChild(el("div",{style:"flex:1"},[ el("div",{class:"label",text:"et"}),     el("div",{class:"field"}, ageMaxSel) ]));
-      box.appendChild(row);
-
-      box.appendChild(el("div",{class:"label",text:"Dans quelle ville habitez-vous ?"}));
-      const city = el("input",{class:"input",type:"text",placeholder:"Ville (optionnel)"});
-      city.value = state.filters.city; city.oninput = ()=> state.filters.city = city.value.trim();
-      box.appendChild(el("div",{class:"field"}, city));
-
-      const cta = el("button",{class:"cta",text:"Voir les célibataires", onclick:()=>{
-        persistFilters();
-        state.pool = rebuildPoolFromFilters();
-        if(!state.pool.length){ alert("Aucun profil avec ces filtres pour le moment. Essaie d’élargir ✨"); return; }
-        state.idx=0;
-        state.likesLeft = parseInt(localStorage.getItem(likesKey) ?? LIKE_LIMIT, 10);
-        state.superLeft = parseInt(localStorage.getItem(superKey) ?? SUPERLIKE_LIMIT, 10);
-        track('filters', { gender: state.filters.gender, ageMin: state.filters.ageMin, ageMax: state.filters.ageMax, city: state.filters.city });
-        state.step="browse"; render(); openRulesModal();
-      }});
-      box.appendChild(cta);
-      box.appendChild(el("p",{class:"hint",text:"3 likes + 1 super-like par compte non créé."}));
-
-      card.appendChild(box);
-      return card;
-    }
-
-    /* ==================== BROWSE ==================== */
-    function renderBrowse(){
-      const card = el("div",{class:"card"});
-
-      if (!state.pool.length){
-        const box = el("div",{class:"welcome"});
-        box.appendChild(el("div",{class:"label",text:"Plus de profils pour l’instant 💫"}));
-        box.appendChild(el("p",{class:"hint",text:"Aucun nouveau profil avec ces filtres aujourd’hui."}));
-        box.appendChild(el("button",{class:"cta",text:"Modifier les filtres", onclick:()=>{ state.step="landing"; render(); }}));
-        card.appendChild(box);
-        return card;
-      }
-
-      const meta = el("div",{class:"meta"},[
-        el("div",{class:"count",text:`Likes: ${state.likesLeft} • Super-like: ${state.superLeft}`}),
-        el("div",{class:"count",text:`${state.filters.city?state.filters.city+" • ":""}${labelGender(state.filters.gender)} • ${state.filters.ageMin}-${state.filters.ageMax} ans`})
-      ]);
-      card.appendChild(meta);
-
-      const p = currentPersona();
-      const mediaWrap = el("div",{class:"persona-box"});
-      mediaWrap.appendChild(el("img",{class:"persona-img",src:p.photos[0],alt:p.name,loading:"eager"}));
-      card.appendChild(mediaWrap);
-
-      const body = el("div",{class:"persona-body"});
-      body.appendChild(el("div",{class:"title",text:`${p.name} • ${p.age}`}));
-      body.appendChild(el("div",{class:"tags"}, p.tags.map(t=>el("span",{class:"tag",text:t}))));
-      body.appendChild(el("div",{class:"desc",text:p.desc}));
-      card.appendChild(body);
-
-      const actions = el("div",{class:"actions"});
-      const bPass  = el("button",{class:"btn btn-pass", text:"PASS", onclick:()=>!state.busy && doPass()});
-      const bSLike = el("button",{class:"btn btn-slike",text:"SUPER LIKE", onclick:()=>!state.busy && superLike()});
-      const bLike  = el("button",{class:"btn btn-like", text:"LIKE", onclick:()=>!state.busy && like()});
-      actions.append(bPass,bSLike,bLike);
-      card.appendChild(actions);
-
-      return card;
-    }
-
-    /* ==================== LOGIC ==================== */
-    function labelGender(g){ return g==="women"?"Femmes":g==="men"?"Hommes":"Tous"; }
-    function currentPersona(){ return state.pool[state.idx % state.pool.length]; }
-    function bumpGuard(){ state.busy=true; setTimeout(()=>state.busy=false,140); }
-
-    function showNextAfterRemoval(){
-      bumpGuard();
-      if (!state.pool.length){ render(); return; }
-      if (state.idx >= state.pool.length) state.idx = 0;
-      track('profiles_seen');
-      render();
-    }
-
-    function doPass(){
-      const p = currentPersona();
-      markSeen(p.id);
-      track('pass', { persona_id: p.id });
-      state.pool.splice(state.idx % state.pool.length, 1);
-      showNextAfterRemoval();
-    }
-
-    function like(){
-      const p = currentPersona();
-      if(state.likesLeft<=0){ openNoLikesModal(); track('like_blocked'); return; }
-      state.likesLeft -= 1; localStorage.setItem(likesKey, state.likesLeft);
-      markSeen(p.id);
-      track('like', { persona_id: p.id });
-      state.pool.splice(state.idx % state.pool.length, 1);
-      showNextAfterRemoval();
-    }
-
-    let _lastMatched = null;
-
-    function superLike(){
-      const p = currentPersona();
-      if (state.superLeft > 0) {
-        state.superLeft -= 1;
-        localStorage.setItem(superKey, state.superLeft);
-        track('super_like', { persona_id: p.id });
-        _lastMatched = p;
-        openMatchModal(p);
-        track('match', { persona_id: p.id });
-      } else {
-        track('super_like_reopen', { persona_id: p.id });
-        openSuperLikeDoneModal();
-      }
-    }
-
-    /* ==================== MODALS HELPERS ==================== */
-    function openModal(sel){ const m=$(sel); if(m) m.classList.add("open"); }
-    function closeModal(sel){ const m=$(sel); if(m) m.classList.remove("open"); }
-    function closeAllModals(){ document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open')); }
-    function openRulesModal(){ openModal("#m_rules"); }
-    function openNoLikesModal(){ openModal("#m_nolikes"); }
-    function openSuperLikeDoneModal(){ openModal("#m_superdone"); }
-
-    function openMatchModal(p){
-      const img = $("#matchImg"); const nm = $("#matchName");
-      if (img) img.src = p.photos[0];
-      if (nm)  nm.textContent = p.name;
-      openModal("#m_match");
-    }
-
-    function advanceAfterMatch(){
-      if (!_lastMatched) return;
-      markSeen(_lastMatched.id);
-      const idx = state.pool.findIndex(x=>x.id===_lastMatched.id);
-      if (idx >= 0) state.pool.splice(idx,1);
-      _lastMatched = null;
-      showNextAfterRemoval();
-    }
-
-    // ====== Events modals ======
-    document.querySelectorAll('[data-close]').forEach(btn=>{
-      btn.addEventListener('click', (e)=>{
-        const sel = btn.getAttribute('data-close');
-        if (sel === '#m_match') advanceAfterMatch();
-        closeModal(sel);
-      });
-    });
-
-    // CTAs (tracking)
-    document.getElementById('cta_more').addEventListener('click', function(e){
-      e.preventDefault();
-      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay' });} catch(e){}
-      track('cta_more');
-      openMoreLikes(); // charge OPF mais ne redirige pas
-    });
-    document.getElementById('cta_chat').addEventListener('click', function(e){
-      e.preventDefault();
-      try { ttq.track('ClickButton', { button_name: 'cta_chat'}); } catch(e){}
-      track('cta_chat');
-      openMoreLikes(); // idem
-      advanceAfterMatch();
-    });
-    document.getElementById('cta_chat_redisplay').addEventListener('click', function(e){
-      e.preventDefault();
-      try { ttq.track('ClickButton', { button_name: 'cta_chat_redisplay'}); } catch(e){}
-      track('cta_more_from_superlike');
-      openMoreLikes(); // idem
-    });
-
-    document.getElementById('close_match').addEventListener('click', ()=>{
-      closeModal('#m_match');
-      advanceAfterMatch();
-    });
-
-    /* ==================== BOOT ==================== */
-    render();
-    setTimeout(()=>track('open'), 300);
   </script>
 </body>
 </html>
