@@ -3,157 +3,118 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rejoins-moi !</title>
-  <meta name="description" content="Appuie pour révéler mon lien !" />
+  <title>Rejoins ma communauté</title>
+  <meta name="description" content="Rejoins ma communauté : actus, coulisses et contenus exclusifs." />
   <style>
-    :root {
-      --bg1: #0f1226; /* deep navy */
-      --bg2: #1a0f2e; /* purple night */
-      --card: rgba(255, 255, 255, 0.06);
-      --card-border: rgba(255, 255, 255, 0.15);
-      --text: #e9e9ff;
-      --muted: #b9b9d3;
-      --accent: #7c3aed; /* violet */
-      --accent-2: #22d3ee; /* cyan */
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    :root{
+      --bg1:#0f1226; --bg2:#1a0f2e; --card:rgba(255,255,255,.06);
+      --card-border:rgba(255,255,255,.15); --text:#e9e9ff; --muted:#b9b9d3;
+      --accent:#7c3aed; --accent2:#22d3ee;
     }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      color: var(--text);
-      min-height: 100svh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(1200px 800px at 10% 10%, #1b0a2f55, transparent 60%),
-                  radial-gradient(900px 600px at 90% 20%, #0a3b5e55, transparent 60%),
-                  linear-gradient(135deg, var(--bg1), var(--bg2));
-      overflow: hidden;
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: ui-rounded, system-ui,-apple-system, Segoe UI, Roboto, Arial;
+      color:var(--text); min-height:100svh; display:grid; place-items:center;
+      background:
+        radial-gradient(1200px 800px at 10% 10%, #1b0a2f55, transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, #0a3b5e55, transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      overflow-x:hidden;
     }
-
-    /* Subtle animated glow blobs */
-    .glow {
-      position: fixed; inset: -20vmax; filter: blur(80px); opacity: .35; z-index: -1;
-      background: conic-gradient(from 0deg,
-        #5b21b6 0deg, #312e81 90deg, #0ea5e9 180deg, #a21caf 270deg, #5b21b6 360deg);
-      animation: rotate 22s linear infinite;
+    .card{
+      width:min(92vw,680px); background:var(--card); border:1px solid var(--card-border);
+      border-radius:24px; padding:clamp(22px, 5vw, 40px); backdrop-filter:blur(10px);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
-    @keyframes rotate { to { transform: rotate(360deg); } }
-
-    .card {
-      width: min(92vw, 560px);
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: clamp(20px, 5vw, 36px);
-      backdrop-filter: blur(10px);
-      box-shadow: var(--shadow);
+    h1{
+      margin:0 0 10px; font-size: clamp(28px, 5vw, 40px); line-height:1.1;
+      background:linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip:text; background-clip:text; color:transparent;
     }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(28px, 5vw, 40px);
-      line-height: 1.1;
-      letter-spacing: .3px;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      -webkit-background-clip: text; background-clip: text; color: transparent;
+    p{margin:0 0 18px; color:var(--muted)}
+    ul{margin:0 0 18px 18px; color:var(--muted)}
+    .cta{
+      display:grid; gap:12px; margin-top:18px;
     }
-    p { margin: 0 0 22px; color: var(--muted); font-size: 16px; }
-
-    .actions { display: grid; gap: 14px; margin-top: 18px; }
-
-    .btn {
-      --h: 56px;
-      height: var(--h);
-      border-radius: 14px;
-      border: 0;
-      cursor: pointer;
-      padding: 0 22px;
-      font-weight: 700;
-      letter-spacing: .3px;
-      color: white;
-      background: linear-gradient(90deg, var(--accent), var(--accent-2));
-      box-shadow: 0 8px 20px rgba(124, 58, 237, .35), 0 2px 8px rgba(34, 211, 238, .25);
-      transition: transform .12s ease, filter .2s ease, box-shadow .2s ease;
-      position: relative;
-      overflow: hidden;
-      display: inline-grid;
-      place-items: center;
-      user-select: none;
+    .btn{
+      height:56px; border-radius:14px; border:0; cursor:pointer; font-weight:700;
+      color:white; background:linear-gradient(90deg, var(--accent), var(--accent2));
+      box-shadow:0 8px 20px rgba(124,58,237,.35), 0 2px 8px rgba(34,211,238,.25);
+      transition:transform .12s ease, filter .2s ease, box-shadow .2s ease;
+      display:inline-grid; place-items:center; letter-spacing:.2px; text-decoration:none;
+      user-select:none;
     }
-    .btn:hover { transform: translateY(-1px); filter: saturate(1.1); }
-    .btn:active { transform: translateY(0); filter: saturate(1); }
-
-    /* Sparkle pulse */
-    .btn::after {
-      content: ""; position: absolute; inset: 0;
-      background: radial-gradient(120px 40px at var(--x, 10%) 50%, #fff6, transparent 40%);
-      mix-blend-mode: overlay; pointer-events: none;
-      animation: sweep 3s ease-in-out infinite;
-    }
-    @keyframes sweep { 50% { --x: 90%; } }
-
-    /* First CTA big bounce */
-    #cta {
-      font-size: clamp(16px, 2.6vw, 18px);
-      text-transform: uppercase;
-      animation: pop 1.6s ease-in-out infinite;
-    }
-    @keyframes pop {
-      0%,100% { transform: translateY(0) scale(1); }
-      50% { transform: translateY(-3px) scale(1.02); }
-    }
-
-    /* Telegram button (hidden then revealed) */
-    a.btn {
-      text-decoration: none;
-    }
-    #tg { opacity: 0; transform: translateY(6px) scale(.98); pointer-events: none; }
-    #tg.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; transition: all .35s ease; }
-
-    .note { font-size: 13px; opacity: .8; }
-    .sep { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); margin: 18px 0; }
+    .btn:hover{ transform: translateY(-1px); filter:saturate(1.1)}
+    .btn:active{ transform: translateY(0)}
+    .note{font-size:13px; opacity:.8}
+    footer{margin-top:14px; font-size:12px; color:#a7a7bf}
   </style>
+
+  <!-- Snap Pixel Code -->
+  <script type="text/javascript">
+  (function(e,t,n){
+    if(e.snaptr) return;
+    var a=e.snaptr=function(){a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
+    a.queue=[];
+    var s='script'; var r=t.createElement(s); r.async=!0;
+    r.src=n; var u=t.getElementsByTagName(s)[0];
+    u.parentNode.insertBefore(r,u);
+  })(window,document,'https://sc-static.net/scevent.min.js');
+
+  // 🔧 Remplace par ton email hashé/clair si tu l'as, sinon laisse tel quel
+  snaptr('init', '422c986d-f0dd-4b81-8096-755d96f195cd', {
+    'user_email': '__INSERT_USER_EMAIL__'
+  });
+
+  // PAGE_VIEW enrichi (une seule fois)
+  snaptr('track', 'PAGE_VIEW', {
+    'item_ids': ['INSERT_ITEM_ID_1', 'INSERT_ITEM_ID_2'],
+    'item_category': 'INSERT_ITEM_CATEGORY',
+    'uuid_c1': 'INSERT_UUID_C1'
+  });
+  </script>
+  <!-- End Snap Pixel Code -->
 </head>
 <body>
-  <div class="glow" aria-hidden="true"></div>
+  <main class="card" role="main" aria-labelledby="hero">
+    <h1 id="hero">Rejoins ma communauté</h1>
+    <p>Accède aux coulisses, actualités et contenus exclusifs. Gratuit, 2–3 messages par semaine.</p>
+    <ul>
+      <li>🗞️ Actus & coulisses</li>
+      <li>🔔 Alertes nouveautés</li>
+      <li>❌ Désinscription en 1 clic</li>
+    </ul>
 
-  <main class="card" role="main">
-    <h1>Une petite surprise ✨</h1>
-    <p>Appuie sur le bouton ci‑dessous pour révéler le lien. C’est rapide 😉</p>
-
-    <div class="actions">
-      <button id="cta" class="btn" type="button">CLIQUE ICI VITE</button>
-      <!--
-        🔧 Remplacez le href ci‑dessous par VOTRE lien Telegram (canal, groupe ou profil).
-        Exemple: https://t.me/monPseudo  ou  https://t.me/+inviteCode
-      -->
-      <a id="tg" class="btn" href="https://t.me/+82lm7hnDq3g5MWZk" target="_blank" rel="noopener">MON TELEGRAM ICI</a>
+    <div class="cta">
+      <!-- Bouton principal : ouvre Telegram dans la même page (pas de target="_blank") -->
+      <a id="btn-telegram" class="btn" href="#" rel="noopener">Ouvrir dans Telegram</a>
+      <div class="note">S’ouvre dans l’app Telegram — non affilié à Snapchat.</div>
     </div>
+
+    <footer>
+      En cliquant, vous acceptez d’ouvrir un lien externe (Telegram).
+    </footer>
   </main>
 
   <script>
-    const cta = document.getElementById('cta');
-    const tg  = document.getElementById('tg');
+    // 🔧 Mets ici TON lien Telegram (canal, groupe ou profil)
+    const TELEGRAM_URL = 'https://t.me/tonLienOuInviteCode';
 
-    // Reveal logic
-    cta.addEventListener('click', () => {
-      cta.disabled = true;
-      cta.style.opacity = .0;
-      cta.style.pointerEvents = 'none';
-      tg.classList.add('show');
+    const btn = document.getElementById('btn-telegram');
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Tracking clic CTA → SIGN_UP (méthode : telegram)
+      try {
+        snaptr('track', 'SIGN_UP', {
+          method: 'telegram',
+          link_url: TELEGRAM_URL
+        });
+      } catch(_) {}
+
+      // Navigation dans la même page (pas de target="_blank")
+      window.location.href = TELEGRAM_URL;
     });
-
-    // Fancy hover highlight
-    for (const el of document.querySelectorAll('.btn')) {
-      el.addEventListener('pointermove', (e) => {
-        const r = el.getBoundingClientRect();
-        const x = ((e.clientX - r.left) / r.width) * 100;
-        el.style.setProperty('--x', x + '%');
-      });
-    }
   </script>
 </body>
 </html>
