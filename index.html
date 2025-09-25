@@ -29,7 +29,6 @@
 
     .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-weight:800; cursor:pointer; text-align:center; width:100% }
     .btn.primary{ color:#230b14; background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 8px 22px rgba(255,77,109,0.25) }
-    .btn.secondary{ color:var(--text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1) }
 
     .steps{ display:grid; gap:8px; margin-top:4px }
     .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px }
@@ -63,7 +62,7 @@
         <div class="cta" id="explain">
           <div class="steps">
             <div class="step"><span class="num">1</span><p class="t">Appuie sur <span class="hl">Copier l’invitation</span>.</p></div>
-            <div class="step"><span class="num">2</span><p class="t">Appuie sur <span class="hl">Ouvrir le navigateur</span>.</p></div>
+            <div class="step"><span class="num">2</span><p class="t">Ouvre <span class="hl">ton navigateur</span> (Safari/Chrome).</p></div>
             <div class="step"><span class="num">3</span><p class="t">Dans la <span class="hl">barre d’adresse</span> (en haut), <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
             <div class="step"><span class="num">4</span><p class="t">Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</p></div>
           </div>
@@ -71,7 +70,6 @@
 
         <div class="cta">
           <button id="copyBtn" class="btn primary">📋 Copier l’invitation</button>
-          <button id="openBrowser" class="btn secondary">🌐 Ouvrir le navigateur</button>
         </div>
 
         <div class="cta">
@@ -90,7 +88,6 @@
     function getTg(){ return TG_PARTS.join(''); }
 
     const copyBtn = document.getElementById('copyBtn');
-    const openBrowserBtn = document.getElementById('openBrowser');
     const toast = document.getElementById('toast');
 
     function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1800); }
@@ -109,36 +106,7 @@
       }catch(e){ showToast('Copie impossible : sélectionne le lien ci-dessous'); }
     }
 
-    function isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
-    function isAndroid(){ return /Android/i.test(navigator.userAgent); }
-
-    function openExternalBrowser(){
-      // Ouvre une page neutre SANS champ de recherche Google pour éviter la confusion
-      const neutral = 'https://example.com/'; // page simple avec barre d’adresse visible
-
-      if(isAndroid()){
-        // Ouvre Chrome via intent avec une URL neutre (pas google.com)
-        const intent = 'intent://example.com/#Intent;scheme=https;package=com.android.chrome;end';
-        setTimeout(()=>{ window.location.href = neutral; }, 300);
-        window.location.href = intent;
-        return;
-      }
-
-      if(isIOS()){
-        // iOS: nouvel onglet vers une page neutre; l’utilisateur doit coller dans l’omnibox
-        const w = window.open(neutral, '_blank');
-        if(!w){ window.location.href = neutral; }
-        return;
-      }
-
-      window.location.href = neutral;
-    }
-
     copyBtn.addEventListener('click', copyInvite);
-    openBrowserBtn.addEventListener('click', () => {
-      showToast('Colle le lien dans la BARRE D’ADRESSE (pas la recherche)');
-      setTimeout(openExternalBrowser, 350);
-    });
 
     // Met le texte brut non cliquable dynamiquement
     document.getElementById('plainLink').textContent = getTg();
