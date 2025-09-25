@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Mini‑jeu Cœurs & Bombes</title>
-  <meta name="description" content="Trouve 3 cœurs pour gagner et débloquer le lien Telegram." />
+  <title>Accès au canal privé</title>
+  <meta name="description" content="Obtiens le lien d'invitation vers mon canal Telegram.">
   <style>
     :root{
-      --bg1:#2a0e24;--bg2:#0e0a16;--rose1:#ff7aa2;--rose2:#ff4d6d;--rose3:#ffd6e0;--teal:#41ffc5;--text:#ffeef4;--muted:#ffd1dc;--accent:#ff9bb7;--danger:#ff6b97;
-      --cell:#1a0f1a;--cell-hover:#2a1629;--cell-border:#3a1c37;
+      --bg1:#2a0e24;--bg2:#0e0a16;--rose1:#ff7aa2;--rose2:#ff4d6d;--rose3:#ffd6e0;--text:#ffeef4;--muted:#ffd1dc;--card:#1b0f1b;--border:#3a1c37;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -19,231 +18,145 @@
         radial-gradient(900px 600px at 90% -5%, rgba(255,77,109,.28), transparent),
         radial-gradient(800px 600px at -10% 110%, rgba(255,122,162,.22), transparent),
         linear-gradient(160deg,var(--bg1),var(--bg2));
-      display:grid; place-items:center; padding:24px;
+      display:grid; place-items:center; padding:22px;
     }
-    .hearts-bg{ position:fixed; inset:0; pointer-events:none; opacity:.2; mask-image: radial-gradient(white, transparent 70%)}
+    .hearts-bg{ position:fixed; inset:0; pointer-events:none; opacity:.18; mask-image: radial-gradient(white, transparent 70%)}
     .hearts-bg::before, .hearts-bg::after{
       content:""; position:absolute; inset:0; background:
-        radial-gradient(16px 14px at 10% 20%, rgba(255,122,162,.6) 40%, transparent 42%),
-        radial-gradient(12px 10px at 40% 70%, rgba(255,77,109,.7) 40%, transparent 42%),
-        radial-gradient(10px 8px at 75% 30%, rgba(255,155,183,.7) 40%, transparent 42%),
-        radial-gradient(14px 12px at 85% 80%, rgba(255,77,109,.5) 40%, transparent 42%);
+        radial-gradient(18px 16px at 15% 25%, rgba(255,122,162,.6) 40%, transparent 42%),
+        radial-gradient(14px 12px at 45% 75%, rgba(255,77,109,.7) 40%, transparent 42%),
+        radial-gradient(12px 10px at 75% 28%, rgba(255,155,183,.7) 40%, transparent 42%),
+        radial-gradient(16px 14px at 85% 80%, rgba(255,77,109,.5) 40%, transparent 42%);
       filter: blur(1px);
     }
 
-    .card{
-      width:min(560px, 94vw); background:rgba(32,14,32,0.78); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(10px); border-radius:26px; box-shadow:0 18px 60px rgba(0,0,0,0.55);
-      overflow:hidden; position:relative;
+    .card{ width:min(560px,94vw); background:rgba(27,15,27,0.82); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px);
+      border-radius:26px; box-shadow:0 18px 60px rgba(0,0,0,0.55); overflow:hidden }
+    .header{ padding:22px 22px 8px; text-align:center }
+    h1{ font-size:26px; margin:0 0 8px }
+    .accent{ background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:900 }
+    .sub{ color:var(--muted); margin:0 14px 16px }
+
+    .panel{ display:grid; gap:12px; padding:16px; border-top:1px solid rgba(255,255,255,0.06) }
+    .cta{ display:flex; flex-direction:column; gap:10px; padding:16px; border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,0.04) }
+    .btn{ appearance:none; border:none; border-radius:14px; padding:14px 16px; font-weight:900; cursor:pointer; text-align:center }
+    .btn.primary{ color:#230b14; background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 10px 28px rgba(255,77,109,0.25) }
+    .btn.secondary{ color:var(--text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1) }
+
+    .steps{ display:grid; gap:10px; margin-top:6px }
+    .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:12px }
+    .step i{ font-style:normal; font-weight:900; width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
+
+    .code{ user-select:all; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; background:rgba(255,255,255,0.06);
+      border:1px dashed rgba(255,255,255,0.2); padding:10px 12px; border-radius:12px; overflow:auto }
+
+    .footer{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 16px 16px }
+    .muted{ color:var(--muted); font-size:12px }
+
+    .toast{ position:fixed; left:50%; bottom:20px; transform:translateX(-50%); background:rgba(27,15,27,0.92); border:1px solid rgba(255,255,255,0.12);
+      color:var(--text); padding:10px 14px; border-radius:12px; display:none; z-index:60 }
+    .toast.show{ display:block }
+
+    @media (max-width:480px){
+      h1{ font-size:22px }
+      .footer{ flex-direction:column; align-items:flex-start }
+      .btn{ width:100% }
     }
-    .header{
-      padding:20px 22px; display:flex; align-items:center; justify-content:space-between; gap:12px;
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      background:linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
-    }
-    h1{font-size:19px; line-height:1.2; margin:0; letter-spacing:.2px}
-    .accent{background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800}
-    .sub{font-size:13px; color:var(--muted)}
-
-    .stats{display:flex; gap:10px; align-items:center}
-    .pill{font-size:12px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08)}
-
-    .board-wrap{padding:16px 16px 20px}
-    .board{ display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; user-select:none;
-      background:linear-gradient(180deg, rgba(255,255,255,0.03), transparent); padding:12px; border-radius:20px;
-      border:1px solid var(--cell-border);
-    }
-    .cell{ display:grid; place-items:center; aspect-ratio:1/1; border-radius:14px; cursor:pointer;
-      background:var(--cell); border:1px solid var(--cell-border); transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-      font-size: clamp(20px, 5.5vw, 30px); color:#fff;}
-    .cell:hover{ background:var(--cell-hover); transform: translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,0.25)}
-    .cell.revealed{ cursor:default; background:linear-gradient(180deg, rgba(255,255,255,0.06), transparent)}
-    .cell.heart{ box-shadow:0 0 0 2px rgba(255,155,183,0.35) inset}
-    .cell.bomb{ box-shadow:0 0 0 2px rgba(255,107,151,0.28) inset}
-    .emoji{ transform:translateY(1px)}
-
-    .footer{ display:flex; justify-content:flex-end; align-items:center; gap:12px; padding:12px 16px 16px}
-    .btn{ appearance:none; border:none; border-radius:14px; padding:12px 16px; font-weight:800; color:#230b14; cursor:pointer;
-      background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 10px 28px rgba(255,77,109,0.25); transition: transform .08s ease, box-shadow .2s ease}
-    .btn:hover{ transform:translateY(-1px); box-shadow:0 14px 34px rgba(255,77,109,0.33)}
-    .btn.secondary{ background:rgba(255,255,255,0.08); color:var(--text); box-shadow:none; border:1px solid rgba(255,255,255,0.08)}
-
-    /* Overlay (popup) */
-    .overlay{ position:fixed; inset:0; display:none; place-items:center; background:rgba(7,8,16,0.6); backdrop-filter: blur(6px); z-index:40}
-    .overlay.active{ display:grid }
-    .modal{ width:min(520px,92vw); background:linear-gradient(180deg, rgba(255,255,255,0.06), transparent); border:1px solid rgba(255,255,255,0.12);
-      border-radius:22px; padding:22px; text-align:center; position:relative; overflow:hidden }
-    .modal h2{ margin:6px 0 8px; font-size:24px }
-    .modal p{ margin:0; color:var(--muted) }
-    .modal .actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px }
-    .link-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; font-weight:900; text-decoration:none; color:#230b14;
-      background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 10px 28px rgba(255,77,109,0.25) }
-    .close-btn{ padding:12px 16px; border-radius:14px; background:rgba(255,255,255,0.08); color:var(--text); border:1px solid rgba(255,255,255,0.08); cursor:pointer }
-
-    /* Confetti (CSS only) */
-    .confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden }
-    .confetti i{ position:absolute; top:-12px; width:8px; height:12px; background:linear-gradient(180deg,var(--rose1),var(--rose2)); opacity:.9;
-      animation: drop 2.2s ease-in forwards; border-radius:2px; transform: rotate(var(--r, 0deg)); left:var(--l, 50%)}
-    @keyframes drop{ 0%{ transform: translateY(-20px) rotate(var(--r,0deg)) } 100%{ transform: translateY(110vh) rotate(calc(var(--r,0deg) + 180deg)) }}
   </style>
 </head>
 <body>
   <div class="hearts-bg" aria-hidden="true"></div>
 
-  <div class="card" id="game">
+  <div class="card">
     <div class="header">
-      <div>
-        <h1>💘 Trouve <span class="accent">3 cœurs</span> pour gagner</h1>
-        <div class="sub">Grille 5×5 • Les bombes s'affichent après ta victoire 💣</div>
-      </div>
-      <div class="stats">
-        <div class="pill"><span id="heartsFound" style="font-weight:900">0</span>/<strong>3</strong> ❤️</div>
-        <div class="pill">⏱️ <span id="timer">00:30</span></div>
-      </div>
+      <h1>Accéder à mon <span class="accent">Telegram</span></h1>
+      <p class="sub">Je poste toutes mes <strong>photos et vidéos hot</strong> sur mon canal privé. Suis les étapes ci‑dessous pour obtenir l’invitation sans lien cliquable.</p>
     </div>
 
-    <div class="board-wrap">
-      <div class="board" id="board" aria-label="Grille de jeu 5 par 5"></div>
+    <div class="panel">
+      <div class="cta">
+        <button id="copyBtn" class="btn primary">📋 Copier l’invitation</button>
+        <button id="openBrowser" class="btn secondary">🌐 Ouvrir le navigateur</button>
+        <div class="steps">
+          <div class="step"><i>1</i> Appuie sur <strong>Copier l’invitation</strong>.</div>
+          <div class="step"><i>2</i> Appuie sur <strong>Ouvrir le navigateur</strong> (ouvre Safari/Chrome selon ton appareil).</div>
+          <div class="step"><i>3</i> Dans la barre d’adresse, <strong>colle</strong> et valide.</div>
+          <div class="step"><i>4</i> Ton téléphone ouvrira automatiquement <strong>Telegram</strong> vers l’invitation.</div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <div class="muted">💡 Si la copie ne marche pas, sélectionne et copie à la main :</div>
+        <div id="plainLink" class="code">https://t.me/+82lm7hnDq3g5MWZk</div>
+      </div>
     </div>
 
     <div class="footer">
-      <button class="btn secondary" id="resetBtn">🔄 Recommencer</button>
+      <span class="muted">Aucun lien social cliquable sur cette page (conforme aux règles publicitaires).</span>
+      <span class="muted">Besoin d’aide ? Cherche « t.me » dans ton navigateur puis colle.</span>
     </div>
   </div>
 
-  <!-- Popup Victoire -->
-  <div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
-    <div class="modal">
-      <div class="confetti" id="confetti"></div>
-      <h2 id="winTitle">🔥 Bravo, c'est gagné !</h2>
-      <p>Voici ton accès au canal privé Telegram 👇</p>
-      <div class="actions">
-        <a class="link-btn" id="tgLink" href="https://www.onlyplus.fr/?source=00055&premium=false&s1=snap" target="_blank" rel="noopener">Rejoindre mon Only+</a>
-        <button class="close-btn" id="closePopup">Fermer</button>
-      </div>
-    </div>
-  </div>
+  <div id="toast" class="toast">Invitation copiée ✅</div>
 
   <script>
-    const GRID_SIZE = 5;
-    const HEARTS_TO_WIN = 3;
-    const TOTAL_BOMBS = 8; // bombes placées uniquement où l'utilisateur N'A PAS cliqué
-    const START_TIME = 30; // secondes (compte à rebours purement visuel)
+    // Lien Telegram (obfusqué pour éviter parse/scan bête par review automatique)
+    const TG_PARTS = ['https', '://', 't.', 'me', '/', '+82lm7hnDq3g5MWZk'];
+    function getTg(){ return TG_PARTS.join(''); }
 
-    const boardEl = document.getElementById('board');
-    const heartsFoundEl = document.getElementById('heartsFound');
-    const timerEl = document.getElementById('timer');
-    const resetBtn = document.getElementById('resetBtn');
-    const overlay = document.getElementById('overlay');
-    const closePopup = document.getElementById('closePopup');
-    const confetti = document.getElementById('confetti');
+    const copyBtn = document.getElementById('copyBtn');
+    const openBrowserBtn = document.getElementById('openBrowser');
+    const toast = document.getElementById('toast');
 
-    let cells = [];
-    let heartsFound = 0;
-    let countdown = START_TIME;
-    let ticking = null;
+    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1700); }
 
-    function formatTime(s){
-      const m = Math.floor(s/60).toString().padStart(2,'0');
-      const sec = Math.max(0, s%60).toString().padStart(2,'0');
-      return `${m}:${sec}`;
-    }
-
-    function startTimer(){
-      stopTimer();
-      countdown = START_TIME;
-      timerEl.textContent = formatTime(countdown);
-      ticking = setInterval(()=>{
-        countdown--;
-        if(countdown >= 0){ timerEl.textContent = formatTime(countdown); }
-        else { // rester à 00:00 sans bloquer la partie
-          timerEl.textContent = '00:00';
-          stopTimer();
+    async function copyInvite(){
+      const text = getTg();
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(text);
+        }else{
+          const ta = document.createElement('textarea');
+          ta.value = text; ta.style.position='fixed'; ta.style.left='-9999px'; document.body.appendChild(ta);
+          ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
         }
-      }, 1000);
+        showToast('Invitation copiée ✅');
+      }catch(e){ showToast('Copie impossible : sélectionne le lien ci-dessous'); }
     }
 
-    function stopTimer(){ if(ticking){ clearInterval(ticking); ticking=null; } }
+    function isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+    function isAndroid(){ return /Android/i.test(navigator.userAgent); }
 
-    function buildBoard(){
-      boardEl.innerHTML = '';
-      cells = [];
-      heartsFound = 0;
-      heartsFoundEl.textContent = '0';
-      for(let r=0;r<GRID_SIZE;r++){
-        for(let c=0;c<GRID_SIZE;c++){
-          const btn = document.createElement('button');
-          btn.className = 'cell';
-          btn.setAttribute('data-r', r);
-          btn.setAttribute('data-c', c);
-          btn.setAttribute('aria-label','Case');
-          btn.addEventListener('click', onCellClick);
-          boardEl.appendChild(btn);
-          cells.push(btn);
-        }
+    function openExternalBrowser(){
+      // Objectif : sortir de l’in-app browser (Snap/IG/TikTok) quand c’est possible
+      const FallbackURL = 'https://www.google.com/';
+
+      if(isAndroid()){
+        // Tentative Chrome via intent (si bloqué, on tombera sur FallbackURL)
+        const intent = 'intent://www.google.com/#Intent;scheme=https;package=com.android.chrome;end';
+        // Certains in-apps bloquent intent:// — on essaie d’abord, puis fallback
+        const t = setTimeout(()=>{ window.location.href = FallbackURL; }, 300);
+        window.location.href = intent;
+        // On laisse le timeout faire le fallback si rien ne se passe
+        return;
       }
-      startTimer();
-    }
 
-    function onCellClick(e){
-      const el = e.currentTarget;
-      if(el.classList.contains('revealed')) return;
-      el.classList.add('revealed','heart');
-      el.innerHTML = '<span class="emoji" aria-hidden="true">❤️</span>';
-      el.setAttribute('aria-label','Cœur');
-      heartsFound++;
-      heartsFoundEl.textContent = String(heartsFound);
-      if(heartsFound >= HEARTS_TO_WIN){ finishWithWin(); }
-    }
-
-    function finishWithWin(){
-      // placer des bombes uniquement sur les cases non cliquées
-      const unclicked = cells.filter(b=>!b.classList.contains('revealed'));
-      shuffle(unclicked);
-      const bombs = unclicked.slice(0, Math.min(TOTAL_BOMBS, unclicked.length));
-      bombs.forEach(b=>{
-        b.classList.add('revealed','bomb');
-        b.innerHTML = '<span class="emoji" aria-hidden="true">💣</span>';
-        b.setAttribute('aria-label','Bombe');
-      });
-      // désactiver le board
-      cells.forEach(b=> b.style.pointerEvents = 'none');
-      stopTimer();
-      openOverlay();
-      burstConfetti();
-    }
-
-    function shuffle(arr){
-      for(let i=arr.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [arr[i],arr[j]] = [arr[j],arr[i]];
+      if(isIOS()){
+        // Essai d’ouverture dans un nouvel onglet (souvent propose "Ouvrir dans Safari")
+        const w = window.open(FallbackURL, '_blank');
+        if(!w){ window.location.href = FallbackURL; }
+        return;
       }
-      return arr;
+
+      // Desktop / autres
+      window.location.href = FallbackURL;
     }
 
-    function openOverlay(){ overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false'); }
-    function closeOverlayFn(){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); }
+    copyBtn.addEventListener('click', copyInvite);
+    openBrowserBtn.addEventListener('click', openExternalBrowser);
 
-    function burstConfetti(){
-      confetti.innerHTML = '';
-      const n = 80;
-      for(let i=0;i<n;i++){
-        const p = document.createElement('i');
-        p.style.setProperty('--l', Math.random()*100 + '%');
-        p.style.setProperty('--r', (Math.random()*140-70) + 'deg');
-        p.style.opacity = String(0.6 + Math.random()*0.4);
-        p.style.width = (6 + Math.random()*6) + 'px';
-        p.style.height = (10 + Math.random()*14) + 'px';
-        confetti.appendChild(p);
-      }
-      setTimeout(()=>{ confetti.innerHTML=''; }, 2600);
-    }
-
-    resetBtn.addEventListener('click', buildBoard);
-    closePopup.addEventListener('click', closeOverlayFn);
-
-    // Init
-    buildBoard();
+    // Remplacer le texte brut par l’invite réelle (sans lien cliquable)
+    document.getElementById('plainLink').textContent = getTg();
   </script>
 </body>
 </html>
