@@ -19,10 +19,10 @@
 
     .card{ width:min(460px, 96vw); background:rgba(27,15,27,0.94); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px);
       border-radius:18px; box-shadow:0 14px 40px rgba(0,0,0,0.55); overflow:hidden }
-    .header{ padding:14px 14px 8px; text-align:center }
-    h1{ font-size:20px; margin:0 0 6px; line-height:1.15; letter-spacing:.2px }
+    .header{ padding:12px 12px 6px; text-align:center }
+    h1{ font-size:19px; margin:0 0 4px; line-height:1.12; letter-spacing:.2px }
     .accent{ background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800 }
-    .sub{ color:var(--muted); margin:0 8px 12px; font-size:13.5px; line-height:1.35 }
+    .sub{ color:var(--muted); margin:0 8px 10px; font-size:13.5px; line-height:1.35 }
 
     .panel{ display:grid; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,0.06) }
     .cta{ display:grid; gap:8px; padding:10px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.05) }
@@ -31,7 +31,7 @@
     .btn.primary{ color:#230b14; background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 8px 22px rgba(255,77,109,0.25) }
     .btn.secondary{ color:var(--text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1) }
 
-    .steps{ display:grid; gap:8px; margin-top:6px }
+    .steps{ display:grid; gap:8px; margin-top:4px }
     .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px }
     .num{ font-style:normal; font-weight:800; width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
     .t{ margin:0; line-height:1.35; font-size:14px }
@@ -45,7 +45,7 @@
     .toast.show{ display:block }
 
     @media (max-width:430px){
-      h1{ font-size:19px }
+      h1{ font-size:18px }
       .btn{ padding:13px 14px; font-size:15px }
     }
   </style>
@@ -55,15 +55,16 @@
     <div class="card">
       <div class="header">
         <h1>Accéder à mon <span class="accent">Telegram</span></h1>
-        <p class="sub">Je poste toutes mes <span class="hl">photos et vidéos hot</span> sur mon canal privé. Suis les étapes ci‑dessous pour obtenir l’invitation.</p>
+        <p class="sub">Suis ces étapes pour récupérer l’invitation (sans lien cliquable).
+          <br><span style="opacity:.9">Astuce : colle <span class="hl">dans la barre d’adresse en haut</span>, <em>pas</em> dans une zone de recherche.</span></p>
       </div>
 
       <div class="panel">
         <div class="cta" id="explain">
           <div class="steps">
             <div class="step"><span class="num">1</span><p class="t">Appuie sur <span class="hl">Copier l’invitation</span>.</p></div>
-            <div class="step"><span class="num">2</span><p class="t">Ouvre ton <span class="hl">navigateur</span> (Safari/Chrome).</p></div>
-            <div class="step"><span class="num">3</span><p class="t">Dans la barre d’adresse, <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
+            <div class="step"><span class="num">2</span><p class="t">Appuie sur <span class="hl">Ouvrir le navigateur</span>.</p></div>
+            <div class="step"><span class="num">3</span><p class="t">Dans la <span class="hl">barre d’adresse</span> (en haut), <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
             <div class="step"><span class="num">4</span><p class="t">Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</p></div>
           </div>
         </div>
@@ -92,7 +93,7 @@
     const openBrowserBtn = document.getElementById('openBrowser');
     const toast = document.getElementById('toast');
 
-    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1600); }
+    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1800); }
 
     async function copyInvite(){
       const text = getTg();
@@ -112,22 +113,32 @@
     function isAndroid(){ return /Android/i.test(navigator.userAgent); }
 
     function openExternalBrowser(){
-      const fallback = 'https://www.google.com/';
+      // Ouvre une page neutre SANS champ de recherche Google pour éviter la confusion
+      const neutral = 'https://example.com/'; // page simple avec barre d’adresse visible
+
       if(isAndroid()){
-        const intent = 'intent://www.google.com/#Intent;scheme=https;package=com.android.chrome;end';
-        const t = setTimeout(()=>{ window.location.href = fallback; }, 300);
-        window.location.href = intent; return;
-      }
-      if(isIOS()){
-        const w = window.open(fallback, '_blank');
-        if(!w){ window.location.href = fallback; }
+        // Ouvre Chrome via intent avec une URL neutre (pas google.com)
+        const intent = 'intent://example.com/#Intent;scheme=https;package=com.android.chrome;end';
+        setTimeout(()=>{ window.location.href = neutral; }, 300);
+        window.location.href = intent;
         return;
       }
-      window.location.href = fallback;
+
+      if(isIOS()){
+        // iOS: nouvel onglet vers une page neutre; l’utilisateur doit coller dans l’omnibox
+        const w = window.open(neutral, '_blank');
+        if(!w){ window.location.href = neutral; }
+        return;
+      }
+
+      window.location.href = neutral;
     }
 
     copyBtn.addEventListener('click', copyInvite);
-    openBrowserBtn.addEventListener('click', openExternalBrowser);
+    openBrowserBtn.addEventListener('click', () => {
+      showToast('Colle le lien dans la BARRE D’ADRESSE (pas la recherche)');
+      setTimeout(openExternalBrowser, 350);
+    });
 
     // Met le texte brut non cliquable dynamiquement
     document.getElementById('plainLink').textContent = getTg();
