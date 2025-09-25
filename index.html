@@ -29,10 +29,12 @@
 
     .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-weight:800; cursor:pointer; text-align:center; width:100% }
     .btn.primary{ color:#230b14; background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 8px 22px rgba(255,77,109,0.25) }
+    .btn.secondary{ color:var(--text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1) }
 
     .steps{ display:grid; gap:8px; margin-top:6px }
-    .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px; line-height:1.3; font-size:14px }
-    .step i{ font-style:normal; font-weight:800; min-width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
+    .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px }
+    .num{ font-style:normal; font-weight:800; width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
+    .t{ margin:0; line-height:1.35; font-size:14px }
     .hl{ font-weight:700; }
 
     .code{ user-select:all; font-family:ui-monospace,Menlo,Consolas,monospace; background:rgba(255,255,255,0.06);
@@ -41,12 +43,6 @@
     .toast{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:rgba(27,15,27,0.95); border:1px solid rgba(255,255,255,0.12);
       color:var(--text); padding:10px 14px; border-radius:10px; display:none; z-index:60; font-size:14px }
     .toast.show{ display:block }
-
-    /* Bottom sheet after copie */
-    .sheet{ position:fixed; left:0; right:0; bottom:-100%; background:rgba(27,15,27,0.98); border-top:1px solid rgba(255,255,255,0.12);
-      box-shadow:0 -10px 30px rgba(0,0,0,0.5); border-radius:14px 14px 0 0; padding:14px; z-index:70; transition:bottom .25s ease }
-    .sheet.show{ bottom:0 }
-    .sheet h2{ margin:4px 0 10px; font-size:16px; text-align:center }
 
     @media (max-width:430px){
       h1{ font-size:19px }
@@ -59,17 +55,22 @@
     <div class="card">
       <div class="header">
         <h1>Accéder à mon <span class="accent">Telegram</span></h1>
-        <p class="sub">Je poste toutes mes <span class="hl">photos et vidéos hot</span> sur mon canal privé. Appuie simplement sur le bouton ci‑dessous.</p>
+        <p class="sub">Je poste toutes mes <span class="hl">photos et vidéos hot</span> sur mon canal privé. Suis les étapes ci‑dessous pour obtenir l’invitation.</p>
       </div>
 
       <div class="panel">
-        <div class="cta">
-          <button id="copyOpen" class="btn primary">📋 Copier & continuer</button>
+        <div class="cta" id="explain">
           <div class="steps">
-            <div class="step"><i>1</i> Le lien est copié. Appuie sur la <span class="hl">barre d’adresse</span> en haut.</div>
-            <div class="step"><i>2</i> Choisis <span class="hl">Coller</span>, puis <span class="hl">Entrée</span>.</div>
-            <div class="step"><i>3</i> Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</div>
+            <div class="step"><span class="num">1</span><p class="t">Appuie sur <span class="hl">Copier l’invitation</span>.</p></div>
+            <div class="step"><span class="num">2</span><p class="t">Ouvre ton <span class="hl">navigateur</span> (Safari/Chrome).</p></div>
+            <div class="step"><span class="num">3</span><p class="t">Dans la barre d’adresse, <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
+            <div class="step"><span class="num">4</span><p class="t">Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</p></div>
           </div>
+        </div>
+
+        <div class="cta">
+          <button id="copyBtn" class="btn primary">📋 Copier l’invitation</button>
+          <button id="openBrowser" class="btn secondary">🌐 Ouvrir le navigateur</button>
         </div>
 
         <div class="cta">
@@ -81,23 +82,15 @@
   </div>
 
   <div id="toast" class="toast">Invitation copiée ✅</div>
-  <div id="sheet" class="sheet">
-    <h2>Maintenant, colle dans la barre d’adresse</h2>
-    <div class="steps" style="padding-bottom:10px">
-      <div class="step"><i>1</i> Appuie sur le champ d’adresse en haut de l’écran.</div>
-      <div class="step"><i>2</i> Tape <span class="hl">Coller</span> puis <span class="hl">Entrée</span>.</div>
-      <div class="step"><i>3</i> L’invitation s’ouvrira dans <span class="hl">Telegram</span>.</div>
-    </div>
-  </div>
 
   <script>
     // Lien Telegram (obfusqué pour review auto)
     const TG_PARTS = ['https','://','t.','me','/','+82lm7hnDq3g5MWZk'];
     function getTg(){ return TG_PARTS.join(''); }
 
-    const copyOpenBtn = document.getElementById('copyOpen');
+    const copyBtn = document.getElementById('copyBtn');
+    const openBrowserBtn = document.getElementById('openBrowser');
     const toast = document.getElementById('toast');
-    const sheet = document.getElementById('sheet');
 
     function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1600); }
 
@@ -115,15 +108,28 @@
       }catch(e){ showToast('Copie impossible : sélectionne le lien ci-dessous'); }
     }
 
-    function openSheet(){ sheet.classList.add('show'); }
+    function isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
+    function isAndroid(){ return /Android/i.test(navigator.userAgent); }
 
-    copyOpenBtn.addEventListener('click', async ()=>{
-      await copyInvite();
-      // On reste sur la même page / même webview, pas d'ouverture externe
-      openSheet();
-    });
+    function openExternalBrowser(){
+      const fallback = 'https://www.google.com/';
+      if(isAndroid()){
+        const intent = 'intent://www.google.com/#Intent;scheme=https;package=com.android.chrome;end';
+        const t = setTimeout(()=>{ window.location.href = fallback; }, 300);
+        window.location.href = intent; return;
+      }
+      if(isIOS()){
+        const w = window.open(fallback, '_blank');
+        if(!w){ window.location.href = fallback; }
+        return;
+      }
+      window.location.href = fallback;
+    }
 
-    // Met le texte brut non cliquable dynamiquement (évite détection simple au crawl HTML)
+    copyBtn.addEventListener('click', copyInvite);
+    openBrowserBtn.addEventListener('click', openExternalBrowser);
+
+    // Met le texte brut non cliquable dynamiquement
     document.getElementById('plainLink').textContent = getTg();
   </script>
 </body>
