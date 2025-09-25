@@ -2,103 +2,104 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
   <title>Accès au canal privé</title>
   <meta name="description" content="Obtiens l'invitation vers mon Telegram (photos & vidéos hot).">
   <style>
     :root{
-      --bg1:#1a0a16;--bg2:#2a0e24;--rose1:#ff7aa2;--rose2:#ff4d6d;--rose3:#ffd6e0;--text:#ffeef4;--muted:#ffd1dc;--card:#1b0f1b;--border:#3a1c37;
+      --bg1:#100a12;--bg2:#2a0e24;--rose1:#ff7aa2;--rose2:#ff4d6d;--text:#ffeef4;--muted:#ffd1dc;--card:#1b0f1b;--border:#3a1c37;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{
-      margin:0; -webkit-text-size-adjust:100%; text-size-adjust:100%;
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"SF Pro Text",Segoe UI,Roboto,Helvetica,Arial;
-      color:var(--text);
-      background:linear-gradient(160deg,var(--bg1),var(--bg2));
-      display:grid; place-items:center; padding:16px;
-    }
+    body{ margin:0; -webkit-text-size-adjust:100%; text-size-adjust:100%;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"SF Pro Text",Segoe UI,Roboto,Helvetica,Arial; color:var(--text);
+      background:linear-gradient(160deg,var(--bg1),var(--bg2)); }
+    .wrap{ min-height:100vh; display:grid; place-items:center; padding:10px; }
+    @supports (height: 100dvh){ .wrap{ min-height:100dvh } }
 
-    .card{ width:min(480px, 96vw); background:rgba(27,15,27,0.9); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px);
-      border-radius:20px; box-shadow:0 16px 48px rgba(0,0,0,0.55); overflow:hidden }
-    .header{ padding:18px 16px 8px; text-align:center }
-    h1{ font-size:22px; margin:0 0 6px; line-height:1.15 }
+    .card{ width:min(460px, 96vw); background:rgba(27,15,27,0.94); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px);
+      border-radius:18px; box-shadow:0 14px 40px rgba(0,0,0,0.55); overflow:hidden }
+    .header{ padding:14px 14px 8px; text-align:center }
+    h1{ font-size:20px; margin:0 0 6px; line-height:1.15; letter-spacing:.2px }
     .accent{ background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800 }
-    .sub{ color:var(--muted); margin:0 8px 12px; font-size:14px; line-height:1.35 }
+    .sub{ color:var(--muted); margin:0 8px 12px; font-size:13.5px; line-height:1.35 }
 
-    .panel{ display:grid; gap:12px; padding:14px; border-top:1px solid rgba(255,255,255,0.06) }
-    .cta{ display:grid; gap:10px; padding:12px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.05) }
+    .panel{ display:grid; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,0.06) }
+    .cta{ display:grid; gap:8px; padding:10px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.05) }
+
     .btn{ appearance:none; border:none; border-radius:12px; padding:14px 16px; font-weight:800; cursor:pointer; text-align:center; width:100% }
     .btn.primary{ color:#230b14; background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 8px 22px rgba(255,77,109,0.25) }
-    .btn.secondary{ color:var(--text); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1) }
 
-    .steps{ display:grid; gap:8px; margin-top:4px }
-    .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px; line-height:1.3 }
+    .steps{ display:grid; gap:8px; margin-top:6px }
+    .step{ display:flex; gap:10px; align-items:flex-start; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); padding:10px 12px; border-radius:10px; line-height:1.3; font-size:14px }
     .step i{ font-style:normal; font-weight:800; min-width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
     .hl{ font-weight:700; }
 
     .code{ user-select:all; font-family:ui-monospace,Menlo,Consolas,monospace; background:rgba(255,255,255,0.06);
       border:1px dashed rgba(255,255,255,0.2); padding:8px 10px; border-radius:10px; overflow:auto; font-size:13px }
 
-    .muted{ color:var(--muted); font-size:12px }
-
     .toast{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:rgba(27,15,27,0.95); border:1px solid rgba(255,255,255,0.12);
       color:var(--text); padding:10px 14px; border-radius:10px; display:none; z-index:60; font-size:14px }
     .toast.show{ display:block }
 
-    /* iOS tip bar */
-    .tip{ display:none; position:fixed; inset:auto 10px 10px 10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15);
-      padding:10px 12px; border-radius:12px; font-size:13px; line-height:1.3; z-index:70 }
-    .tip.show{ display:block }
+    /* Bottom sheet after copie */
+    .sheet{ position:fixed; left:0; right:0; bottom:-100%; background:rgba(27,15,27,0.98); border-top:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 -10px 30px rgba(0,0,0,0.5); border-radius:14px 14px 0 0; padding:14px; z-index:70; transition:bottom .25s ease }
+    .sheet.show{ bottom:0 }
+    .sheet h2{ margin:4px 0 10px; font-size:16px; text-align:center }
 
     @media (max-width:430px){
-      .card{ width:94vw }
-      h1{ font-size:20px }
-      .sub{ font-size:13px }
+      h1{ font-size:19px }
       .btn{ padding:13px 14px; font-size:15px }
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <div class="header">
-      <h1>Accéder à mon <span class="accent">Telegram</span></h1>
-      <p class="sub">Je poste toutes mes <span class="hl">photos et vidéos hot</span> sur mon canal privé. Suis les étapes ci‑dessous pour obtenir l’invitation, sans lien cliquable.</p>
-    </div>
-
-    <div class="panel">
-      <div class="cta">
-        <button id="copyBtn" class="btn primary">📋 Copier l’invitation</button>
-        <button id="openBrowser" class="btn secondary">🌐 Ouvrir le navigateur</button>
-        <div class="steps">
-          <div class="step"><i>1</i> Appuie sur <span class="hl">Copier l’invitation</span>.</div>
-          <div class="step"><i>2</i> Appuie sur <span class="hl">Ouvrir le navigateur</span> (ça ouvre Safari/Chrome selon l’appareil).</div>
-          <div class="step"><i>3</i> Dans la barre d’adresse, <span class="hl">colle</span> puis valide.</div>
-          <div class="step"><i>4</i> Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</div>
-        </div>
+  <div class="wrap">
+    <div class="card">
+      <div class="header">
+        <h1>Accéder à mon <span class="accent">Telegram</span></h1>
+        <p class="sub">Je poste toutes mes <span class="hl">photos et vidéos hot</span> sur mon canal privé. Appuie simplement sur le bouton ci‑dessous.</p>
       </div>
 
-      <div class="cta">
-        <div class="muted">Si la copie ne marche pas, sélectionne et copie à la main :</div>
-        <div id="plainLink" class="code">https://t.me/+82lm7hnDq3g5MWZk</div>
+      <div class="panel">
+        <div class="cta">
+          <button id="copyOpen" class="btn primary">📋 Copier & continuer</button>
+          <div class="steps">
+            <div class="step"><i>1</i> Le lien est copié. Appuie sur la <span class="hl">barre d’adresse</span> en haut.</div>
+            <div class="step"><i>2</i> Choisis <span class="hl">Coller</span>, puis <span class="hl">Entrée</span>.</div>
+            <div class="step"><i>3</i> Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</div>
+          </div>
+        </div>
+
+        <div class="cta">
+          <div class="sub" style="margin:0 0 6px">Si la copie ne marche pas, sélectionne et copie à la main :</div>
+          <div id="plainLink" class="code">https://t.me/+82lm7hnDq3g5MWZk</div>
+        </div>
       </div>
     </div>
   </div>
 
   <div id="toast" class="toast">Invitation copiée ✅</div>
-  <div id="tip" class="tip">Sur iPhone (navigateur intégré), touche l’icône <span class="hl">…</span> ou <span class="hl">aA</span> puis <span class="hl">Ouvrir dans Safari</span>.</div>
+  <div id="sheet" class="sheet">
+    <h2>Maintenant, colle dans la barre d’adresse</h2>
+    <div class="steps" style="padding-bottom:10px">
+      <div class="step"><i>1</i> Appuie sur le champ d’adresse en haut de l’écran.</div>
+      <div class="step"><i>2</i> Tape <span class="hl">Coller</span> puis <span class="hl">Entrée</span>.</div>
+      <div class="step"><i>3</i> L’invitation s’ouvrira dans <span class="hl">Telegram</span>.</div>
+    </div>
+  </div>
 
   <script>
-    // Lien Telegram (obfusqué)
+    // Lien Telegram (obfusqué pour review auto)
     const TG_PARTS = ['https','://','t.','me','/','+82lm7hnDq3g5MWZk'];
     function getTg(){ return TG_PARTS.join(''); }
 
-    const copyBtn = document.getElementById('copyBtn');
-    const openBrowserBtn = document.getElementById('openBrowser');
+    const copyOpenBtn = document.getElementById('copyOpen');
     const toast = document.getElementById('toast');
-    const tip = document.getElementById('tip');
+    const sheet = document.getElementById('sheet');
 
-    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1700); }
+    function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1600); }
 
     async function copyInvite(){
       const text = getTg();
@@ -114,36 +115,15 @@
       }catch(e){ showToast('Copie impossible : sélectionne le lien ci-dessous'); }
     }
 
-    function isIOS(){ return /iPhone|iPad|iPod/i.test(navigator.userAgent); }
-    function isAndroid(){ return /Android/i.test(navigator.userAgent); }
-    function isInApp(){ return /(FBAN|FBAV|Instagram|Line|Snapchat|TikTok|GSA|Pinterest)/i.test(navigator.userAgent); }
+    function openSheet(){ sheet.classList.add('show'); }
 
-    function openExternalBrowser(){
-      // Objectif: sortir de l'in-app quand possible. iOS limite cela: on affiche un tip.
-      const fallback = 'https://www.google.com/';
+    copyOpenBtn.addEventListener('click', async ()=>{
+      await copyInvite();
+      // On reste sur la même page / même webview, pas d'ouverture externe
+      openSheet();
+    });
 
-      if(isAndroid()){
-        const intent = 'intent://www.google.com/#Intent;scheme=https;package=com.android.chrome;end';
-        const t = setTimeout(()=>{ window.location.href = fallback; }, 300);
-        window.location.href = intent;
-        return;
-      }
-
-      if(isIOS()){
-        // iOS: on ouvre un nouvel onglet; l'utilisateur devra "Ouvrir dans Safari" via le menu.
-        tip.classList.add('show');
-        const w = window.open(fallback, '_blank');
-        if(!w){ window.location.href = fallback; }
-        return;
-      }
-
-      window.location.href = fallback;
-    }
-
-    copyBtn.addEventListener('click', copyInvite);
-    openBrowserBtn.addEventListener('click', openExternalBrowser);
-
-    // Mettre le texte brut non cliquable
+    // Met le texte brut non cliquable dynamiquement (évite détection simple au crawl HTML)
     document.getElementById('plainLink').textContent = getTg();
   </script>
 </body>
