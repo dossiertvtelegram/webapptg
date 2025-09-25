@@ -7,22 +7,33 @@
   <meta name="description" content="Trouve 3 cœurs pour gagner et débloquer le lien Telegram." />
   <style>
     :root{
-      --bg1:#0f1020;--bg2:#1a1446;--g1:#7c4dff;--g2:#00d4ff;--card:#121226;--text:#e8e9ff;--muted:#a9abcf;--accent:#41ffc5;--danger:#ff5c8a;
-      --cell:#171737;--cell-hover:#22224a;--cell-border:#2b2b59;
+      --bg1:#2a0e24;--bg2:#0e0a16;--rose1:#ff7aa2;--rose2:#ff4d6d;--rose3:#ffd6e0;--teal:#41ffc5;--text:#ffeef4;--muted:#ffd1dc;--accent:#ff9bb7;--danger:#ff6b97;
+      --cell:#1a0f1a;--cell-hover:#2a1629;--cell-border:#3a1c37;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
       color:var(--text);
-      background: radial-gradient(1200px 800px at 80% -10%,rgba(124,77,255,0.3),transparent),
-                  radial-gradient(800px 600px at -10% 120%, rgba(0,212,255,0.25), transparent),
-                  linear-gradient(160deg,var(--bg1),var(--bg2));
+      background:
+        radial-gradient(900px 600px at 90% -5%, rgba(255,77,109,.28), transparent),
+        radial-gradient(800px 600px at -10% 110%, rgba(255,122,162,.22), transparent),
+        linear-gradient(160deg,var(--bg1),var(--bg2));
       display:grid; place-items:center; padding:24px;
     }
+    .hearts-bg{ position:fixed; inset:0; pointer-events:none; opacity:.2; mask-image: radial-gradient(white, transparent 70%)}
+    .hearts-bg::before, .hearts-bg::after{
+      content:""; position:absolute; inset:0; background:
+        radial-gradient(16px 14px at 10% 20%, rgba(255,122,162,.6) 40%, transparent 42%),
+        radial-gradient(12px 10px at 40% 70%, rgba(255,77,109,.7) 40%, transparent 42%),
+        radial-gradient(10px 8px at 75% 30%, rgba(255,155,183,.7) 40%, transparent 42%),
+        radial-gradient(14px 12px at 85% 80%, rgba(255,77,109,.5) 40%, transparent 42%);
+      filter: blur(1px);
+    }
+
     .card{
-      width:min(680px, 92vw); background:rgba(18,18,38,0.85); border:1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(8px); border-radius:24px; box-shadow:0 20px 60px rgba(0,0,0,0.45);
+      width:min(560px, 94vw); background:rgba(32,14,32,0.78); border:1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px); border-radius:26px; box-shadow:0 18px 60px rgba(0,0,0,0.55);
       overflow:hidden; position:relative;
     }
     .header{
@@ -30,94 +41,73 @@
       border-bottom:1px solid rgba(255,255,255,0.06);
       background:linear-gradient(180deg, rgba(255,255,255,0.05), transparent);
     }
-    h1{font-size:20px; line-height:1.2; margin:0; letter-spacing:.2px}
+    h1{font-size:19px; line-height:1.2; margin:0; letter-spacing:.2px}
+    .accent{background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800}
     .sub{font-size:13px; color:var(--muted)}
+
     .stats{display:flex; gap:10px; align-items:center}
     .pill{font-size:12px; padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08)}
-    .accent{background:linear-gradient(90deg,var(--g1),var(--g2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:700}
 
-    .board-wrap{padding:18px 18px 22px}
-    .board{
-      display:grid; grid-template-columns: repeat(10, 1fr); gap:8px; user-select:none;
+    .board-wrap{padding:16px 16px 20px}
+    .board{ display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; user-select:none;
       background:linear-gradient(180deg, rgba(255,255,255,0.03), transparent); padding:12px; border-radius:20px;
       border:1px solid var(--cell-border);
     }
-    .cell{
-      display:grid; place-items:center; aspect-ratio:1/1; border-radius:14px; cursor:pointer;
+    .cell{ display:grid; place-items:center; aspect-ratio:1/1; border-radius:14px; cursor:pointer;
       background:var(--cell); border:1px solid var(--cell-border); transition:transform .08s ease, background .2s ease, box-shadow .2s ease;
-      font-size: clamp(18px, 3.5vw, 28px);
-      color:#fff;
-    }
+      font-size: clamp(20px, 5.5vw, 30px); color:#fff;}
     .cell:hover{ background:var(--cell-hover); transform: translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,0.25)}
     .cell.revealed{ cursor:default; background:linear-gradient(180deg, rgba(255,255,255,0.06), transparent)}
-
-    .cell.heart{ box-shadow:0 0 0 2px rgba(65,255,197,0.25) inset}
-    .cell.bomb{ box-shadow:0 0 0 2px rgba(255,92,138,0.22) inset}
+    .cell.heart{ box-shadow:0 0 0 2px rgba(255,155,183,0.35) inset}
+    .cell.bomb{ box-shadow:0 0 0 2px rgba(255,107,151,0.28) inset}
     .emoji{ transform:translateY(1px)}
 
-    .footer{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:14px 18px 18px}
-    .btn{ appearance:none; border:none; border-radius:14px; padding:12px 16px; font-weight:700; color:#0b0b16; cursor:pointer;
-      background:linear-gradient(90deg,var(--g1),var(--g2)); box-shadow:0 10px 28px rgba(0,212,255,0.25); transition: transform .08s ease, box-shadow .2s ease}
-    .btn:hover{ transform:translateY(-1px); box-shadow:0 14px 34px rgba(0,212,255,0.33)}
+    .footer{ display:flex; justify-content:flex-end; align-items:center; gap:12px; padding:12px 16px 16px}
+    .btn{ appearance:none; border:none; border-radius:14px; padding:12px 16px; font-weight:800; color:#230b14; cursor:pointer;
+      background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 10px 28px rgba(255,77,109,0.25); transition: transform .08s ease, box-shadow .2s ease}
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 14px 34px rgba(255,77,109,0.33)}
     .btn.secondary{ background:rgba(255,255,255,0.08); color:var(--text); box-shadow:none; border:1px solid rgba(255,255,255,0.08)}
 
     /* Overlay (popup) */
     .overlay{ position:fixed; inset:0; display:none; place-items:center; background:rgba(7,8,16,0.6); backdrop-filter: blur(6px); z-index:40}
     .overlay.active{ display:grid }
-    .modal{ width:min(560px,92vw); background:linear-gradient(180deg, rgba(255,255,255,0.06), transparent); border:1px solid rgba(255,255,255,0.12);
+    .modal{ width:min(520px,92vw); background:linear-gradient(180deg, rgba(255,255,255,0.06), transparent); border:1px solid rgba(255,255,255,0.12);
       border-radius:22px; padding:22px; text-align:center; position:relative; overflow:hidden }
     .modal h2{ margin:6px 0 8px; font-size:24px }
     .modal p{ margin:0; color:var(--muted) }
     .modal .actions{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:16px }
-    .link-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; font-weight:800; text-decoration:none; color:#0b0b16;
-      background:linear-gradient(90deg,var(--g1),var(--g2)); box-shadow:0 10px 28px rgba(0,212,255,0.25) }
+    .link-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 16px; border-radius:14px; font-weight:900; text-decoration:none; color:#230b14;
+      background:linear-gradient(90deg,var(--rose1),var(--rose2)); box-shadow:0 10px 28px rgba(255,77,109,0.25) }
     .close-btn{ padding:12px 16px; border-radius:14px; background:rgba(255,255,255,0.08); color:var(--text); border:1px solid rgba(255,255,255,0.08); cursor:pointer }
 
     /* Confetti (CSS only) */
     .confetti{ position:absolute; inset:0; pointer-events:none; overflow:hidden }
-    .confetti i{ position:absolute; top:-12px; width:8px; height:12px; background:linear-gradient(180deg,var(--g1),var(--g2)); opacity:.9;
+    .confetti i{ position:absolute; top:-12px; width:8px; height:12px; background:linear-gradient(180deg,var(--rose1),var(--rose2)); opacity:.9;
       animation: drop 2.2s ease-in forwards; border-radius:2px; transform: rotate(var(--r, 0deg)); left:var(--l, 50%)}
     @keyframes drop{ 0%{ transform: translateY(-20px) rotate(var(--r,0deg)) } 100%{ transform: translateY(110vh) rotate(calc(var(--r,0deg) + 180deg)) }}
-
-    /* Badges */
-    .badges{ display:flex; gap:8px; align-items:center }
-    .badge{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px dashed rgba(255,255,255,0.16); color:var(--muted) }
-    .counter{ font-weight:800 }
-
-    /* Small */
-    @media (max-width:480px){
-      .header{ flex-direction:column; align-items:flex-start }
-      .footer{ flex-direction:column; align-items:stretch }
-      .btn{ width:100% }
-    }
   </style>
 </head>
 <body>
+  <div class="hearts-bg" aria-hidden="true"></div>
+
   <div class="card" id="game">
     <div class="header">
       <div>
-        <h1>🎯 Trouve <span class="accent">3 cœurs</span> pour gagner</h1>
-        <div class="sub">Grille 10×10 • Les bombes s'afficheront après ta victoire 💣</div>
+        <h1>💘 Trouve <span class="accent">3 cœurs</span> pour gagner</h1>
+        <div class="sub">Grille 5×5 • Les bombes s'affichent après ta victoire 💣</div>
       </div>
       <div class="stats">
-        <div class="pill"><span class="counter" id="heartsFound">0</span>/<strong>3</strong> ❤️</div>
-        <div class="pill">💣 cachées</div>
+        <div class="pill"><span id="heartsFound" style="font-weight:900">0</span>/<strong>3</strong> ❤️</div>
+        <div class="pill">⏱️ <span id="timer">00:30</span></div>
       </div>
     </div>
 
     <div class="board-wrap">
-      <div class="board" id="board" aria-label="Grille de jeu 10 par 10"></div>
+      <div class="board" id="board" aria-label="Grille de jeu 5 par 5"></div>
     </div>
 
     <div class="footer">
-      <div class="badges">
-        <span class="badge">Ultra simple</span>
-        <span class="badge">Optimisé mobile</span>
-        <span class="badge">Chargement instantané</span>
-      </div>
-      <div>
-        <button class="btn secondary" id="resetBtn">🔄 Recommencer</button>
-      </div>
+      <button class="btn secondary" id="resetBtn">🔄 Recommencer</button>
     </div>
   </div>
 
@@ -125,10 +115,9 @@
   <div class="overlay" id="overlay" aria-hidden="true" role="dialog" aria-labelledby="winTitle">
     <div class="modal">
       <div class="confetti" id="confetti"></div>
-      <h2 id="winTitle">🔥 Bravo, tu as gagné !</h2>
+      <h2 id="winTitle">🔥 Bravo, c'est gagné !</h2>
       <p>Voici ton accès au canal privé Telegram 👇</p>
       <div class="actions">
-        <!-- ⚠️ Remplace l'URL ci-dessous par ton lien Telegram -->
         <a class="link-btn" id="tgLink" href="https://t.me/+82lm7hnDq3g5MWZk" target="_blank" rel="noopener">Rejoindre sur Telegram</a>
         <button class="close-btn" id="closePopup">Fermer</button>
       </div>
@@ -136,30 +125,51 @@
   </div>
 
   <script>
-    const GRID_SIZE = 10;
+    const GRID_SIZE = 5;
     const HEARTS_TO_WIN = 3;
-    const TOTAL_BOMBS = 22; // Bombes affichées après la victoire (placées uniquement là où l'utilisateur n'a pas cliqué)
+    const TOTAL_BOMBS = 8; // bombes placées uniquement où l'utilisateur N'A PAS cliqué
+    const START_TIME = 30; // secondes (compte à rebours purement visuel)
 
     const boardEl = document.getElementById('board');
     const heartsFoundEl = document.getElementById('heartsFound');
+    const timerEl = document.getElementById('timer');
     const resetBtn = document.getElementById('resetBtn');
     const overlay = document.getElementById('overlay');
     const closePopup = document.getElementById('closePopup');
     const confetti = document.getElementById('confetti');
 
-    let clicked = new Set();
-    let heartsFound = 0;
     let cells = [];
+    let heartsFound = 0;
+    let countdown = START_TIME;
+    let ticking = null;
 
-    function cellId(r,c){ return `${r}-${c}` }
+    function formatTime(s){
+      const m = Math.floor(s/60).toString().padStart(2,'0');
+      const sec = Math.max(0, s%60).toString().padStart(2,'0');
+      return `${m}:${sec}`;
+    }
+
+    function startTimer(){
+      stopTimer();
+      countdown = START_TIME;
+      timerEl.textContent = formatTime(countdown);
+      ticking = setInterval(()=>{
+        countdown--;
+        if(countdown >= 0){ timerEl.textContent = formatTime(countdown); }
+        else { // rester à 00:00 sans bloquer la partie
+          timerEl.textContent = '00:00';
+          stopTimer();
+        }
+      }, 1000);
+    }
+
+    function stopTimer(){ if(ticking){ clearInterval(ticking); ticking=null; } }
 
     function buildBoard(){
       boardEl.innerHTML = '';
       cells = [];
-      clicked.clear();
       heartsFound = 0;
       heartsFoundEl.textContent = '0';
-
       for(let r=0;r<GRID_SIZE;r++){
         for(let c=0;c<GRID_SIZE;c++){
           const btn = document.createElement('button');
@@ -167,60 +177,40 @@
           btn.setAttribute('data-r', r);
           btn.setAttribute('data-c', c);
           btn.setAttribute('aria-label','Case');
-          btn.addEventListener('click', onCellClick, { once:false });
+          btn.addEventListener('click', onCellClick);
           boardEl.appendChild(btn);
           cells.push(btn);
         }
       }
+      startTimer();
     }
 
     function onCellClick(e){
       const el = e.currentTarget;
       if(el.classList.contains('revealed')) return;
-
-      // Rig: toute case cliquée devient un cœur ✅
       el.classList.add('revealed','heart');
       el.innerHTML = '<span class="emoji" aria-hidden="true">❤️</span>';
       el.setAttribute('aria-label','Cœur');
-      clicked.add(cellId(+el.dataset.r, +el.dataset.c));
-
       heartsFound++;
       heartsFoundEl.textContent = String(heartsFound);
-
-      if(heartsFound >= HEARTS_TO_WIN){
-        finishWithWin();
-      }
+      if(heartsFound >= HEARTS_TO_WIN){ finishWithWin(); }
     }
 
     function finishWithWin(){
-      // Placer les bombes UNIQUEMENT là où l'utilisateur n'a pas cliqué
-      const unclickedCells = cells.filter(b=>!b.classList.contains('revealed'));
-
-      // Mélanger puis prendre TOTAL_BOMBS éléments (ou moins si pas assez)
-      shuffle(unclickedCells);
-      const bombs = unclickedCells.slice(0, Math.min(TOTAL_BOMBS, unclickedCells.length));
-
+      // placer des bombes uniquement sur les cases non cliquées
+      const unclicked = cells.filter(b=>!b.classList.contains('revealed'));
+      shuffle(unclicked);
+      const bombs = unclicked.slice(0, Math.min(TOTAL_BOMBS, unclicked.length));
       bombs.forEach(b=>{
         b.classList.add('revealed','bomb');
         b.innerHTML = '<span class="emoji" aria-hidden="true">💣</span>';
         b.setAttribute('aria-label','Bombe');
       });
-
-      // Désactiver toutes les cases
+      // désactiver le board
       cells.forEach(b=> b.style.pointerEvents = 'none');
-
-      // Afficher la popup (les bombes sont déjà visibles derrière)
+      stopTimer();
       openOverlay();
       burstConfetti();
-    }
-
-    function openOverlay(){
-      overlay.classList.add('active');
-      overlay.setAttribute('aria-hidden','false');
-    }
-    function closeOverlay(){
-      overlay.classList.remove('active');
-      overlay.setAttribute('aria-hidden','true');
     }
 
     function shuffle(arr){
@@ -231,24 +221,26 @@
       return arr;
     }
 
+    function openOverlay(){ overlay.classList.add('active'); overlay.setAttribute('aria-hidden','false'); }
+    function closeOverlayFn(){ overlay.classList.remove('active'); overlay.setAttribute('aria-hidden','true'); }
+
     function burstConfetti(){
       confetti.innerHTML = '';
-      const n = 90;
+      const n = 80;
       for(let i=0;i<n;i++){
         const p = document.createElement('i');
         p.style.setProperty('--l', Math.random()*100 + '%');
-        p.style.setProperty('--r', (Math.random()*120-60) + 'deg');
+        p.style.setProperty('--r', (Math.random()*140-70) + 'deg');
         p.style.opacity = String(0.6 + Math.random()*0.4);
         p.style.width = (6 + Math.random()*6) + 'px';
         p.style.height = (10 + Math.random()*14) + 'px';
         confetti.appendChild(p);
       }
-      // Nettoyage après animation
       setTimeout(()=>{ confetti.innerHTML=''; }, 2600);
     }
 
     resetBtn.addEventListener('click', buildBoard);
-    closePopup.addEventListener('click', closeOverlay);
+    closePopup.addEventListener('click', closeOverlayFn);
 
     // Init
     buildBoard();
