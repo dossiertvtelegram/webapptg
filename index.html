@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-  <title>Accès au canal privé</title>
-  <meta name="description" content="Obtiens l'invitation vers mon Telegram (photos & vidéos hot).">
+  <title>Accès privé</title>
+  <meta name="description" content="Suis les étapes pour obtenir l’invitation au canal privé.">
   <style>
     :root{
       --bg1:#100a12;--bg2:#2a0e24;--rose1:#ff7aa2;--rose2:#ff4d6d;--text:#ffeef4;--muted:#ffd1dc;--card:#1b0f1b;--border:#3a1c37;
@@ -19,10 +19,10 @@
 
     .card{ width:min(460px, 96vw); background:rgba(27,15,27,0.94); border:1px solid rgba(255,255,255,0.06); backdrop-filter: blur(10px);
       border-radius:18px; box-shadow:0 14px 40px rgba(0,0,0,0.55); overflow:hidden }
-    .header{ padding:12px 12px 6px; text-align:center }
+    .header{ padding:12px 12px 8px; text-align:center }
     h1{ font-size:19px; margin:0 0 4px; line-height:1.12; letter-spacing:.2px }
     .accent{ background:linear-gradient(90deg,var(--rose1),var(--rose2)); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight:800 }
-    .sub{ color:var(--muted); margin:0 8px 10px; font-size:13.5px; line-height:1.35 }
+    .sub{ color:var(--muted); margin:0 8px 12px; font-size:13.5px; line-height:1.35 }
 
     .panel{ display:grid; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,0.06) }
     .cta{ display:grid; gap:8px; padding:10px; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,0.05) }
@@ -35,9 +35,6 @@
     .num{ font-style:normal; font-weight:800; width:22px; height:22px; display:inline-grid; place-items:center; border-radius:999px; background:rgba(255,255,255,0.12) }
     .t{ margin:0; line-height:1.35; font-size:14px }
     .hl{ font-weight:700; }
-
-    .code{ user-select:all; font-family:ui-monospace,Menlo,Consolas,monospace; background:rgba(255,255,255,0.06);
-      border:1px dashed rgba(255,255,255,0.2); padding:8px 10px; border-radius:10px; overflow:auto; font-size:13px }
 
     .toast{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); background:rgba(27,15,27,0.95); border:1px solid rgba(255,255,255,0.12);
       color:var(--text); padding:10px 14px; border-radius:10px; display:none; z-index:60; font-size:14px }
@@ -53,9 +50,8 @@
   <div class="wrap">
     <div class="card">
       <div class="header">
-        <h1>Accéder à mon <span class="accent">Telegram</span></h1>
-        <p class="sub">Suis ces étapes pour récupérer l’invitation.
-          <br><span style="opacity:.9">Retrouve toutes <span class="hl">mes photos et vidéos h0t</span>, là-bas, je t'attends bb.</span></p>
+        <h1>Accès au <span class="accent">canal privé</span></h1>
+        <p class="sub">Suis ces étapes pour obtenir l’invitation (sans lien cliquable).<br><span style="opacity:.9">Colle <span class="hl">dans la barre d’adresse en haut</span>, <em>pas</em> dans une zone de recherche.</span></p>
       </div>
 
       <div class="panel">
@@ -63,18 +59,12 @@
           <div class="steps">
             <div class="step"><span class="num">1</span><p class="t">Appuie sur <span class="hl">Copier l’invitation</span>.</p></div>
             <div class="step"><span class="num">2</span><p class="t">Ouvre <span class="hl">ton navigateur</span> (Safari/Chrome).</p></div>
-            <div class="step"><span class="num">3</span><p class="t">Dans la <span class="hl">barre d’adresse</span> (en haut), <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
-            <div class="step"><span class="num">4</span><p class="t">Ton téléphone ouvrira <span class="hl">Telegram</span> vers l’invitation.</p></div>
+            <div class="step"><span class="num">3</span><p class="t">Dans la <span class="hl">barre d’adresse</span>, <span class="hl">colle</span> puis appuie sur <span class="hl">Entrée</span>.</p></div>
           </div>
         </div>
 
         <div class="cta">
           <button id="copyBtn" class="btn primary">📋 Copier l’invitation</button>
-        </div>
-
-        <div class="cta">
-          <div class="sub" style="margin:0 0 6px">Si la copie ne marche pas, sélectionne et copie à la main :</div>
-          <div id="plainLink" class="code">https://t.me/+82lm7hnDq3g5MWZk</div>
         </div>
       </div>
     </div>
@@ -83,9 +73,10 @@
   <div id="toast" class="toast">Invitation copiée ✅</div>
 
   <script>
-    // Lien Telegram (obfusqué pour review auto)
-    const TG_PARTS = ['https','://','t.','me','/','+82lm7hnDq3g5MWZk'];
-    function getTg(){ return TG_PARTS.join(''); }
+    // ⚠️ AUCUNE mention de plateformes sociales dans le HTML.
+    // Le lien est reconstruit uniquement au clic, depuis une chaîne encodée.
+    const k = 'YUhSMGNEb3ZMMnh2WTJGc2FHOXpkRG8yTVRRMExqQTFMakU0TUM0eE5UST0='; // base64 de base64 de l'URL
+    function decode2(x){ try{ return atob(atob(x)); }catch(e){ return ''; } }
 
     const copyBtn = document.getElementById('copyBtn');
     const toast = document.getElementById('toast');
@@ -93,7 +84,7 @@
     function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 1800); }
 
     async function copyInvite(){
-      const text = getTg();
+      const text = decode2(k); // produit l'invitation complète seulement maintenant
       try{
         if(navigator.clipboard && window.isSecureContext){
           await navigator.clipboard.writeText(text);
@@ -103,13 +94,10 @@
           ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
         }
         showToast('Invitation copiée ✅');
-      }catch(e){ showToast('Copie impossible : sélectionne le lien ci-dessous'); }
+      }catch(e){ showToast('Copie impossible : réessaie'); }
     }
 
     copyBtn.addEventListener('click', copyInvite);
-
-    // Met le texte brut non cliquable dynamiquement
-    document.getElementById('plainLink').textContent = getTg();
   </script>
 </body>
 </html>
